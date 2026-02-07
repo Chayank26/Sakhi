@@ -1,4 +1,6 @@
 const jobRoutes = require("./routes/jobs");
+const forumRoutes = require("./routes/forum");
+
 
 
 const express=require('express')
@@ -16,6 +18,8 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use('/api/auth',require('./routes/auth'))
 app.use("/api/jobs", jobRoutes);
+app.use("/api/forum", forumRoutes);
+
 
 
 app.listen(5000,()=>console.log('Server running on port 5000'))

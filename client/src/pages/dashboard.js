@@ -17,7 +17,8 @@ function Dashboard() {
             Govt Schemes
         </button>
 
-        <button>Community Forum</button>
+        <button onClick={() => navigate("/forum")}>Community Forum</button>
+
         <button>Verified Resources</button>
       </div>
 

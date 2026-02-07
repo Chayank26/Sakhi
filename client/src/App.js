@@ -14,6 +14,11 @@ import Jobs from "./pages/jobs";
 import Postjob from "./pages/postjob";
 import Applyjob from "./pages/applyjob";
 
+import Forum from "./pages/forum";
+import Createpost from "./pages/createpost";
+import Myposts from "./pages/myposts";
+
+
 
 
 function App() {
@@ -38,24 +43,40 @@ function App() {
         />
 
         <Route
-        path="/govtschemes"
-        element={token ? <Govtschemes /> : <Navigate to="/login" />}
+          path="/govtschemes"
+          element={token ? <Govtschemes /> : <Navigate to="/login" />}
         />
 
         <Route
-        path="/jobs"
-        element={token ? <Jobs /> : <Navigate to="/login" />}
+          path="/jobs"
+          element={token ? <Jobs /> : <Navigate to="/login" />}
         />
 
         <Route
-        path="/postjob"
-        element={token ? <Postjob /> : <Navigate to="/login" />}
+          path="/postjob"
+          element={token ? <Postjob /> : <Navigate to="/login" />}
         />
 
         <Route
-        path="/applyjob/:id"
-        element={token ? <Applyjob /> : <Navigate to="/login" />}
+          path="/applyjob/:id"
+          element={token ? <Applyjob /> : <Navigate to="/login" />}
         />
+
+        <Route
+          path="/forum"
+          element={token ? <Forum /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/createpost"
+          element={token ? <Createpost /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/myposts"
+          element={token ? <Myposts /> : <Navigate to="/login" />}
+        />
+
 
 
       </Routes>

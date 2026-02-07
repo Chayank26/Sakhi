@@ -73,7 +73,18 @@ function Home() {
             access govt schemes
         </button>
 
-        <button onClick={handleFeatureClick}>community forum</button>
+        <button
+          onClick={() => {
+            if (token) {
+              navigate("/forum");
+            } else {
+              navigate("/login");
+            }
+          }}
+        >
+          community forum
+        </button>
+
         <button onClick={handleFeatureClick}>
           verified resource directory
         </button>
