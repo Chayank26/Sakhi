@@ -1,5 +1,7 @@
 const jobRoutes = require("./routes/jobs");
 const forumRoutes = require("./routes/forum");
+const chatbotRoutes = require("./routes/chatbot");
+
 
 
 
@@ -19,6 +21,7 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/auth',require('./routes/auth'))
 app.use("/api/jobs", jobRoutes);
 app.use("/api/forum", forumRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 
 

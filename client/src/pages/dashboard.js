@@ -19,7 +19,10 @@ function Dashboard() {
 
         <button onClick={() => navigate("/forum")}>Community Forum</button>
 
-        <button>Verified Resources</button>
+        <button onClick={() => navigate("/resources")}>
+          Verified Resources
+        </button>
+
       </div>
 
       <div style={{ marginTop: "40px" }}>

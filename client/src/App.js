@@ -18,8 +18,9 @@ import Forum from "./pages/forum";
 import Createpost from "./pages/createpost";
 import Myposts from "./pages/myposts";
 
+import Resources from "./pages/resources";
 
-
+import Chatbot from "./pages/chatbot";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -77,6 +78,15 @@ function App() {
           element={token ? <Myposts /> : <Navigate to="/login" />}
         />
 
+        <Route
+          path="/resources"
+          element={token ? <Resources /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/chatbot"
+          element={token ? <Chatbot /> : <Navigate to="/login" />}
+        />
 
 
       </Routes>

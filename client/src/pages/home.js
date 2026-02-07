@@ -85,13 +85,32 @@ function Home() {
           community forum
         </button>
 
-        <button onClick={handleFeatureClick}>
+         <button
+          onClick={() => {
+            if (token) {
+              navigate("/resources");
+            } else {
+              navigate("/login");
+            }
+          }}
+        >
           verified resource directory
         </button>
       </div>
 
       <div style={{ textAlign: "center", marginTop: "60px" }}>
-        <button onClick={handleFeatureClick}>talk to a sakhi</button>
+        <button
+          onClick={() => {
+            if (token) {
+              navigate("/chatbot");
+            } else {
+              navigate("/login");
+            }
+          }}
+        >
+          talk to a sakhi
+        </button>
+
       </div>
     </div>
   );
