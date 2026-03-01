@@ -1,70 +1,148 @@
-# Getting Started with Create React App
+# Sakhi – A Digital Support Platform for Women
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Sakhi is a full-stack web platform designed to provide women with a secure, supportive, and accessible digital space. It centralizes access to job opportunities, community interaction, verified resources, and emergency support features within a unified ecosystem.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Project Overview
 
-### `npm start`
+Many digital resources for women are fragmented, unverified, or unsafe. Sakhi addresses this gap by offering:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Secure authentication  
+- Community discussion forum  
+- Job opportunity listings with application system  
+- Emergency SOS feature (simulated)  
+- Verified resource directory  
+- Clean and accessible user interface  
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The goal is to create a trusted and inclusive digital ecosystem for women.
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Problem Statement
 
-### `npm run build`
+Women often face fragmented access to essential resources such as employment opportunities, government schemes, and safe community support. Existing platforms are either unsafe, unverified, or scattered across multiple sources, making it difficult to seek help quickly and securely.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Target Users
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### College Student
+Age: 18–23  
+Goals: Find internships/jobs, seek guidance  
+Pain Points: Unsafe platforms, lack of verified information  
 
-### `npm run eject`
+### Working Professional
+Age: 23–35  
+Goals: Community interaction, career growth  
+Pain Points: Limited trusted networks  
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Homemaker
+Age: 25–45  
+Goals: Access government schemes and support  
+Pain Points: Lack of awareness and digital guidance  
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Tech Stack
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Frontend
+- React (Create React App)
+- Axios
+- Responsive UI Design
 
-## Learn More
+### Backend
+- Node.js
+- Express.js
+- JWT Authentication
+- Bcrypt Password Hashing
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Database
+- MongoDB Atlas
+- Mongoose ODM
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### External Services
+- Nodemailer (Email notifications)
+- Multer (File uploads)
 
-### Code Splitting
+### Development & Deployment
+- Docker (Containerized development setup)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+# Software Design
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Architecture Style
 
-### Making a Progressive Web App
+Sakhi follows a Layered Client–Server Architecture. The React frontend acts as the presentation layer and communicates with the Express backend through RESTful APIs. The backend is internally structured into routes, controllers, services, middleware, and the data layer managed by MongoDB. This separation of concerns promotes maintainability, scalability, and low coupling between components.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## Design Principles Applied
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Abstraction is achieved by separating authentication, business logic, and database operations into distinct layers. Modularity is maintained by organizing features such as authentication, jobs, forum, and resources into independent modules. High cohesion is ensured by assigning each module a single, well-defined responsibility. Low coupling is preserved by allowing communication between components only through defined APIs and middleware layers, enabling future feature expansion without major restructuring.
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## High-Level Architecture Components
 
-### `npm run build` fails to minify
+Presentation Layer:
+- React UI components
+- Protected routes
+- API communication
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Application Layer:
+- Express server
+- Routes
+- Controllers
+- Services
+- Middleware (JWT authentication, error handling, validation)
+
+Data Layer:
+- MongoDB Atlas
+- Mongoose models (User, Job, Post, Application)
+
+External Services:
+- Nodemailer
+- Multer
+
+---
+
+## Key Design Decisions
+
+1. JWT-based authentication was implemented to enable stateless and scalable user sessions.
+2. Authentication logic was separated into middleware to reduce coupling between security and business logic.
+3. Business logic is handled within service layers instead of controllers to improve abstraction and maintainability.
+4. MongoDB was chosen for its flexible schema design suited for dynamic content such as posts and job listings.
+5. External services for email and file handling were modularized to prevent tight integration with core logic.
+
+---
+
+## Success Metrics
+
+- Number of registered users
+- Active community participation
+- User retention rate
+- Successful simulated SOS activations
+
+---
+
+## Assumptions and Constraints
+
+Assumptions:
+- Users have internet access
+- Users are comfortable with basic web navigation
+
+Constraints:
+- MVP-level implementation
+- No real emergency service integration
+
+---
+
+## Future Enhancements
+
+- Admin moderation panel
+- AI-powered chatbot integration
+- Cloud-based file storage
+- Production cloud deployment
+- Analytics dashboard
