@@ -28,7 +28,7 @@ function Resources() {
   return (
     <div style={{ padding: "40px" }}>
       <h2>verified resource directory</h2>
-      <p style={{ marginTop: "10px" }}>
+      <p style={{ marginTop: "10px", color: "black" }}>
         trusted helplines, legal aid, ngo support, and emergency resources for
         women.
       </p>
@@ -85,14 +85,14 @@ function Resources() {
                 )}
               </h3>
 
-              <p style={{ marginTop: "10px" }}>{r.description}</p>
+              <p style={{ marginTop: "10px", color: "black" }}>{r.description}</p>
 
-              <p style={{ marginTop: "10px" }}>
+              <p style={{ marginTop: "10px", color: "black" }}>
                 <strong>phone:</strong> {r.phone}
               </p>
 
               <button
-                style={{ marginTop: "10px" }}
+                style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}
                 onClick={() => window.open(r.website, "_blank")}
               >
                 official website

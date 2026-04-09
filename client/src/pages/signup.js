@@ -5,12 +5,31 @@ function Signup(){
  const[email,setEmail]=useState('')
  const[password,setPassword]=useState('')
 
- const signup=async()=>{
-  await axios.post('http://localhost:5000/api/auth/signup',{
-   email,password
-  })
-  alert('Signup successful')
- }
+ const signup = async () => {
+    try {
+        if (!email || !password) {
+        alert("Please enter email and password")
+        return
+        }
+
+        const res = await axios.post(
+        'http://localhost:5000/api/auth/signup',
+        { email, password }
+        )
+
+        alert(res.data.message)
+
+    } catch (err) {
+        console.error(err)
+
+        // ✅ THIS IS THE FIX
+        if (err.response) {
+        alert(err.response.data.message)
+        } else {
+        alert("Server error")
+        }
+    }
+    }
 
  return(
   <div>

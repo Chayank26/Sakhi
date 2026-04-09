@@ -85,7 +85,7 @@ function Chatbot() {
             if (e.key === "Enter") sendMessage();
           }}
         />
-        <button onClick={sendMessage}>send</button>
+        <button onClick={sendMessage} style={{height: "40px", marginTop: "10px", background: "var(--gradient)", color: "white", padding: "4px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>send</button>
       </div>
     </div>
   );

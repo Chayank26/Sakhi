@@ -7,49 +7,34 @@ function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/");
+    window.location.href = "/";
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "15px 40px",
-        borderBottom: "2px solid black",
-      }}
-    >
-      <h3 style={{ cursor: "pointer" }} onClick={() => navigate("/")}>
-        sakhi
-      </h3>
+    <div className="navbar">
 
-      <div style={{ display: "flex", gap: "20px" }}>
-        <span style={{ cursor: "pointer" }} onClick={() => navigate("/")}>
-          home
-        </span>
+      <h2 className="logo" onClick={() => navigate("/")}>
+        Sakhi
+      </h2>
 
-        <span style={{ cursor: "pointer" }} onClick={() => navigate("/about")}>
-          about us
-        </span>
+      <div className="nav-links">
 
-        <span
-          style={{ cursor: "pointer" }}
-          onClick={() => navigate("/contact")}
-        >
-          contact us
-        </span>
+        <span onClick={() => navigate("/")}>Home</span>
+        <span onClick={() => navigate("/about")}>About</span>
+        <span onClick={() => navigate("/contact")}>Contact</span>
 
         {!token && (
-          <span style={{ cursor: "pointer" }} onClick={() => navigate("/login")}>
-            login
+          <span className="nav-btn" onClick={() => navigate("/login")}>
+            Login
           </span>
         )}
 
         {token && (
-          <span style={{ cursor: "pointer" }} onClick={handleLogout}>
-            logout
+          <span className="nav-btn logout" onClick={handleLogout}>
+            Logout
           </span>
         )}
+
       </div>
     </div>
   );

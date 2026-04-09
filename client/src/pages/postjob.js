@@ -68,7 +68,24 @@ function Postjob() {
           required
         />
 
-        <button type="submit">post job</button>
+        <button
+          type="submit"
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "16px",
+            fontWeight: "bold",
+            transition: "background-color 0.3s",
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#007bff")}
+        >
+          post job
+        </button>
       </form>
     </div>
   );

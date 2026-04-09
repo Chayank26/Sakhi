@@ -76,13 +76,13 @@ function Forum() {
         <h2>community forum</h2>
 
         <div style={{ display: "flex", gap: "15px" }}>
-          <button onClick={() => navigate("/createpost")}>create post</button>
-          <button onClick={() => navigate("/myposts")}>my posts</button>
+          <button onClick={() => navigate("/createpost")} style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>create post</button>
+          <button onClick={() => navigate("/myposts")} style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>my posts</button>
         </div>
       </div>
 
       <div style={{ marginTop: "30px" }}>
-        {posts.length === 0 && <p>no posts yet</p>}
+        {posts.length === 0 && <p style={{color:"black"}}>no posts yet</p>}
 
         {posts.map((post) => (
           <div
@@ -93,22 +93,22 @@ function Forum() {
               marginBottom: "20px",
             }}
           >
-            <h3>{post.title}</h3>
-            <p>{post.content}</p>
+            <h3 style={{color:"black"}}>{post.title}</h3>
+            <p style={{color:"black"}}>{post.content}</p>
 
-            <p style={{ fontSize: "14px" }}>
+            <p style={{ fontSize: "14px",color:"black" }}>
               <strong>posted by:</strong>{" "}
               {post.author?.username || post.author?.email || "unknown"}
             </p>
 
-            <button onClick={() => handleLike(post._id)}>
+            <button onClick={() => handleLike(post._id)} style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>
               like ({post.likes.length})
             </button>
 
             <div style={{ marginTop: "20px" }}>
                 <h4>comments</h4>
 
-                {post.comments.length === 0 && <p>no comments</p>}
+                {post.comments.length === 0 && <p style={{color:"black"}}>no comments</p>}
 
                 {post.comments.map((c, index) => (
                     <p key={index} style={{ fontSize: "14px" }}>
@@ -132,7 +132,7 @@ function Forum() {
                     }))
                   }
                 />
-                <button onClick={() => handleComment(post._id)}>comment</button>
+                <button onClick={() => handleComment(post._id)} style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>comment</button>
               </div>
             </div>
           </div>

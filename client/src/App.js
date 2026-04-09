@@ -1,4 +1,6 @@
 import React from "react";
+import './App.css';
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/navbar";
@@ -19,75 +21,39 @@ import Createpost from "./pages/createpost";
 import Myposts from "./pages/myposts";
 
 import Resources from "./pages/resources";
-
 import Chatbot from "./pages/chatbot";
 
 function App() {
-  const token = localStorage.getItem("token");
+
+  const isLoggedIn = () => {
+    return localStorage.getItem("token") !== null;
+  };
 
   return (
     <Router>
       <Navbar />
 
       <Routes>
-        {/* Public routes */}
+
+        {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={!token ? <Login /> : <Navigate to="/dashboard" />} />
-        <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
 
-        {/* Protected route */}
-        <Route
-          path="/dashboard"
-          element={token ? <Dashboard /> : <Navigate to="/login" />}
-        />
+        <Route path="/login" element={!isLoggedIn() ? <Login /> : <Navigate to="/dashboard" />} />
+        <Route path="/signup" element={!isLoggedIn() ? <Signup /> : <Navigate to="/dashboard" />} />
 
-        <Route
-          path="/govtschemes"
-          element={token ? <Govtschemes /> : <Navigate to="/login" />}
-        />
-
-        <Route
-          path="/jobs"
-          element={token ? <Jobs /> : <Navigate to="/login" />}
-        />
-
-        <Route
-          path="/postjob"
-          element={token ? <Postjob /> : <Navigate to="/login" />}
-        />
-
-        <Route
-          path="/applyjob/:id"
-          element={token ? <Applyjob /> : <Navigate to="/login" />}
-        />
-
-        <Route
-          path="/forum"
-          element={token ? <Forum /> : <Navigate to="/login" />}
-        />
-
-        <Route
-          path="/createpost"
-          element={token ? <Createpost /> : <Navigate to="/login" />}
-        />
-
-        <Route
-          path="/myposts"
-          element={token ? <Myposts /> : <Navigate to="/login" />}
-        />
-
-        <Route
-          path="/resources"
-          element={token ? <Resources /> : <Navigate to="/login" />}
-        />
-
-        <Route
-          path="/chatbot"
-          element={token ? <Chatbot /> : <Navigate to="/login" />}
-        />
-
+        {/* Protected */}
+        <Route path="/dashboard" element={isLoggedIn() ? <Dashboard /> : <Navigate to="/login" />} />
+        <Route path="/govtschemes" element={isLoggedIn() ? <Govtschemes /> : <Navigate to="/login" />} />
+        <Route path="/jobs" element={isLoggedIn() ? <Jobs /> : <Navigate to="/login" />} />
+        <Route path="/postjob" element={isLoggedIn() ? <Postjob /> : <Navigate to="/login" />} />
+        <Route path="/applyjob/:id" element={isLoggedIn() ? <Applyjob /> : <Navigate to="/login" />} />
+        <Route path="/forum" element={isLoggedIn() ? <Forum /> : <Navigate to="/login" />} />
+        <Route path="/createpost" element={isLoggedIn() ? <Createpost /> : <Navigate to="/login" />} />
+        <Route path="/myposts" element={isLoggedIn() ? <Myposts /> : <Navigate to="/login" />} />
+        <Route path="/resources" element={isLoggedIn() ? <Resources /> : <Navigate to="/login" />} />
+        <Route path="/chatbot" element={isLoggedIn() ? <Chatbot /> : <Navigate to="/login" />} />
 
       </Routes>
     </Router>

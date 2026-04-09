@@ -73,7 +73,7 @@ function Govtschemes() {
             />{" "}
             safety
           </div>
-          <button onClick={() => setCategory("")}>clear category</button>
+          <button onClick={() => setCategory("")} style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>clear category</button>
         </div>
 
         <div style={{ marginTop: "30px" }}>
@@ -102,7 +102,7 @@ function Govtschemes() {
             />{" "}
             mothers
           </div>
-          <button onClick={() => setEligibility("")}>
+          <button onClick={() => setEligibility("")} style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>
             clear eligibility
           </button>
         </div>
@@ -138,14 +138,14 @@ function Govtschemes() {
             }}
           >
             <h3>{scheme.name}</h3>
-            <p>{scheme.description}</p>
-            <p>
+            <p style={{color:"black"}}>{scheme.description}</p>
+            <p style={{color:"black"}}>
               <strong>category:</strong> {scheme.category}
             </p>
-            <p>
+            <p style={{color:"black"}}>
               <strong>eligibility:</strong> {scheme.eligibility}
             </p>
-            <button onClick={() => window.open(scheme.link, "_blank")}>
+            <button onClick={() => window.open(scheme.link, "_blank")} style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>
               view official website
             </button>
           </div>

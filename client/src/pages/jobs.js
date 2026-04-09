@@ -36,7 +36,9 @@ function Jobs() {
         }}
       >
         <h2>job opportunities</h2>
-        <button onClick={() => navigate("/postjob")}>post a job</button>
+        <button onClick={() => navigate("/postjob")} style={{ background: "var(--gradient)", color: "white", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer" }}>
+          post a job
+        </button>
       </div>
 
       <div style={{ marginTop: "40px" }}>
@@ -44,6 +46,7 @@ function Jobs() {
 
         {jobs.map((job) => (
           <div
+             className="job-card"
             key={job._id}
             style={{
               border: "1px solid black",
@@ -60,7 +63,7 @@ function Jobs() {
             </p>
             <p>{job.description}</p>
 
-            <button onClick={() => navigate(`/applyjob/${job._id}`)}>
+            <button onClick={() => navigate(`/applyjob/${job._id}`)} style={{ background: "var(--gradient)", color: "white", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer" }}>
               apply
             </button>
           </div>

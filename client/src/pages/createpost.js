@@ -50,7 +50,7 @@ function Createpost() {
           required
         />
 
-        <button type="submit">post</button>
+        <button type="submit" style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>post</button>
       </form>
     </div>
   );

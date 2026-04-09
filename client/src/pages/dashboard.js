@@ -1,37 +1,48 @@
-import React from "react";
+import { FaBriefcase, FaUsers, FaComments, FaShieldAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ textAlign: "center", marginTop: "60px" }}>
-      <h2>dashboard</h2>
+    <div className="container">
 
-        <div style={{ display: "flex", justifyContent: "space-around", marginTop: "50px" }}>
-        <button onClick={() => navigate("/jobs")}>
-            Job Opportunities
-        </button>
+      <h2>Welcome to Sakhi</h2>
+      <p style={{ color: "black" }}>Sakhi is a digital platform designed to empower women by providing access
+          to job opportunities, government schemes, community support, and verified
+          resources in a safe and inclusive environment.</p>
 
-        <button onClick={() => navigate("/govtschemes")}>
-            Govt Schemes
-        </button>
+      <div className="grid">
 
-        <button onClick={() => navigate("/forum")}>Community Forum</button>
+        <div className="card" onClick={()=>navigate("/jobs")}>
+          <FaBriefcase size={30} />
+          <h3>Jobs</h3>
+          <p>Explore job opportunities</p>
+        </div>
 
-        <button onClick={() => navigate("/resources")}>
-          Verified Resources
-        </button>
+        <div className="card" onClick={()=>navigate("/govtschemes")}>
+          <FaUsers size={30} />
+          <h3>Schemes</h3>
+          <p>Access government schemes</p>
+        </div>
 
-      </div>
+        <div className="card" onClick={()=>navigate("/forum")}>
+          <FaComments size={30} />
+          <h3>Community</h3>
+          <p>Join discussions</p>
+        </div>
 
-      <div style={{ marginTop: "40px" }}>
-        <button>Talk to a Sakhi</button>
-      </div>
+        <div className="card" onClick={()=>navigate("/resources")}>
+          <FaShieldAlt size={30} />
+          <h3>Resources</h3>
+          <p>Verified support services</p>
+        </div>
 
-      <div style={{ marginTop: "40px" }}>
-        <button onClick={() => navigate("/about")}>About Us</button>
-        <button onClick={() => navigate("/contact")}>Contact Us</button>
+        <div className="card" onClick={() => navigate("/chatbot")} style={{ gridColumn: "span 2", margin: "0 auto", padding: "10px 20px", height: "70px", display: "flex", alignItems: "center", justifyContent: "center", marginLeft:"0", width:"1000px" }}>
+          <FaComments size={30} />
+          <h3>Talk to a Sakhi</h3>
+        </div>
+
       </div>
     </div>
   );

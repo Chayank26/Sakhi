@@ -45,7 +45,7 @@ function Myposts() {
       <h2>my posts</h2>
 
       <div style={{ marginTop: "30px" }}>
-        {posts.length === 0 && <p>you have not posted anything yet</p>}
+        {posts.length === 0 && <p style={{color:"black"}}>you have not posted anything yet</p>}
 
         {posts.map((post) => (
           <div
@@ -56,14 +56,14 @@ function Myposts() {
               marginBottom: "20px",
             }}
           >
-            <h3>{post.title}</h3>
-            <p>{post.content}</p>
+            <h3 style={{color:"black"}}>{post.title}</h3>
+            <p style={{color:"black"}}>{post.content}</p>
 
-            <p style={{ fontSize: "14px" }}>
+            <p style={{ fontSize: "14px",color:"black" }}>
               likes: {post.likes.length} | comments: {post.comments.length}
             </p>
 
-            <button onClick={() => handleDelete(post._id)}>delete</button>
+            <button onClick={() => handleDelete(post._id)} style={{marginTop: "5px", background: "var(--gradient)", color: "white", padding: "8px 16px", borderRadius: "8px", fontWeight: "500", transition: "0.3s"}}>delete</button>
           </div>
         ))}
       </div>

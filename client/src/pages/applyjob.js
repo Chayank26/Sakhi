@@ -68,14 +68,16 @@ function Applyjob() {
           onChange={(e) => setPhone(e.target.value)}
           required
         />
-
+        <label htmlFor="resume">Upload Resume:</label>
         <input
           type="file"
           onChange={(e) => setResume(e.target.files[0])}
           required
         />
 
-        <button type="submit">submit application</button>
+        <button type="submit" style={{ backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px", padding: "10px 20px", cursor: "pointer" }}>
+          submit application
+        </button>
       </form>
     </div>
   );

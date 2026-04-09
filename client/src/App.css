@@ -1,38 +1,220 @@
-.App {
-  text-align: center;
+/* Theme */
+
+:root{
+  --primary:#7c3aed;
+  --secondary:#ec4899;
+  --gradient: linear-gradient(135deg, #7c3aed, #ec4899);
+  --bg: linear-gradient(135deg, #fdf2f8, #eef2ff);
+  --text:#1f2937;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Reset */
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Body */
+
+body{
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color:var(--text);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* Container */
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:40px 20px;
 }
 
-.App-link {
-  color: #61dafb;
+/* Navbar */
+
+.navbar{
+  background: linear-gradient(135deg, #fb9c9c, #ed7da1);
+  padding:15px 40px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 4px 20px rgba(0,0,0,0.08);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.logo{
+  font-weight:700;
+  font-size:22px;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-links{
+  display:flex;
+  gap:25px;
+  align-items:center;
+}
+
+.nav-links span{
+  cursor:pointer;
+  font-weight:500;
+  transition:0.2s;
+}
+
+.nav-links span:hover{
+  color:#7c3aed;
+}
+
+/* Buttons */
+
+.nav-btn{
+  background: var(--gradient);
+  color:white;
+  padding:8px 16px;
+  border-radius:8px;
+  font-weight:500;
+  transition:0.3s;
+}
+
+.nav-btn:hover{
+  transform:scale(1.05);
+}
+
+/* Grid */
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap:25px;
+  margin-top:30px;
+}
+
+/* Cards */
+
+.card{
+  background: linear-gradient(135deg, #ffffff, #f9f5ff);
+  padding:25px;
+  border-radius:16px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(124,58,237,0.15);
+  transition:0.3s;
+  cursor:pointer;
+}
+
+.card:hover{
+  transform:translateY(-8px) scale(1.03);
+  box-shadow:0 20px 40px rgba(124,58,237,0.25);
+}
+
+/* Icons inside cards */
+
+.card svg{
+  margin-bottom:10px;
+  color:#7c3aed;
+}
+
+/* Headings */
+
+h2{
+  font-size:26px;
+  margin-bottom:10px;
+}
+
+p{
+  color:#6b7280;
+}
+
+/* Inputs */
+
+input, textarea{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  margin:10px 0;
+}
+
+/* Login Card */
+
+.auth-box{
+  max-width:400px;
+  margin:auto;
+  background:white;
+  padding:30px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* Buttons */
+
+.btn{
+  width:100%;
+  background: var(--gradient);
+  color:white;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.btn:hover{
+  transform:scale(1.05);
+}
+/* FULL PAGE BACKGROUND FIX */
+
+html, body, #root{
+  height:100%;
+  margin:0;
+  padding:0;
+}
+
+#root{
+  background: linear-gradient(135deg, #e93b9a, #eaa7e6);
+}
+/* Center Login Page */
+
+.auth-container{
+  height: calc(100vh - 70px); /* subtract navbar height */
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.auth-btn{
+  width:100%;
+  background: var(--gradient);
+  color:white;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+}
+.auth-btn:hover{
+  transform:scale(1.05);
+}
+.job-card{
+  background: linear-gradient(135deg, #ffffff, #f9f5ff);
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 5px 15px rgba(124,58,237,0.1);
+  transition:0.3s;
+}
+.job-card:hover{
+  transform:translateY(-5px) scale(1.02);
+  box-shadow:0 10px 30px rgba(124,58,237,0.15);
+}
+.button{
+  background: var(--gradient);
+  color:white;
+  padding:10px 20px;
+  border:none;
+  border-radius:8px;
+  font-weight:500;
+  cursor:pointer;
+  transition:0.3s;
 }
