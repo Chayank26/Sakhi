@@ -100,6 +100,7 @@
   height: 2.8em;
   padding-right: 3.3em;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .cssbuttons-io-button .icon {
@@ -143,11 +144,18 @@
   border-radius: 999px;
   font-weight: 700;
   text-decoration: none;
+  border: none;
+  cursor: pointer;
 }
 
 .btn.primary {
   background: var(--accent);
   color: white;
+}
+
+.btn.primary:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .btn.secondary {
@@ -166,7 +174,8 @@
 .stat-card,
 .hero-card,
 .feature-card,
-.info-card {
+.info-card,
+.auth-card {
   background: white;
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
@@ -201,6 +210,104 @@
   padding-left: 18px;
   color: var(--text);
   line-height: 1.8;
+}
+
+.login-section {
+  padding: 24px 0 8px;
+}
+
+.auth-card {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 24px;
+  padding: 28px;
+  align-items: start;
+}
+
+.auth-copy h2 {
+  margin-bottom: 10px;
+  color: var(--text-h);
+}
+
+.auth-copy p {
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.auth-form,
+.auth-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #fcf9ff;
+  border: 1px solid #eedffb;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.auth-toggle-row {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-pill {
+  flex: 1;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--text-h);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toggle-pill.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.field input {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+  color: var(--text-h);
+  background: white;
+}
+
+.field input:focus {
+  outline: 2px solid rgba(168, 85, 247, 0.2);
+  border-color: var(--accent);
+}
+
+.status-message {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.status-message.success {
+  background: #ecfdf3;
+  color: #147d3b;
+}
+
+.status-message.error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.auth-button {
+  width: 100%;
 }
 
 .section {
@@ -246,7 +353,8 @@
 @media (max-width: 840px) {
   .hero-section,
   .about-section,
-  .feature-grid {
+  .feature-grid,
+  .auth-card {
     grid-template-columns: 1fr;
   }
 
@@ -261,7 +369,8 @@
     justify-content: center;
   }
 }
-/* From Uiverse.io by mrhyddenn */ 
+
+/* From Uiverse.io by mrhyddenn */
 .btn.secondary {
   padding: 10px 20px;
   border: none;

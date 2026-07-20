@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import './LandingPage.css'
 
 const stats = [
@@ -21,7 +22,7 @@ const features = [
     },
 ]
 
-export function LandingPage(){
+export function LandingPage() {
     return (
         <div className="page-shell">
             <header className="topbar">
@@ -31,13 +32,13 @@ export function LandingPage(){
                 <nav className="nav-links" aria-label="Primary navigation">
                     <a href="#features">Features</a>
                     <a href="#about">About</a>
-                    <a href="#contact">Contact</a>
+                    <Link to="/login">Login</Link>
                 </nav>
-                <a className="nav-cta" href="#join">
-                    Join Now
-                </a>
+                <Link className="nav-cta" to="/login">
+                    Login
+                </Link>
             </header>
-    
+
             <main id="home">
                 <section className="hero-section">
                     <div className="hero-copy">
@@ -48,7 +49,7 @@ export function LandingPage(){
                             one welcoming place.
                         </p>
                         <div className="hero-actions">
-                            <button className="cssbuttons-io-button" type="button">
+                            <Link className="cssbuttons-io-button" to="/login">
                                 Get started
                                 <div className="icon">
                                     <svg
@@ -64,12 +65,12 @@ export function LandingPage(){
                                         ></path>
                                     </svg>
                                 </div>
-                            </button>
+                            </Link>
                             <a className="btn secondary" href="#features">
                                 Explore Features
                             </a>
                         </div>
-    
+
                         <div className="stats-row" aria-label="Platform highlights">
                             {stats.map((item) => (
                                 <div className="stat-card" key={item.label}>
@@ -79,7 +80,7 @@ export function LandingPage(){
                             ))}
                         </div>
                     </div>
-    
+
                     <div className="hero-card" id="join">
                         <h2>What you can do on Sakhi</h2>
                         <ul>
@@ -90,13 +91,13 @@ export function LandingPage(){
                         </ul>
                     </div>
                 </section>
-    
+
                 <section className="section" id="features">
                     <div className="section-heading">
                         <p className="eyebrow">Why Sakhi</p>
                         <h2>A platform built for growth and confidence.</h2>
                     </div>
-    
+
                     <div className="feature-grid">
                         {features.map((feature) => (
                             <article className="feature-card" key={feature.title}>
@@ -106,7 +107,7 @@ export function LandingPage(){
                         ))}
                     </div>
                 </section>
-    
+
                 <section className="section about-section" id="about">
                     <div>
                         <p className="eyebrow">About Sakhi</p>
@@ -120,14 +121,13 @@ export function LandingPage(){
                     <div className="info-card" id="contact">
                         <h3>Ready to get involved?</h3>
                         <p>Start your journey today and discover what Sakhi can help you build.</p>
-                        <a className="btn primary" href="#home">
+                        <Link className="btn primary" to="/login">
                             Start Exploring
-                        </a>
+                        </Link>
                     </div>
                 </section>
             </main>
         </div>
     )
 }
-
 
