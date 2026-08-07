@@ -418,6 +418,25 @@
     color: #047857;
 }
 
+.meta-badge.applied-pill {
+    background: #d1fae5;
+    color: #047857;
+    border: 1px solid #6ee7b7;
+}
+
+.btn-applied-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.88rem;
+}
+
 .meta-badge.location {
     background: var(--sakhi-purple-light);
     color: var(--sakhi-purple-primary);

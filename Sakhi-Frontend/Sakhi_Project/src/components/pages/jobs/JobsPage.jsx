@@ -43,6 +43,7 @@ export function JobsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [savedJobs, setSavedJobs] = useState([]);
+    const [appliedJobs, setAppliedJobs] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalJobs, setTotalJobs] = useState(0);
@@ -82,6 +83,8 @@ export function JobsPage() {
 
     useEffect(() => {
         loadJobs();
+        const storedApplied = JSON.parse(localStorage.getItem('sakhi_applied_jobs') || '[]');
+        setAppliedJobs(storedApplied);
     }, [appliedQuery, appliedLocation, selectedSalary, selectedExp, selectedTypes, selectedEdu, selectedIndustry, selectedPosted, sortBy, page]);
 
     const handleSearchSubmit = (e) => {
@@ -395,10 +398,11 @@ export function JobsPage() {
                             <div className="jobs-cards-grid">
                                 {jobs.map((job) => {
                                     const isSaved = savedJobs.includes(job._id);
+                                    const isApplied = appliedJobs.includes(job._id);
                                     return (
                                         <div
                                             key={job._id}
-                                            className="job-card"
+                                            className={`job-card ${isApplied ? 'job-card-applied' : ''}`}
                                             onClick={() => navigate(`/jobs/${job._id}`)}
                                         >
                                             <div className="job-card-header">
@@ -438,6 +442,11 @@ export function JobsPage() {
                                                 <span className="meta-badge type">
                                                     {job.employmentType}
                                                 </span>
+                                                {isApplied && (
+                                                    <span className="meta-badge applied-pill">
+                                                        <FiCheckCircle /> Applied
+                                                    </span>
+                                                )}
                                             </div>
 
                                             <p className="job-card-description">
@@ -466,15 +475,21 @@ export function JobsPage() {
                                                     <FiClock /> {new Date(job.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
                                                 </span>
 
-                                                <button
-                                                    className="btn-apply-card"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        navigate(`/jobs/${job._id}`);
-                                                    }}
-                                                >
-                                                    View & Apply <FiArrowRight />
-                                                </button>
+                                                {isApplied ? (
+                                                    <span className="btn-applied-badge">
+                                                        <FiCheckCircle /> Applied
+                                                    </span>
+                                                ) : (
+                                                    <button
+                                                        className="btn-apply-card"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate(`/jobs/${job._id}`);
+                                                        }}
+                                                    >
+                                                        View & Apply <FiArrowRight />
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     );

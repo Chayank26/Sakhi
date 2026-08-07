@@ -4,6 +4,8 @@ import { LandingPage } from './components/pages/landing/LandingPage'
 import { LoginPage } from './components/pages/login/LoginPage'
 import { HomePage } from './components/pages/home/HomePage'
 import { JobsPage } from './components/pages/jobs/JobsPage'
+import { JobDetailsPage } from './components/pages/jobs/JobDetailsPage'
+import { CreateJobPage } from './components/pages/jobs/CreateJobPage'
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/home/:section" element={<HomePage />} />
         <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/jobs/create" element={<CreateJobPage />} />
+        <Route path="/jobs/:jobId" element={<JobDetailsPage />} />
       </Routes>
     </BrowserRouter>
   )
