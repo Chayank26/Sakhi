@@ -1,0 +1,20 @@
+{
+  "name": "sakhi-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Sakhi Career Opportunities & Platform Services",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seedJobs.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.10.0"
+  }
+}
