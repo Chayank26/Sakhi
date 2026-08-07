@@ -7,7 +7,7 @@ const featureCards = [
         icon: '💼',
         title: 'Career Opportunities',
         description: 'Browse jobs, internships, and career opportunities designed to help women grow professionally.',
-        to: '/home/jobs',
+        to: '/jobs',
     },
     {
         icon: '🎓',

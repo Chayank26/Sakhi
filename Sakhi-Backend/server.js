@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { connectDB } from './config/db.js';
+import jobRoutes from './routes/jobRoutes.js';
 
 dotenv.config();
 
@@ -39,6 +40,9 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString()
     });
 });
+
+// API Routes
+app.use('/api/jobs', jobRoutes);
 
 // Database connection
 connectDB();
