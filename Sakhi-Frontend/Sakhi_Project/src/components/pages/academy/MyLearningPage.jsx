@@ -55,14 +55,6 @@ export function MyLearningPage() {
                         progress: [80, 45, 90, 30][idx % 4] || 60,
                     }));
 
-                // Fallback default sample course if none enrolled yet
-                if (matchedEnrolled.length === 0 && courseList.length > 0) {
-                    matchedEnrolled.push({
-                        ...courseList[0],
-                        progress: 80,
-                    });
-                }
-
                 setEnrolledCourses(matchedEnrolled);
             } catch (err) {
                 console.error('Failed to load My Learning dashboard:', err);
