@@ -7,6 +7,7 @@ import { JobsPage } from './components/pages/jobs/JobsPage'
 import { JobDetailsPage } from './components/pages/jobs/JobDetailsPage'
 import { CreateJobPage } from './components/pages/jobs/CreateJobPage'
 import { AcademyPage } from './components/pages/academy/AcademyPage'
+import { CourseDetailsPage } from './components/pages/academy/CourseDetailsPage'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/jobs/create" element={<CreateJobPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailsPage />} />
         <Route path="/academy" element={<AcademyPage />} />
+        <Route path="/academy/course/:courseId" element={<CourseDetailsPage />} />
       </Routes>
     </BrowserRouter>
   )
