@@ -13,7 +13,7 @@ const featureCards = [
         icon: '🎓',
         title: 'Sakhi Academy',
         description: 'Learn through free courses, skill-building programs, and practical resources.',
-        to: '/home/academy',
+        to: '/academy',
     },
     {
         icon: '📜',
