@@ -76,6 +76,8 @@ export function MyLearningPage() {
         localStorage.setItem('sakhi_bookmarked_courses', JSON.stringify(updatedIds));
     };
 
+    const completedCourses = enrolledCourses.filter((c) => c.progress === 100);
+
     return (
         <div className="my-learning-wrapper">
             {/* Header */}
@@ -124,7 +126,7 @@ export function MyLearningPage() {
                             className={`tab-btn ${activeTab === 'certificates' ? 'active' : ''}`}
                             onClick={() => setActiveTab('certificates')}
                         >
-                            <FiAward /> Certificates (1)
+                            <FiAward /> Certificates ({completedCourses.length})
                         </button>
                     </div>
 
@@ -243,46 +245,66 @@ export function MyLearningPage() {
                             {/* TAB 3: Enrolled Courses */}
                             {activeTab === 'enrolled' && (
                                 <div className="enrolled-section">
-                                    <div className="continue-grid">
-                                        {enrolledCourses.map((course) => (
-                                            <div
-                                                key={course._id}
-                                                className="continue-card"
-                                                onClick={() => navigate(`/academy/course/${course._id}`)}
-                                            >
-                                                <div className="card-image-box">
-                                                    <img src={course.thumbnail} alt={course.title} />
-                                                    <span className="progress-badge">Enrolled</span>
-                                                </div>
+                                    {enrolledCourses.length === 0 ? (
+                                        <div className="dashboard-empty-box">
+                                            <FiBookOpen className="empty-icon" />
+                                            <h3>No enrolled courses yet</h3>
+                                            <p>When you enroll in courses on Sakhi Academy, they will appear here.</p>
+                                            <Link to="/academy" className="btn-explore-link">Browse Courses</Link>
+                                        </div>
+                                    ) : (
+                                        <div className="continue-grid">
+                                            {enrolledCourses.map((course) => (
+                                                <div
+                                                    key={course._id}
+                                                    className="continue-card"
+                                                    onClick={() => navigate(`/academy/course/${course._id}`)}
+                                                >
+                                                    <div className="card-image-box">
+                                                        <img src={course.thumbnail} alt={course.title} />
+                                                        <span className="progress-badge">Enrolled</span>
+                                                    </div>
 
-                                                <div className="card-info-box">
-                                                    <span className="cat-pill">{course.category}</span>
-                                                    <h3 className="course-name">{course.title}</h3>
-                                                    <p className="instructor">Instructor: {course.instructor}</p>
-                                                    <button className="btn-resume-course">View Details <FiArrowRight /></button>
+                                                    <div className="card-info-box">
+                                                        <span className="cat-pill">{course.category}</span>
+                                                        <h3 className="course-name">{course.title}</h3>
+                                                        <p className="instructor">Instructor: {course.instructor}</p>
+                                                        <button className="btn-resume-course">View Details <FiArrowRight /></button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
                             {/* TAB 4: Certificates */}
                             {activeTab === 'certificates' && (
                                 <div className="certificates-section">
-                                    <div className="certificate-card">
-                                        <div className="cert-left">
-                                            <FiAward className="cert-gold-icon" />
-                                            <div>
-                                                <h3>React Fundamentals & Web Architecture</h3>
-                                                <p>Issued by Sakhi Academy • Verified Certificate ID: <code>SAKHI-CERT-2026-098</code></p>
-                                                <span className="issue-date">Completed on: {new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</span>
-                                            </div>
+                                    {completedCourses.length === 0 ? (
+                                        <div className="dashboard-empty-box">
+                                            <FiAward className="empty-icon" />
+                                            <h3>No certificates earned yet</h3>
+                                            <p>Complete your enrolled courses to earn official Sakhi completion certificates!</p>
+                                            <Link to="/academy" className="btn-explore-link">Explore Courses</Link>
                                         </div>
-                                        <button className="btn-download-cert" onClick={() => alert('Certificate PDF downloaded successfully!')}>
-                                            Download Certificate (PDF)
-                                        </button>
-                                    </div>
+                                    ) : (
+                                        completedCourses.map((course) => (
+                                            <div key={course._id} className="certificate-card">
+                                                <div className="cert-left">
+                                                    <FiAward className="cert-gold-icon" />
+                                                    <div>
+                                                        <h3>{course.title}</h3>
+                                                        <p>Issued by Sakhi Academy • Verified Certificate</p>
+                                                        <span className="issue-date">Completed on: {new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</span>
+                                                    </div>
+                                                </div>
+                                                <button className="btn-download-cert" onClick={() => alert('Certificate PDF downloaded successfully!')}>
+                                                    Download Certificate (PDF)
+                                                </button>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             )}
                         </div>
