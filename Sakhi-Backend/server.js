@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { connectDB } from './config/db.js';
 import jobRoutes from './routes/jobRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 app.use('/api/jobs', jobRoutes);
+app.use('/api/courses', courseRoutes);
 
 // Database connection
 connectDB();
