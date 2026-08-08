@@ -1,0 +1,98 @@
+/* ==========================================================================
+   Sakhi Academy - Create Course Page Stylesheet
+   ========================================================================== */
+
+.create-course-wrapper {
+    min-height: 100vh;
+    background-color: var(--sakhi-bg-light);
+    color: var(--sakhi-text-dark);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    padding-bottom: 60px;
+}
+
+.create-course-nav {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 14px 24px;
+}
+
+.create-course-hero {
+    background: linear-gradient(135deg, #4c1d95, #7c3aed);
+    color: #ffffff;
+    padding: 36px 24px;
+    text-align: center;
+}
+
+.create-course-main {
+    max-width: 900px;
+    margin: -20px auto 0;
+    padding: 0 24px;
+}
+
+.create-course-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.curriculum-builder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.btn-add-module {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--sakhi-purple-light);
+    color: var(--sakhi-purple-primary);
+    border: 1px solid var(--sakhi-purple-border);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.builder-modules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.builder-module-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.module-input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.module-input-row input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.9rem;
+}
+
+.btn-delete-module {
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fecaca;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .create-course-main {
+        padding: 0 16px;
+    }
+}

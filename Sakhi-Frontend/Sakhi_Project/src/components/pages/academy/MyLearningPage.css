@@ -1,0 +1,367 @@
+/* ==========================================================================
+   Sakhi Academy - My Learning Student Dashboard Stylesheet
+   ========================================================================== */
+
+.my-learning-wrapper {
+    min-height: 100vh;
+    background-color: var(--sakhi-bg-light);
+    color: var(--sakhi-text-dark);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    padding-bottom: 80px;
+}
+
+.learning-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 14px 24px;
+}
+
+.learning-header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.learning-hero {
+    background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+    color: #ffffff;
+    padding: 36px 24px;
+}
+
+.learning-hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.learning-hero-container h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+}
+
+.learning-hero-container p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Main Content */
+.learning-main-content {
+    max-width: 1200px;
+    margin: 32px auto 0;
+    padding: 0 24px;
+}
+
+.learning-tabs {
+    display: flex;
+    gap: 12px;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 28px;
+    overflow-x: auto;
+}
+
+.tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #64748b;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    color: var(--sakhi-purple-primary);
+}
+
+.tab-btn.active {
+    color: var(--sakhi-purple-primary);
+    border-bottom-color: var(--sakhi-purple-primary);
+}
+
+/* Continue Grid */
+.continue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.continue-card {
+    background: #ffffff;
+    border-radius: var(--sakhi-radius);
+    border: 1px solid #e2e8f0;
+    box-shadow: var(--sakhi-shadow-sm);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.continue-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sakhi-shadow-hover);
+}
+
+.card-image-box {
+    position: relative;
+    height: 160px;
+}
+
+.card-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.progress-badge {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(15, 23, 42, 0.85);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+}
+
+.card-info-box {
+    padding: 20px;
+}
+
+.cat-pill {
+    background: var(--sakhi-purple-light);
+    color: var(--sakhi-purple-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.course-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 8px 0 4px 0;
+    color: var(--sakhi-text-dark);
+}
+
+.instructor {
+    font-size: 0.86rem;
+    color: var(--sakhi-text-muted);
+    margin-bottom: 16px;
+}
+
+/* Progress Bar Component */
+.progress-bar-wrapper {
+    margin-bottom: 18px;
+}
+
+.progress-bar-track {
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7c3aed, #10b981);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.btn-resume-course {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--sakhi-purple-primary);
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+/* Bookmarks Grid */
+.bookmarks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.bookmark-card {
+    background: #ffffff;
+    border-radius: var(--sakhi-radius);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.bookmark-card .thumb {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+}
+
+.bookmark-card .body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.top-row .cat {
+    background: var(--sakhi-purple-light);
+    color: var(--sakhi-purple-primary);
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.btn-remove-bookmark {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.bookmark-card .title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 4px 0;
+}
+
+.bookmark-card .inst {
+    font-size: 0.84rem;
+    color: #64748b;
+    margin-bottom: 10px;
+}
+
+.bookmark-card .meta {
+    margin-top: auto;
+    display: flex;
+    gap: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.star { color: #f59e0b; }
+
+/* Certificate Card */
+.certificate-card {
+    background: #ffffff;
+    border-radius: var(--sakhi-radius);
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--sakhi-shadow-sm);
+}
+
+.cert-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.cert-gold-icon {
+    font-size: 3rem;
+    color: #f59e0b;
+}
+
+.cert-left h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.cert-left p {
+    margin: 0 0 6px 0;
+    font-size: 0.88rem;
+    color: #64748b;
+}
+
+.issue-date {
+    font-size: 0.8rem;
+    color: #10b981;
+    font-weight: 600;
+}
+
+.btn-download-cert {
+    background: var(--sakhi-purple-primary);
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.dashboard-empty-box {
+    background: #ffffff;
+    border-radius: var(--sakhi-radius);
+    padding: 48px 24px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: var(--sakhi-purple-primary);
+    margin-bottom: 12px;
+}
+
+.btn-explore-link {
+    display: inline-block;
+    background: var(--sakhi-purple-primary);
+    color: #ffffff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 14px;
+}
+
+@media (max-width: 768px) {
+    .certificate-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}
