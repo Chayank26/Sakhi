@@ -7,6 +7,7 @@ import { SortControls } from '../../community/SortControls';
 import { PostFeed } from '../../community/PostFeed';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
 import { INITIAL_DUMMY_POSTS } from '../../community/dummyData';
+import { fetchPosts } from '../../../services/communityService';
 import { FiPlus, FiZap } from 'react-icons/fi';
 import './CommunityPage.css';
 
@@ -18,6 +19,7 @@ export function CommunityPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('latest');
   const [notification, setNotification] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -25,6 +27,28 @@ export function CommunityPage() {
     });
     return () => unsubscribe();
   }, []);
+
+  const loadPostsFromBackend = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchPosts({
+        q: searchQuery,
+        category: selectedCategory,
+        sortBy
+      });
+      if (data && data.success && Array.isArray(data.posts) && data.posts.length > 0) {
+        setPosts(data.posts);
+      }
+    } catch (err) {
+      console.warn('Using local dummy posts (backend API unavailable or starting up):', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPostsFromBackend();
+  }, [searchQuery, selectedCategory, sortBy]);
 
   const showToast = (msg) => {
     setNotification(msg);
