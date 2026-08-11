@@ -88,7 +88,7 @@ export function CommunityPage() {
   };
 
   const handleCreatePost = () => {
-    showToast('Create Post form will open in Phase 3!');
+    navigate('/community/create');
   };
 
   // Filter and Sort calculation

@@ -69,3 +69,25 @@ export const createPost = async (postData) => {
         throw error;
     }
 };
+
+/**
+ * Upload image for post attachment (Authenticated)
+ */
+export const uploadPostImage = async (file) => {
+    try {
+        const headers = await getAuthHeaders();
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const response = await axios.post(`${API_BASE_URL}/upload-image`, formData, {
+            headers: {
+                ...headers,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading post image:', error);
+        throw error;
+    }
+};

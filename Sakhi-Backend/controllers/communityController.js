@@ -1,4 +1,5 @@
 import Post from '../models/Post.js';
+import { uploadImageToStorage } from '../services/uploadService.js';
 
 /**
  * GET /api/community/posts
@@ -204,6 +205,35 @@ export const createPost = async (req, res) => {
             success: false,
             message: 'Failed to create post.',
             error: error.message
+        });
+    }
+};
+
+/**
+ * POST /api/community/upload-image
+ * Upload image attachment for community post (Protected)
+ */
+export const uploadPostImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'No image file uploaded.'
+            });
+        }
+
+        const imageUrl = await uploadImageToStorage(req.file, req);
+
+        res.json({
+            success: true,
+            message: 'Image uploaded successfully!',
+            imageUrl
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error uploading image:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to process image upload.'
         });
     }
 };
