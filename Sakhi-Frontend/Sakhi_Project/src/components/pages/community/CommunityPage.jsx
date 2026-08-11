@@ -7,7 +7,7 @@ import { SortControls } from '../../community/SortControls';
 import { PostFeed } from '../../community/PostFeed';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
 import { INITIAL_DUMMY_POSTS } from '../../community/dummyData';
-import { fetchPosts } from '../../../services/communityService';
+import { fetchPosts, likePost, unlikePost } from '../../../services/communityService';
 import { FiPlus, FiZap } from 'react-icons/fi';
 import './CommunityPage.css';
 
@@ -56,17 +56,32 @@ export function CommunityPage() {
   };
 
   // Upvote / Like Handler
-  const handleLikeToggle = (postId) => {
+  const handleLikeToggle = async (postId) => {
+    const targetPost = posts.find((p) => p.id === postId);
+    if (!targetPost) return;
+
+    const nextLiked = !targetPost.isLiked;
+
+    // Optimistic UI update
     setPosts((prevPosts) =>
       prevPosts.map((post) => {
         if (post.id === postId) {
-          const isLiked = !post.isLiked;
-          const likesCount = isLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1);
-          return { ...post, isLiked, likesCount };
+          const likesCount = nextLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1);
+          return { ...post, isLiked: nextLiked, likesCount };
         }
         return post;
       })
     );
+
+    try {
+      if (nextLiked) {
+        await likePost(postId);
+      } else {
+        await unlikePost(postId);
+      }
+    } catch (err) {
+      console.warn('Backend upvote sync warning:', err.message);
+    }
   };
 
   // Bookmark / Save Handler

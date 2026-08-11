@@ -169,3 +169,37 @@ export const deleteComment = async (commentId) => {
         throw error;
     }
 };
+
+/**
+ * Upvote/Like a post (Authenticated)
+ */
+export const likePost = async (postId) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.post(
+            `${API_BASE_URL}/posts/${postId}/like`,
+            {},
+            { headers }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(`Error upvoting post ${postId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Remove Upvote/Like from a post (Authenticated)
+ */
+export const unlikePost = async (postId) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.delete(`${API_BASE_URL}/posts/${postId}/like`, {
+            headers
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error removing upvote from post ${postId}:`, error);
+        throw error;
+    }
+};

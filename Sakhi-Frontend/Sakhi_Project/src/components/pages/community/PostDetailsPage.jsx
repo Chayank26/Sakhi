@@ -6,7 +6,7 @@ import { CommunityHeader } from '../../community/CommunityHeader';
 import { PostCard } from '../../community/PostCard';
 import { CommentSection } from '../../community/CommentSection';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
-import { fetchPostById } from '../../../services/communityService';
+import { fetchPostById, likePost, unlikePost } from '../../../services/communityService';
 import { INITIAL_DUMMY_POSTS } from '../../community/dummyData';
 import { FiArrowLeft, FiLoader } from 'react-icons/fi';
 import './PostDetailsPage.css';
@@ -54,13 +54,25 @@ export function PostDetailsPage() {
     }
   }, [postId]);
 
-  const handleLikeToggle = () => {
+  const handleLikeToggle = async () => {
     if (!post) return;
+    const nextLiked = !post.isLiked;
+
+    // Optimistic UI update
     setPost((prev) => {
-      const isLiked = !prev.isLiked;
-      const likesCount = isLiked ? prev.likesCount + 1 : Math.max(0, prev.likesCount - 1);
-      return { ...prev, isLiked, likesCount };
+      const likesCount = nextLiked ? prev.likesCount + 1 : Math.max(0, prev.likesCount - 1);
+      return { ...prev, isLiked: nextLiked, likesCount };
     });
+
+    try {
+      if (nextLiked) {
+        await likePost(postId);
+      } else {
+        await unlikePost(postId);
+      }
+    } catch (err) {
+      console.warn('Backend upvote sync warning:', err.message);
+    }
   };
 
   const handleBookmarkToggle = () => {

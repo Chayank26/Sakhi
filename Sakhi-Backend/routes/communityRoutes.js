@@ -7,7 +7,9 @@ import {
     getPostComments,
     addComment,
     updateComment,
-    deleteComment
+    deleteComment,
+    likePost,
+    unlikePost
 } from '../controllers/communityController.js';
 import { verifyToken, optionalToken } from '../middleware/auth.js';
 import { imageUpload } from '../middleware/imageUpload.js';
@@ -25,5 +27,9 @@ router.post('/upload-image', verifyToken, imageUpload.single('image'), uploadPos
 router.post('/posts/:id/comments', verifyToken, addComment);
 router.put('/comments/:id', verifyToken, updateComment);
 router.delete('/comments/:id', verifyToken, deleteComment);
+
+// Like / Upvote routes
+router.post('/posts/:id/like', verifyToken, likePost);
+router.delete('/posts/:id/like', verifyToken, unlikePost);
 
 export default router;

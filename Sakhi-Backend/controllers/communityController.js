@@ -450,3 +450,79 @@ export const deleteComment = async (req, res) => {
         });
     }
 };
+
+/**
+ * POST /api/community/posts/:id/like
+ * Add upvote/like to a post (Protected)
+ */
+export const likePost = async (req, res) => {
+    try {
+        const { id: postId } = req.params;
+        const userId = req.user.uid;
+
+        const updatedPost = await Post.findByIdAndUpdate(
+            postId,
+            { $addToSet: { likes: userId } },
+            { new: true }
+        );
+
+        if (!updatedPost) {
+            return res.status(404).json({
+                success: false,
+                message: 'Post not found.'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Post upvoted successfully!',
+            isLiked: true,
+            likesCount: updatedPost.likes ? updatedPost.likes.length : 0
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error upvoting post:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to upvote post.',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * DELETE /api/community/posts/:id/like
+ * Remove upvote/like from a post (Protected)
+ */
+export const unlikePost = async (req, res) => {
+    try {
+        const { id: postId } = req.params;
+        const userId = req.user.uid;
+
+        const updatedPost = await Post.findByIdAndUpdate(
+            postId,
+            { $pull: { likes: userId } },
+            { new: true }
+        );
+
+        if (!updatedPost) {
+            return res.status(404).json({
+                success: false,
+                message: 'Post not found.'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Post upvote removed successfully!',
+            isLiked: false,
+            likesCount: updatedPost.likes ? updatedPost.likes.length : 0
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error removing upvote from post:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to remove upvote.',
+            error: error.message
+        });
+    }
+};
