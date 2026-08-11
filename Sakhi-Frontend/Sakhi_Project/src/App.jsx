@@ -10,6 +10,7 @@ import { AcademyPage } from './components/pages/academy/AcademyPage'
 import { CourseDetailsPage } from './components/pages/academy/CourseDetailsPage'
 import { MyLearningPage } from './components/pages/academy/MyLearningPage'
 import { CreateCoursePage } from './components/pages/academy/CreateCoursePage'
+import { CommunityPage } from './components/pages/community/CommunityPage'
 
 function App() {
   return (
@@ -18,7 +19,6 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/home/:section" element={<HomePage />} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/jobs/create" element={<CreateJobPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailsPage />} />
@@ -26,6 +26,9 @@ function App() {
         <Route path="/academy/create" element={<CreateCoursePage />} />
         <Route path="/academy/my-learning" element={<MyLearningPage />} />
         <Route path="/academy/course/:courseId" element={<CourseDetailsPage />} />
+        <Route path="/community" element={<CommunityPage />} />
+        <Route path="/home/community" element={<CommunityPage />} />
+        <Route path="/home/:section" element={<HomePage />} />
       </Routes>
     </BrowserRouter>
   )

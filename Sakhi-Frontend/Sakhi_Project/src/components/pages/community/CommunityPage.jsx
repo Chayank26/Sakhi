@@ -1,0 +1,186 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase/firebase';
+import { CommunityHeader } from '../../community/CommunityHeader';
+import { SortControls } from '../../community/SortControls';
+import { PostFeed } from '../../community/PostFeed';
+import { CommunitySidebar } from '../../community/CommunitySidebar';
+import { INITIAL_DUMMY_POSTS } from '../../community/dummyData';
+import { FiPlus, FiZap } from 'react-icons/fi';
+import './CommunityPage.css';
+
+export function CommunityPage() {
+  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [posts, setPosts] = useState(INITIAL_DUMMY_POSTS);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [sortBy, setSortBy] = useState('latest');
+  const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const showToast = (msg) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  // Upvote / Like Handler
+  const handleLikeToggle = (postId) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post.id === postId) {
+          const isLiked = !post.isLiked;
+          const likesCount = isLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1);
+          return { ...post, isLiked, likesCount };
+        }
+        return post;
+      })
+    );
+  };
+
+  // Bookmark / Save Handler
+  const handleBookmarkToggle = (postId) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post.id === postId) {
+          const isBookmarked = !post.isBookmarked;
+          showToast(isBookmarked ? 'Post saved to your bookmarks!' : 'Post removed from saved bookmarks.');
+          return { ...post, isBookmarked };
+        }
+        return post;
+      })
+    );
+  };
+
+  const handleCommentClick = (postId) => {
+    showToast('Comment thread section will expand in Phase 4!');
+  };
+
+  const handleCreatePost = () => {
+    showToast('Create Post form will open in Phase 3!');
+  };
+
+  // Filter and Sort calculation
+  const filteredAndSortedPosts = useMemo(() => {
+    let result = [...posts];
+
+    // 1. Search Query Filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.content.toLowerCase().includes(q) ||
+          (p.category && p.category.toLowerCase().includes(q))
+      );
+    }
+
+    // 2. Category Filter
+    if (selectedCategory !== 'All') {
+      result = result.filter(
+        (p) => p.category && p.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    // 3. Sort logic
+    result.sort((a, b) => {
+      if (sortBy === 'popular') {
+        return b.likesCount - a.likesCount;
+      }
+      if (sortBy === 'commented') {
+        return b.commentsCount - a.commentsCount;
+      }
+      if (sortBy === 'oldest') {
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      }
+      // 'latest' default
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+    return result;
+  }, [posts, searchQuery, selectedCategory, sortBy]);
+
+  return (
+    <div className="community-page-shell">
+      {/* Toast Notification */}
+      {notification && (
+        <div className="community-toast">
+          <FiZap className="toast-icon" />
+          <span>{notification}</span>
+        </div>
+      )}
+
+      {/* Header with Search and Create CTA */}
+      <CommunityHeader
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onCreatePostClick={handleCreatePost}
+      />
+
+      {/* Hero Banner */}
+      <div className="community-hero-banner">
+        <div className="hero-content-wrapper">
+          <div className="hero-badge">
+            <span className="sparkle-emoji">🌸</span> Sakhi Community Forum
+          </div>
+          <h1 className="hero-title">A safe space to connect, share and learn together.</h1>
+          <p className="hero-subtitle">
+            Join thousands of women inspiring each other across career growth, skill building, entrepreneurship, and personal success.
+          </p>
+        </div>
+      </div>
+
+      {/* Main Container */}
+      <div className="community-main-container">
+        {/* Sort & Filter Controls */}
+        <SortControls
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
+
+        {/* 2-Column Responsive Layout */}
+        <div className="community-content-layout">
+          {/* Main Feed Column */}
+          <main className="community-feed-column">
+            <PostFeed
+              posts={filteredAndSortedPosts}
+              onLikeToggle={handleLikeToggle}
+              onBookmarkToggle={handleBookmarkToggle}
+              onCommentClick={handleCommentClick}
+              onCreatePostClick={handleCreatePost}
+              currentUserId={currentUser?.uid}
+            />
+          </main>
+
+          {/* Sidebar Column */}
+          <div className="community-sidebar-column">
+            <CommunitySidebar
+              selectedCategory={selectedCategory}
+              onTopicClick={(topic) => setSelectedCategory(topic)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Floating Action Button */}
+      <button
+        type="button"
+        className="mobile-fab-create"
+        onClick={handleCreatePost}
+        aria-label="Create Post"
+      >
+        <FiPlus className="fab-icon" />
+        <span className="fab-text">Create</span>
+      </button>
+    </div>
+  );
+}
