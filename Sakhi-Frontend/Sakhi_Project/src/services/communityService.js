@@ -91,3 +91,81 @@ export const uploadPostImage = async (file) => {
         throw error;
     }
 };
+
+/**
+ * Fetch comments for a specific post
+ */
+export const fetchComments = async (postId) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.get(`${API_BASE_URL}/posts/${postId}/comments`, {
+            headers
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching comments for post ${postId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Create a new comment on a post (Authenticated)
+ */
+export const createComment = async (postId, content) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.post(
+            `${API_BASE_URL}/posts/${postId}/comments`,
+            { content },
+            {
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(`Error creating comment for post ${postId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Update an existing comment (Authenticated - Owner only)
+ */
+export const updateComment = async (commentId, content) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.put(
+            `${API_BASE_URL}/comments/${commentId}`,
+            { content },
+            {
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating comment ${commentId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Delete an existing comment (Authenticated - Owner only)
+ */
+export const deleteComment = async (commentId) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.delete(`${API_BASE_URL}/comments/${commentId}`, {
+            headers
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error deleting comment ${commentId}:`, error);
+        throw error;
+    }
+};

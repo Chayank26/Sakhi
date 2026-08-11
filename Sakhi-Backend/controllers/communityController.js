@@ -1,4 +1,5 @@
 import Post from '../models/Post.js';
+import Comment from '../models/Comment.js';
 import { uploadImageToStorage } from '../services/uploadService.js';
 
 /**
@@ -234,6 +235,218 @@ export const uploadPostImage = async (req, res) => {
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to process image upload.'
+        });
+    }
+};
+
+/**
+ * GET /api/community/posts/:id/comments
+ * Fetch comments for a specific post
+ */
+export const getPostComments = async (req, res) => {
+    try {
+        const { id: postId } = req.params;
+        const rawComments = await Comment.find({ post: postId }).sort({ createdAt: 1 }).lean();
+        const currentUserId = req.user?.uid;
+
+        const comments = rawComments.map((c) => ({
+            id: c._id.toString(),
+            postId: c.post.toString(),
+            author: c.author,
+            content: c.content,
+            likesCount: c.likes ? c.likes.length : 0,
+            isLiked: currentUserId && c.likes ? c.likes.includes(currentUserId) : false,
+            createdAt: c.createdAt,
+            updatedAt: c.updatedAt
+        }));
+
+        res.json({
+            success: true,
+            comments,
+            totalComments: comments.length
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error fetching comments:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch post comments.',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * POST /api/community/posts/:id/comments
+ * Add a new comment to a post (Protected)
+ */
+export const addComment = async (req, res) => {
+    try {
+        const { id: postId } = req.params;
+        const { content } = req.body;
+
+        if (!content || !content.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Comment content cannot be empty.'
+            });
+        }
+
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({
+                success: false,
+                message: 'Target post not found.'
+            });
+        }
+
+        const authenticatedUser = req.user;
+
+        const newComment = new Comment({
+            post: postId,
+            author: {
+                uid: authenticatedUser.uid,
+                name: authenticatedUser.name || 'Sakhi Member',
+                email: authenticatedUser.email || '',
+                avatar: authenticatedUser.avatar || null,
+                role: authenticatedUser.role || 'Community Member'
+            },
+            content: content.trim(),
+            likes: []
+        });
+
+        const savedComment = await newComment.save();
+
+        // Increment commentsCount on parent post
+        post.commentsCount = (post.commentsCount || 0) + 1;
+        await post.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'Comment added successfully!',
+            comment: {
+                id: savedComment._id.toString(),
+                postId,
+                author: savedComment.author,
+                content: savedComment.content,
+                likesCount: 0,
+                isLiked: false,
+                createdAt: savedComment.createdAt,
+                updatedAt: savedComment.updatedAt
+            }
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error adding comment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to post comment.',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * PUT /api/community/comments/:id
+ * Edit an existing comment (Protected - Owner only)
+ */
+export const updateComment = async (req, res) => {
+    try {
+        const { id: commentId } = req.params;
+        const { content } = req.body;
+
+        if (!content || !content.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Updated comment content cannot be empty.'
+            });
+        }
+
+        const comment = await Comment.findById(commentId);
+        if (!comment) {
+            return res.status(404).json({
+                success: false,
+                message: 'Comment not found.'
+            });
+        }
+
+        // Ownership verification
+        if (comment.author.uid !== req.user.uid) {
+            return res.status(403).json({
+                success: false,
+                message: 'Forbidden. You can only edit your own comments.'
+            });
+        }
+
+        comment.content = content.trim();
+        const updated = await comment.save();
+
+        res.json({
+            success: true,
+            message: 'Comment updated successfully!',
+            comment: {
+                id: updated._id.toString(),
+                postId: updated.post.toString(),
+                author: updated.author,
+                content: updated.content,
+                likesCount: updated.likes ? updated.likes.length : 0,
+                isLiked: updated.likes ? updated.likes.includes(req.user.uid) : false,
+                createdAt: updated.createdAt,
+                updatedAt: updated.updatedAt
+            }
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error updating comment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update comment.',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * DELETE /api/community/comments/:id
+ * Delete an existing comment (Protected - Owner only)
+ */
+export const deleteComment = async (req, res) => {
+    try {
+        const { id: commentId } = req.params;
+
+        const comment = await Comment.findById(commentId);
+        if (!comment) {
+            return res.status(404).json({
+                success: false,
+                message: 'Comment not found.'
+            });
+        }
+
+        // Ownership verification
+        if (comment.author.uid !== req.user.uid) {
+            return res.status(403).json({
+                success: false,
+                message: 'Forbidden. You can only delete your own comments.'
+            });
+        }
+
+        const postId = comment.post;
+        await Comment.findByIdAndDelete(commentId);
+
+        // Decrement commentsCount on parent post
+        const post = await Post.findById(postId);
+        if (post && post.commentsCount > 0) {
+            post.commentsCount -= 1;
+            await post.save();
+        }
+
+        res.json({
+            success: true,
+            message: 'Comment deleted successfully!'
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error deleting comment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete comment.',
+            error: error.message
         });
     }
 };

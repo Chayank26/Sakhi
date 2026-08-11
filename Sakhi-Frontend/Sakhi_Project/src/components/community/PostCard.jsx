@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FiArrowUp,
   FiMessageSquare,
@@ -36,6 +37,7 @@ export function PostCard({
   onAuthorClick,
   currentUserId
 }) {
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -130,8 +132,8 @@ export function PostCard({
       </div>
 
       {/* Card Content Body */}
-      <div className="post-card-body">
-        <h2 className="post-title">{title}</h2>
+      <div className="post-card-body" onClick={() => navigate(`/community/post/${id}`)}>
+        <h2 className="post-title clickable-title">{title}</h2>
         <p className="post-text-content">{content}</p>
 
         {imageUrl && (
@@ -156,7 +158,10 @@ export function PostCard({
         <button
           type="button"
           className="action-btn comment-btn"
-          onClick={() => onCommentClick && onCommentClick(id)}
+          onClick={() => {
+            if (onCommentClick) onCommentClick(id);
+            else navigate(`/community/post/${id}`);
+          }}
           aria-label="Comments"
         >
           <FiMessageSquare className="action-icon" />

@@ -84,7 +84,7 @@ export function CommunityPage() {
   };
 
   const handleCommentClick = (postId) => {
-    showToast('Comment thread section will expand in Phase 4!');
+    navigate(`/community/post/${postId}`);
   };
 
   const handleCreatePost = () => {
