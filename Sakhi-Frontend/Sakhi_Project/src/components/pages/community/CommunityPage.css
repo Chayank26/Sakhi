@@ -486,8 +486,25 @@
   align-items: start;
 }
 
-.community-feed-column {
-  min-width: 0;
+.search-results-banner {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #f3e8ff;
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  font-size: 0.92rem;
+  color: #4b5563;
+  box-shadow: 0 2px 10px rgba(168, 85, 247, 0.05);
+}
+
+.results-count {
+  font-weight: 800;
+  color: #9333ea;
+}
+
+.search-term-highlight {
+  font-weight: 700;
+  color: #111827;
 }
 
 /* Post Cards */

@@ -1,6 +1,7 @@
 import express from 'express';
 import {
     getPosts,
+    searchPosts,
     getPostById,
     createPost,
     uploadPostImage,
@@ -18,6 +19,7 @@ const router = express.Router();
 
 // Public / Optionally Authenticated routes
 router.get('/posts', optionalToken, getPosts);
+router.get('/posts/search', optionalToken, searchPosts);
 router.get('/posts/:id', optionalToken, getPostById);
 router.get('/posts/:id/comments', optionalToken, getPostComments);
 

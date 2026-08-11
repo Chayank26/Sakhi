@@ -91,6 +91,93 @@ export const getPosts = async (req, res) => {
 };
 
 /**
+ * GET /api/community/posts/search
+ * Search community posts by query, category, and sorting
+ */
+export const searchPosts = async (req, res) => {
+    try {
+        const { q = '', category, sortBy = 'latest', page = 1, limit = 10 } = req.query;
+
+        const queryConditions = {};
+
+        // Category filter
+        if (category && category !== 'All') {
+            queryConditions.category = category;
+        }
+
+        // Regex search matching title, content, or category
+        if (q && q.trim() !== '') {
+            const searchRegex = new RegExp(q.trim(), 'i');
+            queryConditions.$or = [
+                { title: searchRegex },
+                { content: searchRegex },
+                { category: searchRegex }
+            ];
+        }
+
+        // Sorting option
+        let sortOption = { createdAt: -1 };
+        if (sortBy === 'popular') {
+            sortOption = { likesCount: -1, createdAt: -1 };
+        } else if (sortBy === 'commented') {
+            sortOption = { commentsCount: -1, createdAt: -1 };
+        } else if (sortBy === 'oldest') {
+            sortOption = { createdAt: 1 };
+        }
+
+        const pageNum = parseInt(page, 10) || 1;
+        const limitNum = parseInt(limit, 10) || 10;
+        const skip = (pageNum - 1) * limitNum;
+
+        const rawPosts = await Post.find(queryConditions)
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limitNum)
+            .lean();
+
+        const totalPosts = await Post.countDocuments(queryConditions);
+        const currentUserId = req.user?.uid;
+
+        const posts = rawPosts.map((post) => {
+            const likesArr = post.likes || [];
+            const bookmarksArr = post.bookmarks || [];
+            return {
+                id: post._id.toString(),
+                author: post.author,
+                title: post.title,
+                content: post.content,
+                category: post.category,
+                imageUrl: post.imageUrl || null,
+                likesCount: likesArr.length,
+                commentsCount: post.commentsCount || 0,
+                isLiked: currentUserId ? likesArr.includes(currentUserId) : false,
+                isBookmarked: currentUserId ? bookmarksArr.includes(currentUserId) : false,
+                createdAt: post.createdAt,
+                updatedAt: post.updatedAt
+            };
+        });
+
+        res.json({
+            success: true,
+            query: q,
+            category: category || 'All',
+            sortBy,
+            posts,
+            totalPosts,
+            page: pageNum,
+            totalPages: Math.ceil(totalPosts / limitNum) || 1
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error searching posts:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while searching community posts.',
+            error: error.message
+        });
+    }
+};
+
+/**
  * GET /api/community/posts/:id
  * Get single post details by ID
  */

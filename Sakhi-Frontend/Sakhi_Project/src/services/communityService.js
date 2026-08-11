@@ -36,6 +36,23 @@ export const fetchPosts = async (params = {}) => {
 };
 
 /**
+ * Search posts explicitly via GET /api/community/posts/search?q=
+ */
+export const searchPosts = async (query = '', category = 'All', sortBy = 'latest') => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.get(`${API_BASE_URL}/posts/search`, {
+            params: { q: query, category, sortBy },
+            headers
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error searching posts for "${query}":`, error);
+        throw error;
+    }
+};
+
+/**
  * Fetch a single community post by ID
  */
 export const fetchPostById = async (id) => {

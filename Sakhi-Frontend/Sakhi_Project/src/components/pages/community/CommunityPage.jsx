@@ -190,6 +190,16 @@ export function CommunityPage() {
         <div className="community-content-layout">
           {/* Main Feed Column */}
           <main className="community-feed-column">
+            {searchQuery.trim() && (
+              <div className="search-results-banner">
+                <span className="results-count">
+                  {filteredAndSortedPosts.length} post{filteredAndSortedPosts.length === 1 ? '' : 's'} found
+                </span>{' '}
+                for "<span className="search-term-highlight">{searchQuery}</span>"
+                {selectedCategory !== 'All' && <span> in <strong>{selectedCategory}</strong></span>}
+              </div>
+            )}
+
             <PostFeed
               posts={filteredAndSortedPosts}
               onLikeToggle={handleLikeToggle}
