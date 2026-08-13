@@ -15,7 +15,8 @@ import {
     unlikePost,
     bookmarkPost,
     unbookmarkPost,
-    getSavedPosts
+    getSavedPosts,
+    createReport
 } from '../controllers/communityController.js';
 import { verifyToken, optionalToken } from '../middleware/auth.js';
 import { imageUpload } from '../middleware/imageUpload.js';
@@ -45,5 +46,8 @@ router.delete('/posts/:id/like', verifyToken, unlikePost);
 // Bookmark / Save routes
 router.post('/posts/:id/bookmark', verifyToken, bookmarkPost);
 router.delete('/posts/:id/bookmark', verifyToken, unbookmarkPost);
+
+// Moderation / Report routes
+router.post('/reports', verifyToken, createReport);
 
 export default router;

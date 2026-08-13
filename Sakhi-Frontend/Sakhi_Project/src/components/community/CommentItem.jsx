@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FiEdit, FiTrash2, FiHeart, FiCheck, FiX, FiMoreHorizontal } from 'react-icons/fi';
+import { ReportModal } from './ReportModal';
+import { FiEdit, FiTrash2, FiHeart, FiCheck, FiX, FiMoreHorizontal, FiFlag } from 'react-icons/fi';
 
 function formatRelativeTime(dateString) {
   if (!dateString) return 'recently';
@@ -27,6 +28,7 @@ export function CommentItem({ comment, currentUserId, onUpdate, onDelete }) {
   const [submitting, setSubmitting] = useState(false);
   const [likedState, setLikedState] = useState(isLiked);
   const [likeCountState, setLikeCountState] = useState(likesCount);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const handleSaveEdit = async () => {
     if (!editContent.trim()) return;
@@ -47,48 +49,71 @@ export function CommentItem({ comment, currentUserId, onUpdate, onDelete }) {
   };
 
   return (
-    <div className="community-comment-item">
-      {/* Comment Author Avatar */}
-      <div className="comment-avatar-wrapper">
-        {author?.avatar ? (
-          <img src={author.avatar} alt={author.name} className="comment-avatar-img" />
-        ) : (
-          <div className="comment-avatar-placeholder">
-            {author?.name ? author.name.charAt(0).toUpperCase() : 'S'}
-          </div>
-        )}
-      </div>
+    <>
+      {showReportModal && (
+        <ReportModal
+          targetType="comment"
+          targetId={id}
+          itemTitle={content}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
 
-      {/* Comment Body & Content */}
-      <div className="comment-main-box">
-        <div className="comment-header-row">
-          <div className="comment-meta-info">
-            <span className="comment-author-name">{author?.name || 'Sakhi Member'}</span>
-            {author?.role && <span className="comment-author-role">• {author.role}</span>}
-            <span className="comment-time">• {formatRelativeTime(createdAt)}</span>
-          </div>
-
-          {isOwner && !isEditing && (
-            <div className="comment-owner-actions">
-              <button
-                type="button"
-                className="comment-icon-btn"
-                onClick={() => setIsEditing(true)}
-                title="Edit Comment"
-              >
-                <FiEdit />
-              </button>
-              <button
-                type="button"
-                className="comment-icon-btn danger"
-                onClick={() => onDelete(id)}
-                title="Delete Comment"
-              >
-                <FiTrash2 />
-              </button>
+      <div className="community-comment-item">
+        {/* Comment Author Avatar */}
+        <div className="comment-avatar-wrapper">
+          {author?.avatar ? (
+            <img src={author.avatar} alt={author.name} className="comment-avatar-img" />
+          ) : (
+            <div className="comment-avatar-placeholder">
+              {author?.name ? author.name.charAt(0).toUpperCase() : 'S'}
             </div>
           )}
         </div>
+
+        {/* Comment Body & Content */}
+        <div className="comment-main-box">
+          <div className="comment-header-row">
+            <div className="comment-meta-info">
+              <span className="comment-author-name">{author?.name || 'Sakhi Member'}</span>
+              {author?.role && <span className="comment-author-role">• {author.role}</span>}
+              <span className="comment-time">• {formatRelativeTime(createdAt)}</span>
+            </div>
+
+            <div className="comment-owner-actions">
+              {isOwner ? (
+                !isEditing && (
+                  <>
+                    <button
+                      type="button"
+                      className="comment-icon-btn"
+                      onClick={() => setIsEditing(true)}
+                      title="Edit Comment"
+                    >
+                      <FiEdit />
+                    </button>
+                    <button
+                      type="button"
+                      className="comment-icon-btn danger"
+                      onClick={() => onDelete(id)}
+                      title="Delete Comment"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </>
+                )
+              ) : (
+                <button
+                  type="button"
+                  className="comment-icon-btn danger"
+                  onClick={() => setShowReportModal(true)}
+                  title="Report Comment"
+                >
+                  <FiFlag />
+                </button>
+              )}
+            </div>
+          </div>
 
         {isEditing ? (
           <div className="comment-edit-box">
@@ -137,5 +162,6 @@ export function CommentItem({ comment, currentUserId, onUpdate, onDelete }) {
         </div>
       </div>
     </div>
+    </>
   );
 }

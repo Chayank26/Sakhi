@@ -1,5 +1,6 @@
 import Post from '../models/Post.js';
 import Comment from '../models/Comment.js';
+import Report from '../models/Report.js';
 import { uploadImageToStorage } from '../services/uploadService.js';
 
 /**
@@ -831,6 +832,81 @@ export const deletePost = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to delete post.',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * POST /api/community/reports
+ * Submit a report for an inappropriate post or comment (Protected)
+ */
+export const createReport = async (req, res) => {
+    try {
+        const { targetType, targetId, reason, description } = req.body;
+
+        if (!targetType || !['post', 'comment'].includes(targetType)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid report targetType. Must be "post" or "comment".'
+            });
+        }
+
+        if (!targetId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Target ID is required.'
+            });
+        }
+
+        if (!reason) {
+            return res.status(400).json({
+                success: false,
+                message: 'Report reason is required.'
+            });
+        }
+
+        const authenticatedUser = req.user;
+
+        // Check if report already exists from this user for this target
+        const existingReport = await Report.findOne({
+            targetId,
+            'reporter.uid': authenticatedUser.uid
+        });
+
+        if (existingReport) {
+            return res.status(400).json({
+                success: false,
+                message: 'You have already reported this item. Our moderation team is reviewing it.'
+            });
+        }
+
+        const report = new Report({
+            reporter: {
+                uid: authenticatedUser.uid,
+                name: authenticatedUser.name || 'Sakhi Member',
+                email: authenticatedUser.email || ''
+            },
+            targetType,
+            targetId,
+            targetModel: targetType === 'post' ? 'Post' : 'Comment',
+            reason,
+            description: description ? description.trim() : '',
+            status: 'pending'
+        });
+
+        const savedReport = await report.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'Report submitted successfully. Thank you for keeping Sakhi safe!',
+            reportId: savedReport._id.toString()
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error submitting report:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to submit report.',
             error: error.message
         });
     }

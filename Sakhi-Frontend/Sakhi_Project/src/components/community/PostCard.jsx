@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EditPostModal } from './EditPostModal';
+import { ReportModal } from './ReportModal';
 import { deletePost } from '../../services/communityService';
 import {
   FiArrowUp,
@@ -46,6 +47,7 @@ export function PostCard({
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const {
@@ -98,6 +100,15 @@ export function PostCard({
           onPostUpdated={(updated) => {
             if (onPostUpdated) onPostUpdated(updated);
           }}
+        />
+      )}
+
+      {showReportModal && (
+        <ReportModal
+          targetType="post"
+          targetId={id}
+          itemTitle={title}
+          onClose={() => setShowReportModal(false)}
         />
       )}
 
@@ -179,6 +190,7 @@ export function PostCard({
                     className="context-menu-item danger"
                     onClick={() => {
                       setShowMenu(false);
+                      setShowReportModal(true);
                       if (onReportClick) onReportClick(post);
                     }}
                   >

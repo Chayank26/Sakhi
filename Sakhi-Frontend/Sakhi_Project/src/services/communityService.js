@@ -305,3 +305,22 @@ export const deletePost = async (postId) => {
         throw error;
     }
 };
+
+/**
+ * Submit a moderation report for a post or comment (Authenticated)
+ */
+export const submitReport = async (reportData) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.post(`${API_BASE_URL}/reports`, reportData, {
+            headers: {
+                ...headers,
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error submitting moderation report:', error);
+        throw error;
+    }
+};
