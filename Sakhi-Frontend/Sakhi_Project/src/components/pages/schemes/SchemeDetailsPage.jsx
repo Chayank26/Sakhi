@@ -294,6 +294,19 @@ export function SchemeDetailsPage() {
 
                 <div className="sidebar-divider" />
 
+                {/* Sakhi AI Integration Hook Card */}
+                <div className="sidebar-ai-box">
+                  <div className="ai-box-badge">
+                    <span>✨ Sakhi AI Ready</span>
+                  </div>
+                  <h4>AI Eligibility Analysis</h4>
+                  <p>
+                    Sakhi AI Assistant can evaluate your profile against eligibility criteria for <strong>{scheme.name}</strong>.
+                  </p>
+                </div>
+
+                <div className="sidebar-divider" />
+
                 {scheme.targetAudience && scheme.targetAudience.length > 0 && (
                   <div className="sidebar-meta-block">
                     <h4>Target Beneficiaries</h4>

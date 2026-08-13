@@ -394,6 +394,37 @@
   margin: 18px 0;
 }
 
+.sidebar-ai-box {
+  background: linear-gradient(135deg, #faf5ff 0%, #fdf4ff 100%);
+  border: 1px solid #e9d5ff;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.ai-box-badge {
+  display: inline-flex;
+  background: #9333ea;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.sidebar-ai-box h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.sidebar-ai-box p {
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
 .sidebar-meta-block h4 {
   font-size: 0.85rem;
   font-weight: 800;
