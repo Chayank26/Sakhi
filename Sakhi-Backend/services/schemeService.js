@@ -49,12 +49,12 @@ export const getSchemeByIdService = async (id) => {
 /**
  * Search schemes using full-text index or regex matching
  */
-export const searchSchemesService = async (searchQuery = '', options = {}) => {
-    const { page = 1, limit = 12 } = options;
+export const searchSchemesService = async (searchQuery = '', filters = {}, options = {}) => {
+    const { page = 1, limit = 12, sortBy = 'createdAt' } = options;
     const skip = (page - 1) * limit;
 
     if (!searchQuery.trim()) {
-        return getSchemesService({}, options);
+        return getSchemesService(filters, options);
     }
 
     const trimmedQuery = searchQuery.trim();
@@ -71,12 +71,26 @@ export const searchSchemesService = async (searchQuery = '', options = {}) => {
         ]
     };
 
-    const schemes = await GovernmentScheme.find(searchConditions)
+    const finalQuery = Object.keys(filters).length > 0
+        ? { $and: [searchConditions, filters] }
+        : searchConditions;
+
+    let sortOptions = { createdAt: -1 };
+    if (sortBy === 'featured') {
+        sortOptions = { featured: -1, createdAt: -1 };
+    } else if (sortBy === 'name') {
+        sortOptions = { name: 1 };
+    } else if (sortBy === 'updatedAt') {
+        sortOptions = { updatedAt: -1 };
+    }
+
+    const schemes = await GovernmentScheme.find(finalQuery)
+        .sort(sortOptions)
         .skip(skip)
         .limit(limit)
         .lean();
 
-    const totalSchemes = await GovernmentScheme.countDocuments(searchConditions);
+    const totalSchemes = await GovernmentScheme.countDocuments(finalQuery);
 
     return {
         schemes,

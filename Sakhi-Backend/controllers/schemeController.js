@@ -117,14 +117,30 @@ export const getSchemeById = async (req, res) => {
  */
 export const searchSchemes = async (req, res) => {
     try {
-        const { q = '', page = 1, limit = 12 } = req.query;
+        const {
+            q = '',
+            page = 1,
+            limit = 12,
+            category,
+            governmentLevel,
+            state,
+            targetAudience,
+            sortBy = 'createdAt'
+        } = req.query;
 
         const pageNum = Math.max(1, parseInt(page, 10) || 1);
         const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 12));
 
-        const result = await searchSchemesService(q, {
+        const filters = {};
+        if (category && category !== 'All') filters.category = category;
+        if (governmentLevel && ['Central', 'State'].includes(governmentLevel)) filters.governmentLevel = governmentLevel;
+        if (state && state !== 'All') filters.state = state;
+        if (targetAudience && targetAudience !== 'All') filters.targetAudience = targetAudience;
+
+        const result = await searchSchemesService(q, filters, {
             page: pageNum,
-            limit: limitNum
+            limit: limitNum,
+            sortBy
         });
 
         res.json({

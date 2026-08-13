@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiFilter, FiMapPin, FiUsers, FiFlag } from 'react-icons/fi';
+import { FiFilter, FiMapPin, FiUsers, FiFlag, FiSliders, FiRefreshCw } from 'react-icons/fi';
 
 export const SCHEME_CATEGORIES = [
   'All',
@@ -46,6 +46,13 @@ export const STATES_LIST = [
   'Madhya Pradesh'
 ];
 
+export const SORT_OPTIONS = [
+  { label: 'Recently Added', value: 'createdAt' },
+  { label: 'Recently Updated', value: 'updatedAt' },
+  { label: 'Featured First', value: 'featured' },
+  { label: 'Name (A-Z)', value: 'name' }
+];
+
 export function SchemeFilters({
   selectedCategory,
   setSelectedCategory,
@@ -54,8 +61,18 @@ export function SchemeFilters({
   selectedState,
   setSelectedState,
   targetAudience,
-  setTargetAudience
+  setTargetAudience,
+  sortBy,
+  setSortBy,
+  onResetFilters
 }) {
+  const isFiltered =
+    selectedCategory !== 'All' ||
+    governmentLevel !== 'All' ||
+    selectedState !== 'All' ||
+    targetAudience !== 'All' ||
+    sortBy !== 'createdAt';
+
   return (
     <div className="scheme-filters-wrapper">
       {/* Category Pills Header */}
@@ -119,6 +136,34 @@ export function SchemeFilters({
             ))}
           </select>
         </div>
+
+        {/* Sort By Dropdown */}
+        <div className="filter-dropdown-group">
+          <FiSliders className="filter-icon" />
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="filter-select"
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                Sort: {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Reset Filters CTA */}
+        {isFiltered && (
+          <button
+            type="button"
+            className="btn-reset-filters"
+            onClick={onResetFilters}
+            title="Reset all filters"
+          >
+            <FiRefreshCw className="btn-icon" /> Reset Filters
+          </button>
+        )}
       </div>
     </div>
   );

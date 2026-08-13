@@ -19,12 +19,23 @@ export function SchemesPage() {
   const [governmentLevel, setGovernmentLevel] = useState('All');
   const [selectedState, setSelectedState] = useState('All');
   const [targetAudience, setTargetAudience] = useState('All');
+  const [sortBy, setSortBy] = useState('createdAt');
   const [bookmarkedSchemeIds, setBookmarkedSchemeIds] = useState([]);
   const [notification, setNotification] = useState(null);
 
   const showToast = (msg) => {
     setNotification(msg);
     setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedCategory('All');
+    setGovernmentLevel('All');
+    setSelectedState('All');
+    setTargetAudience('All');
+    setSortBy('createdAt');
+    setSearchQuery('');
+    showToast('Filters reset to default.');
   };
 
   const loadSchemesData = async () => {
@@ -35,7 +46,8 @@ export function SchemesPage() {
         category: selectedCategory !== 'All' ? selectedCategory : undefined,
         governmentLevel: governmentLevel !== 'All' ? governmentLevel : undefined,
         state: selectedState !== 'All' ? selectedState : undefined,
-        targetAudience: targetAudience !== 'All' ? targetAudience : undefined
+        targetAudience: targetAudience !== 'All' ? targetAudience : undefined,
+        sortBy
       };
 
       if (debouncedSearchQuery.trim()) {
@@ -56,7 +68,7 @@ export function SchemesPage() {
 
   useEffect(() => {
     loadSchemesData();
-  }, [debouncedSearchQuery, selectedCategory, governmentLevel, selectedState, targetAudience]);
+  }, [debouncedSearchQuery, selectedCategory, governmentLevel, selectedState, targetAudience, sortBy]);
 
   const handleBookmarkToggle = (schemeId) => {
     setBookmarkedSchemeIds((prev) => {
@@ -112,6 +124,9 @@ export function SchemesPage() {
           setSelectedState={setSelectedState}
           targetAudience={targetAudience}
           setTargetAudience={setTargetAudience}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          onResetFilters={handleResetFilters}
         />
 
         {/* Results Header Summary */}

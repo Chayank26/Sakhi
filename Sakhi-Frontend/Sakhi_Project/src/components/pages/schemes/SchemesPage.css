@@ -272,6 +272,26 @@
   cursor: pointer;
 }
 
+.btn-reset-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #ef4444;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-reset-filters:hover {
+  background: #fee2e2;
+  transform: translateY(-1px);
+}
+
 /* Results Summary */
 .schemes-results-summary {
   font-size: 0.92rem;
