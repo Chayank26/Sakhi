@@ -7,7 +7,7 @@ import { SortControls } from '../../community/SortControls';
 import { PostFeed } from '../../community/PostFeed';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
 import { INITIAL_DUMMY_POSTS } from '../../community/dummyData';
-import { fetchPosts, likePost, unlikePost } from '../../../services/communityService';
+import { fetchPosts, likePost, unlikePost, bookmarkPost, unbookmarkPost } from '../../../services/communityService';
 import { FiPlus, FiZap } from 'react-icons/fi';
 import './CommunityPage.css';
 
@@ -85,17 +85,33 @@ export function CommunityPage() {
   };
 
   // Bookmark / Save Handler
-  const handleBookmarkToggle = (postId) => {
+  const handleBookmarkToggle = async (postId) => {
+    const targetPost = posts.find((p) => p.id === postId);
+    if (!targetPost) return;
+
+    const nextBookmarked = !targetPost.isBookmarked;
+
+    // Optimistic UI update
     setPosts((prevPosts) =>
       prevPosts.map((post) => {
         if (post.id === postId) {
-          const isBookmarked = !post.isBookmarked;
-          showToast(isBookmarked ? 'Post saved to your bookmarks!' : 'Post removed from saved bookmarks.');
-          return { ...post, isBookmarked };
+          return { ...post, isBookmarked: nextBookmarked };
         }
         return post;
       })
     );
+
+    showToast(nextBookmarked ? 'Post saved to your bookmarks!' : 'Post removed from saved bookmarks.');
+
+    try {
+      if (nextBookmarked) {
+        await bookmarkPost(postId);
+      } else {
+        await unbookmarkPost(postId);
+      }
+    } catch (err) {
+      console.warn('Backend bookmark sync warning:', err.message);
+    }
   };
 
   const handleCommentClick = (postId) => {

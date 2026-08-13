@@ -10,7 +10,10 @@ import {
     updateComment,
     deleteComment,
     likePost,
-    unlikePost
+    unlikePost,
+    bookmarkPost,
+    unbookmarkPost,
+    getSavedPosts
 } from '../controllers/communityController.js';
 import { verifyToken, optionalToken } from '../middleware/auth.js';
 import { imageUpload } from '../middleware/imageUpload.js';
@@ -20,6 +23,7 @@ const router = express.Router();
 // Public / Optionally Authenticated routes
 router.get('/posts', optionalToken, getPosts);
 router.get('/posts/search', optionalToken, searchPosts);
+router.get('/posts/saved', verifyToken, getSavedPosts);
 router.get('/posts/:id', optionalToken, getPostById);
 router.get('/posts/:id/comments', optionalToken, getPostComments);
 
@@ -33,5 +37,9 @@ router.delete('/comments/:id', verifyToken, deleteComment);
 // Like / Upvote routes
 router.post('/posts/:id/like', verifyToken, likePost);
 router.delete('/posts/:id/like', verifyToken, unlikePost);
+
+// Bookmark / Save routes
+router.post('/posts/:id/bookmark', verifyToken, bookmarkPost);
+router.delete('/posts/:id/bookmark', verifyToken, unbookmarkPost);
 
 export default router;

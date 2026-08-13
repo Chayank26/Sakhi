@@ -613,3 +613,120 @@ export const unlikePost = async (req, res) => {
         });
     }
 };
+
+/**
+ * POST /api/community/posts/:id/bookmark
+ * Save/bookmark a post for the authenticated user (Protected)
+ */
+export const bookmarkPost = async (req, res) => {
+    try {
+        const { id: postId } = req.params;
+        const userId = req.user.uid;
+
+        const updatedPost = await Post.findByIdAndUpdate(
+            postId,
+            { $addToSet: { bookmarks: userId } },
+            { new: true }
+        );
+
+        if (!updatedPost) {
+            return res.status(404).json({
+                success: false,
+                message: 'Post not found.'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Post saved to your bookmarks!',
+            isBookmarked: true
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error bookmarking post:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to bookmark post.',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * DELETE /api/community/posts/:id/bookmark
+ * Remove save/bookmark for the authenticated user (Protected)
+ */
+export const unbookmarkPost = async (req, res) => {
+    try {
+        const { id: postId } = req.params;
+        const userId = req.user.uid;
+
+        const updatedPost = await Post.findByIdAndUpdate(
+            postId,
+            { $pull: { bookmarks: userId } },
+            { new: true }
+        );
+
+        if (!updatedPost) {
+            return res.status(404).json({
+                success: false,
+                message: 'Post not found.'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Post removed from saved bookmarks.',
+            isBookmarked: false
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error unbookmarking post:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to remove bookmark.',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * GET /api/community/posts/saved
+ * Fetch all bookmarked posts saved by the authenticated user (Protected)
+ */
+export const getSavedPosts = async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        const rawPosts = await Post.find({ bookmarks: userId }).sort({ createdAt: -1 }).lean();
+
+        const posts = rawPosts.map((post) => {
+            const likesArr = post.likes || [];
+            const bookmarksArr = post.bookmarks || [];
+            return {
+                id: post._id.toString(),
+                author: post.author,
+                title: post.title,
+                content: post.content,
+                category: post.category,
+                imageUrl: post.imageUrl || null,
+                likesCount: likesArr.length,
+                commentsCount: post.commentsCount || 0,
+                isLiked: likesArr.includes(userId),
+                isBookmarked: true,
+                createdAt: post.createdAt,
+                updatedAt: post.updatedAt
+            };
+        });
+
+        res.json({
+            success: true,
+            posts,
+            totalPosts: posts.length
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error fetching saved posts:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch saved posts.',
+            error: error.message
+        });
+    }
+};

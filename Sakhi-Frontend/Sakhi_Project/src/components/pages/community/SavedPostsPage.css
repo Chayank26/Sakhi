@@ -1,0 +1,138 @@
+/* Sakhi Saved Posts Page Stylesheet */
+
+.saved-posts-page-shell {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff8f2 0%, #fdf7ff 50%, #f7f3ff 100%);
+  color: #374151;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding-bottom: 60px;
+}
+
+.saved-posts-main-container {
+  max-width: 1240px;
+  margin: 24px auto 0;
+  padding: 0 24px;
+}
+
+.saved-posts-header-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(234, 217, 242, 0.8);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+
+.saved-header-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #faf5ff;
+  border: 1px solid #f0abfc;
+  color: #a855f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.saved-posts-header-banner h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.saved-posts-header-banner p {
+  font-size: 0.92rem;
+  color: #6b7280;
+}
+
+.saved-posts-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+.saved-posts-feed-column {
+  min-width: 0;
+}
+
+.saved-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 48px;
+  font-weight: 600;
+  color: #a855f7;
+  border: 1px solid #f3e8ff;
+}
+
+.saved-empty-state {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px dashed #d8b4fe;
+}
+
+.empty-bookmark-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #faf5ff;
+  color: #a855f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 16px;
+}
+
+.saved-empty-state h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.saved-empty-state p {
+  color: #6b7280;
+  font-size: 0.92rem;
+  margin-bottom: 20px;
+  max-width: 460px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn-explore-feed {
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-explore-feed:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(168, 85, 247, 0.35);
+}
+
+@media (max-width: 900px) {
+  .saved-posts-layout {
+    grid-template-columns: 1fr;
+  }
+}

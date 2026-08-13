@@ -220,3 +220,53 @@ export const unlikePost = async (postId) => {
         throw error;
     }
 };
+
+/**
+ * Save/Bookmark a post (Authenticated)
+ */
+export const bookmarkPost = async (postId) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.post(
+            `${API_BASE_URL}/posts/${postId}/bookmark`,
+            {},
+            { headers }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(`Error bookmarking post ${postId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Remove Save/Bookmark from a post (Authenticated)
+ */
+export const unbookmarkPost = async (postId) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.delete(`${API_BASE_URL}/posts/${postId}/bookmark`, {
+            headers
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error unbookmarking post ${postId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Fetch all bookmarked posts for the authenticated user
+ */
+export const fetchSavedPosts = async () => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.get(`${API_BASE_URL}/posts/saved`, {
+            headers
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching saved posts:', error);
+        throw error;
+    }
+};

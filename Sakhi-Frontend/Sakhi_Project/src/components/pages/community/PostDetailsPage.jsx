@@ -6,7 +6,7 @@ import { CommunityHeader } from '../../community/CommunityHeader';
 import { PostCard } from '../../community/PostCard';
 import { CommentSection } from '../../community/CommentSection';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
-import { fetchPostById, likePost, unlikePost } from '../../../services/communityService';
+import { fetchPostById, likePost, unlikePost, bookmarkPost, unbookmarkPost } from '../../../services/communityService';
 import { INITIAL_DUMMY_POSTS } from '../../community/dummyData';
 import { FiArrowLeft, FiLoader } from 'react-icons/fi';
 import './PostDetailsPage.css';
@@ -75,9 +75,22 @@ export function PostDetailsPage() {
     }
   };
 
-  const handleBookmarkToggle = () => {
+  const handleBookmarkToggle = async () => {
     if (!post) return;
-    setPost((prev) => ({ ...prev, isBookmarked: !prev.isBookmarked }));
+    const nextBookmarked = !post.isBookmarked;
+
+    // Optimistic UI update
+    setPost((prev) => ({ ...prev, isBookmarked: nextBookmarked }));
+
+    try {
+      if (nextBookmarked) {
+        await bookmarkPost(postId);
+      } else {
+        await unbookmarkPost(postId);
+      }
+    } catch (err) {
+      console.warn('Backend bookmark sync warning:', err.message);
+    }
   };
 
   const handleCommentCountChange = (newCount) => {
