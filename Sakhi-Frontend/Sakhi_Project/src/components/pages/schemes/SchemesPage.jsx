@@ -6,6 +6,7 @@ import { SchemeFilters } from '../../schemes/SchemeFilters';
 import { SchemeGrid } from '../../schemes/SchemeGrid';
 import { fetchSchemes, searchSchemes } from '../../../services/schemeApi';
 import { useDebounce } from '../../../hooks/useDebounce';
+import { getSavedSchemeIds, toggleSavedScheme } from '../../../utils/schemeStorage';
 import { FiCheckCircle, FiZap, FiBookOpen } from 'react-icons/fi';
 import './SchemesPage.css';
 
@@ -22,6 +23,10 @@ export function SchemesPage() {
   const [sortBy, setSortBy] = useState('createdAt');
   const [bookmarkedSchemeIds, setBookmarkedSchemeIds] = useState([]);
   const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    setBookmarkedSchemeIds(getSavedSchemeIds());
+  }, []);
 
   const showToast = (msg) => {
     setNotification(msg);
@@ -71,12 +76,9 @@ export function SchemesPage() {
   }, [debouncedSearchQuery, selectedCategory, governmentLevel, selectedState, targetAudience, sortBy]);
 
   const handleBookmarkToggle = (schemeId) => {
-    setBookmarkedSchemeIds((prev) => {
-      const isSaved = prev.includes(schemeId);
-      const updated = isSaved ? prev.filter((id) => id !== schemeId) : [...prev, schemeId];
-      showToast(isSaved ? 'Scheme removed from saved bookmarks.' : 'Scheme saved to your bookmarks!');
-      return updated;
-    });
+    const { updatedIds, isSaved } = toggleSavedScheme(schemeId);
+    setBookmarkedSchemeIds(updatedIds);
+    showToast(isSaved ? 'Scheme saved to your bookmarks!' : 'Scheme removed from saved bookmarks.');
   };
 
   return (

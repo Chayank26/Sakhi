@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchSchemeById } from '../../../services/schemeApi';
+import { isSchemeSaved, toggleSavedScheme } from '../../../utils/schemeStorage';
 import { SchemeHeader } from '../../schemes/SchemeHeader';
 import {
   FiArrowLeft,
@@ -27,6 +28,18 @@ export function SchemeDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isBookmarked, setIsBookmarked] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      setIsBookmarked(isSchemeSaved(id));
+    }
+  }, [id]);
+
+  const handleBookmarkToggle = () => {
+    if (!id) return;
+    const { isSaved } = toggleSavedScheme(id);
+    setIsBookmarked(isSaved);
+  };
 
   useEffect(() => {
     const loadSchemeDetails = async () => {
@@ -164,7 +177,7 @@ export function SchemeDetailsPage() {
                   <button
                     type="button"
                     className={`btn-save-details ${isBookmarked ? 'saved' : ''}`}
-                    onClick={() => setIsBookmarked((prev) => !prev)}
+                    onClick={handleBookmarkToggle}
                   >
                     <FiBookmark className="btn-icon" />
                     <span>{isBookmarked ? 'Saved' : 'Save Scheme'}</span>
