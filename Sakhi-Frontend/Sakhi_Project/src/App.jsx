@@ -14,6 +14,7 @@ import { CommunityPage } from './components/pages/community/CommunityPage'
 import { CreatePostPage } from './components/pages/community/CreatePostPage'
 import { PostDetailsPage } from './components/pages/community/PostDetailsPage'
 import { SavedPostsPage } from './components/pages/community/SavedPostsPage'
+import { SchemesPage } from './components/pages/schemes/SchemesPage'
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
         <Route path="/community/create" element={<CreatePostPage />} />
         <Route path="/community/saved" element={<SavedPostsPage />} />
         <Route path="/community/post/:postId" element={<PostDetailsPage />} />
+        <Route path="/schemes" element={<SchemesPage />} />
+        <Route path="/home/schemes" element={<SchemesPage />} />
         <Route path="/home/community" element={<CommunityPage />} />
         <Route path="/home/:section" element={<HomePage />} />
       </Routes>
