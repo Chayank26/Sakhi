@@ -9,6 +9,9 @@ export function PostFeed({
   onCommentClick,
   onAuthorClick,
   onCreatePostClick,
+  onPostUpdated,
+  onPostDeleted,
+  onReportClick,
   currentUserId
 }) {
   if (!posts || posts.length === 0) {
@@ -40,6 +43,9 @@ export function PostFeed({
           onBookmarkToggle={onBookmarkToggle}
           onCommentClick={onCommentClick}
           onAuthorClick={onAuthorClick}
+          onPostUpdated={onPostUpdated}
+          onPostDeleted={onPostDeleted}
+          onReportClick={onReportClick}
           currentUserId={currentUserId}
         />
       ))}

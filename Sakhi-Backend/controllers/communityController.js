@@ -730,3 +730,108 @@ export const getSavedPosts = async (req, res) => {
         });
     }
 };
+
+/**
+ * PUT /api/community/posts/:id
+ * Edit post (Protected - Strict Ownership Check)
+ */
+export const updatePost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, content, category, imageUrl } = req.body;
+
+        const post = await Post.findById(id);
+        if (!post) {
+            return res.status(404).json({
+                success: false,
+                message: 'Post not found.'
+            });
+        }
+
+        // Strict Backend Ownership Enforcement
+        if (post.author.uid !== req.user.uid) {
+            return res.status(403).json({
+                success: false,
+                message: 'Forbidden. You can only edit your own posts.'
+            });
+        }
+
+        if (title && title.trim()) post.title = title.trim();
+        if (content && content.trim()) post.content = content.trim();
+        if (category) post.category = category;
+        if (imageUrl !== undefined) post.imageUrl = imageUrl;
+
+        const updatedPost = await post.save();
+        const currentUserId = req.user.uid;
+        const likesArr = updatedPost.likes || [];
+        const bookmarksArr = updatedPost.bookmarks || [];
+
+        res.json({
+            success: true,
+            message: 'Post updated successfully!',
+            post: {
+                id: updatedPost._id.toString(),
+                author: updatedPost.author,
+                title: updatedPost.title,
+                content: updatedPost.content,
+                category: updatedPost.category,
+                imageUrl: updatedPost.imageUrl,
+                likesCount: likesArr.length,
+                commentsCount: updatedPost.commentsCount || 0,
+                isLiked: likesArr.includes(currentUserId),
+                isBookmarked: bookmarksArr.includes(currentUserId),
+                createdAt: updatedPost.createdAt,
+                updatedAt: updatedPost.updatedAt
+            }
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error updating post:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update post.',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * DELETE /api/community/posts/:id
+ * Delete post and its comments (Protected - Strict Ownership Check)
+ */
+export const deletePost = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const post = await Post.findById(id);
+        if (!post) {
+            return res.status(404).json({
+                success: false,
+                message: 'Post not found.'
+            });
+        }
+
+        // Strict Backend Ownership Enforcement
+        if (post.author.uid !== req.user.uid) {
+            return res.status(403).json({
+                success: false,
+                message: 'Forbidden. You can only delete your own posts.'
+            });
+        }
+
+        // Delete post and cleanup associated comments
+        await Post.findByIdAndDelete(id);
+        await Comment.deleteMany({ post: id });
+
+        res.json({
+            success: true,
+            message: 'Post and associated comments deleted successfully!'
+        });
+    } catch (error) {
+        console.error('[Community Controller] Error deleting post:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete post.',
+            error: error.message
+        });
+    }
+};

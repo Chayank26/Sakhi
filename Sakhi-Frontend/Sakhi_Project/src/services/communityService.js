@@ -270,3 +270,38 @@ export const fetchSavedPosts = async () => {
         throw error;
     }
 };
+
+/**
+ * Update an existing post (Authenticated - Owner only)
+ */
+export const updatePost = async (postId, postData) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.put(`${API_BASE_URL}/posts/${postId}`, postData, {
+            headers: {
+                ...headers,
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating post ${postId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Delete a post and its comments (Authenticated - Owner only)
+ */
+export const deletePost = async (postId) => {
+    try {
+        const headers = await getAuthHeaders();
+        const response = await axios.delete(`${API_BASE_URL}/posts/${postId}`, {
+            headers
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error deleting post ${postId}:`, error);
+        throw error;
+    }
+};

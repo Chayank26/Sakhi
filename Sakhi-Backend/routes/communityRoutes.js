@@ -4,6 +4,8 @@ import {
     searchPosts,
     getPostById,
     createPost,
+    updatePost,
+    deletePost,
     uploadPostImage,
     getPostComments,
     addComment,
@@ -29,6 +31,8 @@ router.get('/posts/:id/comments', optionalToken, getPostComments);
 
 // Protected routes (Requires Firebase Auth token)
 router.post('/posts', verifyToken, createPost);
+router.put('/posts/:id', verifyToken, updatePost);
+router.delete('/posts/:id', verifyToken, deletePost);
 router.post('/upload-image', verifyToken, imageUpload.single('image'), uploadPostImage);
 router.post('/posts/:id/comments', verifyToken, addComment);
 router.put('/comments/:id', verifyToken, updateComment);

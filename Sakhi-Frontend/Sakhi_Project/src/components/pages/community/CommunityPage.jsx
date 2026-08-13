@@ -162,6 +162,16 @@ export function CommunityPage() {
     return result;
   }, [posts, searchQuery, selectedCategory, sortBy]);
 
+  const handlePostUpdated = (updatedPost) => {
+    setPosts((prev) => prev.map((p) => (p.id === updatedPost.id ? updatedPost : p)));
+    showToast('Post updated successfully!');
+  };
+
+  const handlePostDeleted = (deletedId) => {
+    setPosts((prev) => prev.filter((p) => p.id !== deletedId));
+    showToast('Post deleted successfully.');
+  };
+
   return (
     <div className="community-page-shell">
       {/* Toast Notification */}
@@ -222,6 +232,8 @@ export function CommunityPage() {
               onBookmarkToggle={handleBookmarkToggle}
               onCommentClick={handleCommentClick}
               onCreatePostClick={handleCreatePost}
+              onPostUpdated={handlePostUpdated}
+              onPostDeleted={handlePostDeleted}
               currentUserId={currentUser?.uid}
             />
           </main>

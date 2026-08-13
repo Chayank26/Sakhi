@@ -138,6 +138,8 @@ export function PostDetailsPage() {
                 post={post}
                 onLikeToggle={handleLikeToggle}
                 onBookmarkToggle={handleBookmarkToggle}
+                onPostUpdated={(updated) => setPost(updated)}
+                onPostDeleted={() => navigate('/community')}
                 currentUserId={currentUser?.uid}
               />
 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { EditPostModal } from './EditPostModal';
+import { deletePost } from '../../services/communityService';
 import {
   FiArrowUp,
   FiMessageSquare,
@@ -35,11 +37,16 @@ export function PostCard({
   onBookmarkToggle,
   onCommentClick,
   onAuthorClick,
+  onPostUpdated,
+  onPostDeleted,
+  onReportClick,
   currentUserId
 }) {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const {
     id,
@@ -55,7 +62,7 @@ export function PostCard({
     createdAt
   } = post;
 
-  const isOwner = currentUserId && author?.id === currentUserId;
+  const isOwner = currentUserId && (author?.uid === currentUserId || author?.id === currentUserId);
 
   const handleCopyShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -63,73 +70,125 @@ export function PostCard({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await deletePost(id);
+      if (onPostDeleted) {
+        onPostDeleted(id);
+      }
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+      alert(err.response?.data?.message || 'Failed to delete post.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
-    <article className="community-post-card">
-      {/* Card Top Header */}
-      <div className="post-card-header">
-        <div className="post-author-meta" onClick={() => onAuthorClick && onAuthorClick(author)}>
-          {author?.avatar ? (
-            <img src={author.avatar} alt={author.name} className="post-author-avatar" />
-          ) : (
-            <div className="post-author-placeholder">
-              {author?.name ? author.name.charAt(0).toUpperCase() : 'S'}
-            </div>
-          )}
-          <div className="author-info-text">
-            <div className="author-name-row">
-              <span className="author-name">{author?.name || 'Anonymous Sakhi'}</span>
-              {author?.role && <span className="author-role">• {author.role}</span>}
-            </div>
-            <div className="post-sub-meta">
-              <span className="post-time">{formatRelativeTime(createdAt)}</span>
-              {category && <span className="post-category-tag">{category}</span>}
+    <>
+      {showEditModal && (
+        <EditPostModal
+          post={post}
+          onClose={() => setShowEditModal(false)}
+          onPostUpdated={(updated) => {
+            if (onPostUpdated) onPostUpdated(updated);
+          }}
+        />
+      )}
+
+      <article className="community-post-card">
+        {/* Card Top Header */}
+        <div className="post-card-header">
+          <div className="post-author-meta" onClick={() => onAuthorClick && onAuthorClick(author)}>
+            {author?.avatar ? (
+              <img src={author.avatar} alt={author.name} className="post-author-avatar" />
+            ) : (
+              <div className="post-author-placeholder">
+                {author?.name ? author.name.charAt(0).toUpperCase() : 'S'}
+              </div>
+            )}
+            <div className="author-info-text">
+              <div className="author-name-row">
+                <span className="author-name">{author?.name || 'Anonymous Sakhi'}</span>
+                {author?.role && <span className="author-role">• {author.role}</span>}
+              </div>
+              <div className="post-sub-meta">
+                <span className="post-time">{formatRelativeTime(createdAt)}</span>
+                {category && <span className="post-category-tag">{category}</span>}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Options Menu Button */}
-        <div className="post-options-container">
-          <button
-            type="button"
-            className="post-menu-trigger"
-            onClick={() => setShowMenu((prev) => !prev)}
-            aria-label="Post options"
-          >
-            <FiMoreHorizontal />
-          </button>
+          {/* Options Menu Button */}
+          <div className="post-options-container">
+            <button
+              type="button"
+              className="post-menu-trigger"
+              onClick={() => setShowMenu((prev) => !prev)}
+              aria-label="Post options"
+            >
+              <FiMoreHorizontal />
+            </button>
 
-          {showMenu && (
-            <div className="post-context-menu">
-              <button
-                type="button"
-                className="context-menu-item"
-                onClick={() => {
-                  setShowMenu(false);
-                  handleCopyShare();
-                }}
-              >
-                {copied ? <FiCheck className="menu-icon text-success" /> : <FiShare2 className="menu-icon" />}
-                {copied ? 'Link Copied!' : 'Share Post'}
-              </button>
-
-              {isOwner ? (
-                <>
-                  <button type="button" className="context-menu-item" onClick={() => setShowMenu(false)}>
-                    <FiEdit className="menu-icon" /> Edit Post
-                  </button>
-                  <button type="button" className="context-menu-item danger" onClick={() => setShowMenu(false)}>
-                    <FiTrash2 className="menu-icon" /> Delete Post
-                  </button>
-                </>
-              ) : (
-                <button type="button" className="context-menu-item danger" onClick={() => setShowMenu(false)}>
-                  <FiFlag className="menu-icon" /> Report Post
+            {showMenu && (
+              <div className="post-context-menu">
+                <button
+                  type="button"
+                  className="context-menu-item"
+                  onClick={() => {
+                    setShowMenu(false);
+                    handleCopyShare();
+                  }}
+                >
+                  {copied ? <FiCheck className="menu-icon text-success" /> : <FiShare2 className="menu-icon" />}
+                  {copied ? 'Link Copied!' : 'Share Post'}
                 </button>
-              )}
-            </div>
-          )}
+
+                {isOwner ? (
+                  <>
+                    <button
+                      type="button"
+                      className="context-menu-item"
+                      onClick={() => {
+                        setShowMenu(false);
+                        setShowEditModal(true);
+                      }}
+                    >
+                      <FiEdit className="menu-icon" /> Edit Post
+                    </button>
+                    <button
+                      type="button"
+                      className="context-menu-item danger"
+                      onClick={() => {
+                        setShowMenu(false);
+                        handleDelete();
+                      }}
+                      disabled={deleting}
+                    >
+                      <FiTrash2 className="menu-icon" /> Delete Post
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="context-menu-item danger"
+                    onClick={() => {
+                      setShowMenu(false);
+                      if (onReportClick) onReportClick(post);
+                    }}
+                  >
+                    <FiFlag className="menu-icon" /> Report Post
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
       {/* Card Content Body */}
       <div className="post-card-body" onClick={() => navigate(`/community/post/${id}`)}>
@@ -179,5 +238,6 @@ export function PostCard({
         </button>
       </div>
     </article>
+    </>
   );
 }
