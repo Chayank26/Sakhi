@@ -8,6 +8,7 @@ import { connectDB } from './config/db.js';
 import jobRoutes from './routes/jobRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
+import schemeRoutes from './routes/schemeRoutes.js';
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/jobs', jobRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/community', communityRoutes);
+app.use('/api/schemes', schemeRoutes);
 
 // Database connection
 connectDB();
