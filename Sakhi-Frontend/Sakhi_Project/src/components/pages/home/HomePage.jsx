@@ -19,7 +19,7 @@ const featureCards = [
         icon: '📜',
         title: 'Government Schemes',
         description: 'Discover scholarships, financial assistance, and government initiatives tailored to your needs.',
-        to: '/home/schemes',
+        to: '/schemes',
     },
     {
         icon: '🤝',
