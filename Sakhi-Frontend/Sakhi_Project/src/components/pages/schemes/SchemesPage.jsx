@@ -5,6 +5,7 @@ import { SchemeSearch } from '../../schemes/SchemeSearch';
 import { SchemeFilters } from '../../schemes/SchemeFilters';
 import { SchemeGrid } from '../../schemes/SchemeGrid';
 import { fetchSchemes, searchSchemes } from '../../../services/schemeApi';
+import { useDebounce } from '../../../hooks/useDebounce';
 import { FiCheckCircle, FiZap, FiBookOpen } from 'react-icons/fi';
 import './SchemesPage.css';
 
@@ -13,6 +14,7 @@ export function SchemesPage() {
   const [schemes, setSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 350);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [governmentLevel, setGovernmentLevel] = useState('All');
   const [selectedState, setSelectedState] = useState('All');
@@ -36,8 +38,8 @@ export function SchemesPage() {
         targetAudience: targetAudience !== 'All' ? targetAudience : undefined
       };
 
-      if (searchQuery.trim()) {
-        data = await searchSchemes(searchQuery.trim(), params);
+      if (debouncedSearchQuery.trim()) {
+        data = await searchSchemes(debouncedSearchQuery.trim(), params);
       } else {
         data = await fetchSchemes(params);
       }
@@ -54,7 +56,7 @@ export function SchemesPage() {
 
   useEffect(() => {
     loadSchemesData();
-  }, [searchQuery, selectedCategory, governmentLevel, selectedState, targetAudience]);
+  }, [debouncedSearchQuery, selectedCategory, governmentLevel, selectedState, targetAudience]);
 
   const handleBookmarkToggle = (schemeId) => {
     setBookmarkedSchemeIds((prev) => {
