@@ -17,6 +17,7 @@ import { SavedPostsPage } from './components/pages/community/SavedPostsPage'
 import { SchemesPage } from './components/pages/schemes/SchemesPage'
 import { SchemeDetailsPage } from './components/pages/schemes/SchemeDetailsPage'
 import { SavedSchemesPage } from './components/pages/schemes/SavedSchemesPage'
+import { AiChatPage } from './components/pages/ai/AiChatPage'
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/ai" element={<AiChatPage />} />
+        <Route path="/home/ai" element={<AiChatPage />} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/jobs/create" element={<CreateJobPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailsPage />} />

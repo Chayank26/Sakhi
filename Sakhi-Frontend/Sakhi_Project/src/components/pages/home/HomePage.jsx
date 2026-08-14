@@ -53,7 +53,7 @@ export function HomePage() {
                         ))}
                     </div>
 
-                    <Link className="ai-cta" to="/home/ai">
+                    <Link className="ai-cta" to="/ai">
                         <span className="ai-icon">🤖</span>
                         <div>
                             <strong>Ask Sakhi AI</strong>
