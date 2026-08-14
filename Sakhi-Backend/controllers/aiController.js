@@ -6,17 +6,26 @@ import { generateAiResponseService } from '../services/aiService.js';
  */
 export const chatWithAi = async (req, res) => {
     try {
-        const { message } = req.body;
+        const { message, messages } = req.body;
 
-        // Input validation
-        if (!message || typeof message !== 'string' || !message.trim()) {
+        // Input validation: Must have either valid messages array or non-empty message string
+        const hasValidMessagesArray = Array.isArray(messages) && messages.length > 0 && messages.every(
+            (m) => m && typeof m.content === 'string' && m.content.trim() && (m.role === 'user' || m.role === 'assistant')
+        );
+
+        const hasValidSingleMessage = typeof message === 'string' && message.trim().length > 0;
+
+        if (!hasValidMessagesArray && !hasValidSingleMessage) {
             return res.status(400).json({
                 success: false,
-                message: 'Message field is required and cannot be empty.'
+                message: 'Request payload must include a non-empty "message" string or a valid "messages" array.'
             });
         }
 
-        const result = await generateAiResponseService({ message: message.trim() });
+        const result = await generateAiResponseService({
+            message: hasValidSingleMessage ? message.trim() : undefined,
+            messages: hasValidMessagesArray ? messages : undefined
+        });
 
         res.json({
             success: true,

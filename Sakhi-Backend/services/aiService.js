@@ -7,14 +7,16 @@ import { SAKHI_SYSTEM_PROMPT } from '../ai/prompts/sakhiSystemPrompt.js';
  */
 
 /**
- * Generate AI chat response from user message
+ * Generate AI chat response from user message or conversation history
  * @param {Object} params
- * @param {string} params.message - The incoming message string from the user
+ * @param {string} [params.message] - Single user message string
+ * @param {Array} [params.messages] - Multi-turn message history array
  * @returns {Promise<Object>} Object containing response message
  */
-export const generateAiResponseService = async ({ message }) => {
+export const generateAiResponseService = async ({ message, messages }) => {
     const replyText = await callCloudLlm({
         prompt: message,
+        messages: Array.isArray(messages) && messages.length > 0 ? messages : undefined,
         systemInstruction: SAKHI_SYSTEM_PROMPT
     });
 

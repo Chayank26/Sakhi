@@ -23,11 +23,12 @@ const getModelName = () => {
 /**
  * Call Cloud LLM API using Google Gemini Interactions API
  * @param {Object} options
- * @param {string} options.prompt - The user input or conversation text
+ * @param {string} [options.prompt] - Single user query string
+ * @param {Array} [options.messages] - Multi-turn conversation messages [{ role: 'user'|'assistant', content: string }]
  * @param {string} [options.systemInstruction] - Optional system prompt instruction
  * @returns {Promise<string>} Generative text response from LLM
  */
-export const callCloudLlm = async ({ prompt, systemInstruction = '' }) => {
+export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = '' }) => {
     const apiKey = getApiKey();
     const model = getModelName();
 
@@ -40,9 +41,19 @@ export const callCloudLlm = async ({ prompt, systemInstruction = '' }) => {
     try {
         const ai = new GoogleGenAI({ apiKey });
 
+        let inputPrompt = '';
+        if (Array.isArray(messages) && messages.length > 0) {
+            // Format multi-turn conversation turns
+            inputPrompt = messages
+                .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+                .join('\n');
+        } else {
+            inputPrompt = prompt || '';
+        }
+
         const interactionPayload = {
             model,
-            input: prompt
+            input: inputPrompt
         };
 
         if (systemInstruction) {

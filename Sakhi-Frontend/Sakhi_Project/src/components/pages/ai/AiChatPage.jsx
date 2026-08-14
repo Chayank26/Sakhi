@@ -68,8 +68,19 @@ export function AiChatPage() {
     setIsTyping(true);
 
     try {
-      // Call Express backend endpoint POST /api/ai/chat
-      const data = await sendChatMessage(text);
+      // Build conversation history payload for Phase 5 multi-turn context
+      const existingHistory = messages.map((m) => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.text
+      }));
+
+      const historyPayload = [
+        ...existingHistory,
+        { role: 'user', content: text }
+      ];
+
+      // Call Express backend endpoint POST /api/ai/chat with conversation history
+      const data = await sendChatMessage(historyPayload);
       const replyText = data && data.message ? data.message : 'No response from Sakhi AI.';
 
       const aiMessage = {
