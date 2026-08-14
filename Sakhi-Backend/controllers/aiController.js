@@ -25,9 +25,10 @@ export const chatWithAi = async (req, res) => {
         });
     } catch (error) {
         console.error('[AI Controller Error]: Failed to process chat request:', error);
-        res.status(500).json({
+        const statusCode = error.statusCode || 500;
+        res.status(statusCode).json({
             success: false,
-            message: 'An error occurred while processing your AI request.',
+            message: error.message || 'An error occurred while processing your AI request.',
             error: error.message
         });
     }

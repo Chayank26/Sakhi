@@ -1,7 +1,8 @@
+import { callCloudLlm } from '../ai/llm.js';
+
 /**
  * Sakhi AI Service Abstraction Layer
  * Isolates AI response generation logic from HTTP controllers and Express routes.
- * In Phase 3, this service layer will invoke the Cloud LLM provider (e.g. Gemini / OpenAI).
  */
 
 /**
@@ -11,8 +12,7 @@
  * @returns {Promise<Object>} Object containing response message
  */
 export const generateAiResponseService = async ({ message }) => {
-    // Phase 2 temporary response placeholder before connecting Cloud LLM in Phase 3
-    const replyText = `🤖 Backend AI Endpoint Connected! Received message: "${message}". Cloud LLM connection will be established in Phase 3.`;
+    const replyText = await callCloudLlm({ prompt: message });
 
     return {
         message: replyText,
