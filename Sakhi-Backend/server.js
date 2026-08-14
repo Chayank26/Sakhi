@@ -9,6 +9,7 @@ import jobRoutes from './routes/jobRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
 import schemeRoutes from './routes/schemeRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/jobs', jobRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/schemes', schemeRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Database connection
 connectDB();

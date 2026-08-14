@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { sendChatMessage } from '../../../services/aiApi';
 import {
   FiSend,
   FiArrowLeft,
@@ -45,7 +46,7 @@ export function AiChatPage() {
   }, [messages, isTyping]);
 
   // Handle message submission
-  const handleSend = (textToSend = null) => {
+  const handleSend = async (textToSend = null) => {
     const text = (textToSend || inputValue).trim();
     if (!text || isTyping) return;
 
@@ -64,30 +65,33 @@ export function AiChatPage() {
       textareaRef.current.style.height = 'auto';
     }
 
-    // Simulate AI thinking and mock response for Phase 1
     setIsTyping(true);
 
-    setTimeout(() => {
-      let mockReplyText = `🤖 Thanks for your question: "${text}". I am currently running in Phase 1 (UI Mock Mode). In Phase 3, I will connect directly to the Cloud LLM!`;
-
-      if (text.toLowerCase().includes('job')) {
-        mockReplyText = `💼 I see you are asking about jobs! In Phase 7, I will connect to the Sakhi Jobs database tool to search real software engineering jobs in Chennai for you.`;
-      } else if (text.toLowerCase().includes('course') || text.toLowerCase().includes('learning')) {
-        mockReplyText = `🎓 Great question about learning! In Phase 8, I will query the Sakhi Academy database tool to recommend real courses for you.`;
-      } else if (text.toLowerCase().includes('scheme') || text.toLowerCase().includes('government')) {
-        mockReplyText = `📜 Looking for welfare support? In Phase 9, I will search the Sakhi Government Schemes collection for verified schemes!`;
-      }
+    try {
+      // Call Express backend endpoint POST /api/ai/chat
+      const data = await sendChatMessage(text);
+      const replyText = data && data.message ? data.message : 'No response from Sakhi AI.';
 
       const aiMessage = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
-        text: mockReplyText,
+        text: replyText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Failed to communicate with Sakhi AI backend:', error);
+      const errorMessage = {
+        id: `error-${Date.now()}`,
+        sender: 'ai',
+        text: '⚠️ Unable to connect to Sakhi AI backend. Please check your connection and try again.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1000);
+    }
   };
 
   // Handle keypress inside textarea (Enter sends, Shift+Enter newline)
