@@ -1,4 +1,5 @@
 import { callCloudLlm } from '../ai/llm.js';
+import { SAKHI_SYSTEM_PROMPT } from '../ai/prompts/sakhiSystemPrompt.js';
 
 /**
  * Sakhi AI Service Abstraction Layer
@@ -12,7 +13,10 @@ import { callCloudLlm } from '../ai/llm.js';
  * @returns {Promise<Object>} Object containing response message
  */
 export const generateAiResponseService = async ({ message }) => {
-    const replyText = await callCloudLlm({ prompt: message });
+    const replyText = await callCloudLlm({
+        prompt: message,
+        systemInstruction: SAKHI_SYSTEM_PROMPT
+    });
 
     return {
         message: replyText,
