@@ -96,10 +96,17 @@ export function AiChatPage() {
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error('Failed to communicate with Sakhi AI backend:', error);
+      const serverMsg = error.response?.data?.message;
+      const is429 = error.response?.status === 429;
+      
+      const errorText = is429
+        ? '⏳ Google Gemini Free Tier rate limit reached (20 requests/min). Please wait 5–10 seconds and try again!'
+        : (serverMsg || '⚠️ Unable to connect to Sakhi AI backend. Please check your connection and try again.');
+
       const errorMessage = {
         id: `error-${Date.now()}`,
         sender: 'ai',
-        text: '⚠️ Unable to connect to Sakhi AI backend. Please check your connection and try again.',
+        text: errorText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, errorMessage]);

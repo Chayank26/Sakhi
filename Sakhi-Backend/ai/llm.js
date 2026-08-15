@@ -61,8 +61,36 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
             interactionPayload.system_instruction = systemInstruction;
         }
 
+        /**
+         * Helper to execute Gemini Interaction API requests with retries ONLY for transient server/network errors (5xx/timeouts).
+         * Non-retryable status codes (400, 401, 403, 404, 429 quota) immediately fail without retrying.
+         */
+        const createWithRetry = async (payload, maxRetries = 1) => {
+            let attempt = 0;
+            while (true) {
+                try {
+                    return await ai.interactions.create(payload);
+                } catch (err) {
+                    const status = err.status || err.statusCode || 500;
+                    const errMessage = err.message || err.toString() || '';
+
+                    // Do NOT retry quota/rate-limit errors (429), authentication (401/403), client errors (400), or missing model (404)
+                    const isQuotaOr429 = status === 429 || errMessage.includes('429') || errMessage.includes('Quota exceeded') || errMessage.includes('RESOURCE_EXHAUSTED');
+                    const isNonRetryable = isQuotaOr429 || status === 400 || status === 401 || status === 403 || status === 404;
+
+                    if (isNonRetryable || attempt >= maxRetries) {
+                        throw err;
+                    }
+
+                    attempt++;
+                    console.warn(`[Cloud LLM]: Transient error (${status}). Retrying attempt ${attempt}/${maxRetries} in 1s...`);
+                    await new Promise((r) => setTimeout(r, 1000));
+                }
+            }
+        };
+
         // Pass 1: Call Google Gemini Interactions API with tools declared
-        let response = await ai.interactions.create(interactionPayload);
+        let response = await createWithRetry(interactionPayload);
 
         let actions = [];
 
@@ -101,7 +129,7 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
                 synthesisPayload.system_instruction = systemInstruction;
             }
 
-            response = await ai.interactions.create(synthesisPayload);
+            response = await createWithRetry(synthesisPayload);
         }
 
         // Extract response text from Interactions API response object
@@ -121,29 +149,44 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
             actions
         };
     } catch (error) {
-        console.error('[Cloud LLM Error]:', error.message || error);
-
-        if (error.statusCode) throw error;
-
-        const errMessage = error.message || '';
-        const newErr = new Error(errMessage || 'Failed to generate response from Cloud LLM.');
-
-        if (errMessage.includes('API_KEY_INVALID') || errMessage.includes('API key not valid') || errMessage.includes('401') || error.status === 401) {
-            newErr.statusCode = 401;
-            newErr.message = 'Invalid or unauthorized GEMINI_API_KEY. Please verify your API key in Sakhi-Backend/.env.';
-        } else if (errMessage.includes('no longer available') || errMessage.includes('not_found') || error.status === 404) {
-            newErr.statusCode = 404;
-            newErr.message = `The specified Gemini model "${model}" was not found or is deprecated. Please set GEMINI_MODEL=gemini-3.6-flash in Sakhi-Backend/.env.`;
-        } else if (errMessage.includes('429') || errMessage.includes('RESOURCE_EXHAUSTED') || errMessage.includes('Quota exceeded') || error.status === 429) {
-            newErr.statusCode = 429;
-            newErr.message = 'Cloud LLM API rate limit or quota exceeded. Please try again in a few moments.';
-        } else if (errMessage.includes('TIMEOUT') || errMessage.includes('ETIMEDOUT')) {
-            newErr.statusCode = 504;
-            newErr.message = 'Cloud LLM API request timed out. Please try again.';
-        } else {
-            newErr.statusCode = 500;
+        if (error.statusCode && error.statusCode !== 500) {
+            throw error;
         }
 
-        throw newErr;
+        const status = error.status || error.statusCode || 500;
+        const errMessage = error.message || error.toString() || '';
+
+        let cleanStatusCode = status;
+        let userFriendlyMessage = 'An error occurred while processing your AI request.';
+
+        if (status === 429 || errMessage.includes('429') || errMessage.includes('Quota exceeded') || errMessage.includes('RESOURCE_EXHAUSTED')) {
+            cleanStatusCode = 429;
+            // Extract retry delay in seconds from Google's API error message (e.g., "Please retry in 37.711s")
+            const retryMatch = errMessage.match(/retry in ([0-9]+(?:\.[0-9]+)?)s/i) || errMessage.match(/retry in (?:about|approximately)?\s*([0-9]+)\s*seconds/i);
+            const seconds = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : 40;
+            userFriendlyMessage = `AI service quota has been reached. Please try again in about ${seconds} seconds.`;
+        } else if (status === 401 || status === 403 || errMessage.includes('401') || errMessage.includes('API_KEY_INVALID')) {
+            cleanStatusCode = 401;
+            userFriendlyMessage = 'Invalid or unauthorized GEMINI_API_KEY. Please verify your API key in Sakhi-Backend/.env.';
+        } else if (status === 404 || errMessage.includes('404') || errMessage.includes('not_found')) {
+            cleanStatusCode = 404;
+            userFriendlyMessage = `The specified Gemini model "${model}" was not found or is deprecated. Please set GEMINI_MODEL=gemini-3.6-flash in Sakhi-Backend/.env.`;
+        } else if (status === 400 || errMessage.includes('400')) {
+            cleanStatusCode = 400;
+            userFriendlyMessage = 'Invalid request parameters sent to AI service.';
+        } else if (status === 504 || errMessage.includes('TIMEOUT') || errMessage.includes('ETIMEDOUT')) {
+            cleanStatusCode = 504;
+            userFriendlyMessage = 'Cloud LLM API request timed out. Please try again.';
+        } else {
+            cleanStatusCode = 500;
+            userFriendlyMessage = 'Cloud LLM service encountered an unexpected error. Please try again.';
+        }
+
+        // Log error once in a clean, concise format (no huge multi-page stack traces)
+        console.error(`[Cloud LLM Error]: HTTP ${cleanStatusCode} - ${userFriendlyMessage}`);
+
+        const formattedError = new Error(userFriendlyMessage);
+        formattedError.statusCode = cleanStatusCode;
+        throw formattedError;
     }
 };
