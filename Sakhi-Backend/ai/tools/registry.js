@@ -1,17 +1,9 @@
+import { searchJobsToolHandler } from './jobTool.js';
+
 /**
  * Sakhi AI Tool Execution Registry & Dispatcher Module
  * Handles dispatching tool calls invoked by Gemini agent.
  */
-
-// Initial Phase 6 tool handlers (Mock/Placeholder architecture setup before MongoDB integration in Phase 7-9)
-const searchJobsHandler = async (args) => {
-    return {
-        status: 'tool_executed',
-        tool: 'searchJobs',
-        message: 'Sakhi Jobs tool dispatcher active. MongoDB query integration will be attached in Phase 7.',
-        parametersReceived: args
-    };
-};
 
 const searchCoursesHandler = async (args) => {
     return {
@@ -32,7 +24,7 @@ const searchGovernmentSchemesHandler = async (args) => {
 };
 
 export const TOOL_REGISTRY = {
-    searchJobs: searchJobsHandler,
+    searchJobs: searchJobsToolHandler,
     searchCourses: searchCoursesHandler,
     searchGovernmentSchemes: searchGovernmentSchemesHandler
 };
