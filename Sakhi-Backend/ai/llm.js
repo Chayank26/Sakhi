@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { SAKHI_TOOL_DECLARATIONS, dispatchToolCall } from './tools/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,7 +10,7 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 /**
  * Cloud LLM Provider Abstraction Module for Sakhi AI
- * Migrated to Google's official Gemini Interactions API (`ai.interactions.create`).
+ * Autonomous Agent Tool Calling Engine (`ai.interactions.create`).
  */
 
 const getApiKey = () => {
@@ -21,7 +22,7 @@ const getModelName = () => {
 };
 
 /**
- * Call Cloud LLM API using Google Gemini Interactions API
+ * Call Cloud LLM API using Google Gemini Interactions API with Autonomous Tool Calling
  * @param {Object} options
  * @param {string} [options.prompt] - Single user query string
  * @param {Array} [options.messages] - Multi-turn conversation messages [{ role: 'user'|'assistant', content: string }]
@@ -43,7 +44,6 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
 
         let inputPrompt = '';
         if (Array.isArray(messages) && messages.length > 0) {
-            // Format multi-turn conversation turns
             inputPrompt = messages
                 .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
                 .join('\n');
@@ -53,15 +53,43 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
 
         const interactionPayload = {
             model,
-            input: inputPrompt
+            input: inputPrompt,
+            tools: SAKHI_TOOL_DECLARATIONS
         };
 
         if (systemInstruction) {
             interactionPayload.system_instruction = systemInstruction;
         }
 
-        // Call Google Gemini Interactions API
-        const response = await ai.interactions.create(interactionPayload);
+        // Pass 1: Call Google Gemini Interactions API with tools declared
+        let response = await ai.interactions.create(interactionPayload);
+
+        // Check if Gemini autonomous agent requested a tool call (status === 'requires_action')
+        const toolCallStep = response.steps && response.steps.find((s) => s.type === 'function_call');
+
+        if (response.status === 'requires_action' && toolCallStep) {
+            const toolName = toolCallStep.name;
+            const toolArgs = toolCallStep.arguments || {};
+
+            console.log(`[Sakhi AI Agent]: Gemini requested tool execution "${toolName}" with args:`, toolArgs);
+
+            // Execute requested tool via Sakhi AI Tool Dispatcher
+            const toolResult = await dispatchToolCall(toolName, toolArgs);
+
+            // Pass 2: Feed structured tool execution result back to Gemini to synthesize final response
+            const synthesisPrompt = `User query: "${inputPrompt}"\nSakhi Tool "${toolName}" executed successfully and returned result: ${JSON.stringify(toolResult)}\n\nPlease synthesize a friendly, clear, and helpful response for the user based on these tool results.`;
+
+            const synthesisPayload = {
+                model,
+                input: synthesisPrompt
+            };
+
+            if (systemInstruction) {
+                synthesisPayload.system_instruction = systemInstruction;
+            }
+
+            response = await ai.interactions.create(synthesisPayload);
+        }
 
         // Extract response text from Interactions API response object
         const replyText = (
