@@ -10,7 +10,8 @@ import {
   FiBriefcase,
   FiBookOpen,
   FiShield,
-  FiUser
+  FiUser,
+  FiExternalLink
 } from 'react-icons/fi';
 import './AiChatPage.css';
 
@@ -82,11 +83,13 @@ export function AiChatPage() {
       // Call Express backend endpoint POST /api/ai/chat with conversation history
       const data = await sendChatMessage(historyPayload);
       const replyText = data && data.message ? data.message : 'No response from Sakhi AI.';
+      const actions = data && Array.isArray(data.actions) ? data.actions : [];
 
       const aiMessage = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         text: replyText,
+        actions,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -176,6 +179,23 @@ export function AiChatPage() {
 
               <div className={`message-bubble ${msg.sender === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
                 <div className="bubble-content">{msg.text}</div>
+
+                {Array.isArray(msg.actions) && msg.actions.length > 0 && (
+                  <div className="bubble-actions">
+                    {msg.actions.map((act, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        className="btn-action-nav"
+                        onClick={() => navigate(act.route)}
+                      >
+                        <span>{act.label}</span>
+                        <FiExternalLink />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 <div className="bubble-timestamp">{msg.timestamp}</div>
               </div>
 

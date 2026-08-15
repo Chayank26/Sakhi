@@ -64,6 +64,8 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
         // Pass 1: Call Google Gemini Interactions API with tools declared
         let response = await ai.interactions.create(interactionPayload);
 
+        let actions = [];
+
         // Check if Gemini autonomous agent requested tool calls (status === 'requires_action')
         const toolCallSteps = response.steps ? response.steps.filter((s) => s.type === 'function_call') : [];
 
@@ -77,6 +79,11 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
                     return { toolName: step.name, arguments: step.arguments, result: res };
                 })
             );
+
+            // Collect structured action objects from tool outputs
+            actions = toolResults
+                .map((tr) => tr.result && tr.result.action)
+                .filter(Boolean);
 
             const formattedResults = toolResults
                 .map((tr) => `Sakhi Tool "${tr.toolName}" returned: ${JSON.stringify(tr.result)}`)
@@ -109,7 +116,10 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
             throw new Error('LLM returned an empty response candidate.');
         }
 
-        return replyText;
+        return {
+            text: replyText,
+            actions
+        };
     } catch (error) {
         console.error('[Cloud LLM Error]:', error.message || error);
 

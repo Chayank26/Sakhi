@@ -30,6 +30,7 @@ export const chatWithAi = async (req, res) => {
         res.json({
             success: true,
             message: result.message,
+            actions: result.actions || [],
             timestamp: result.timestamp
         });
     } catch (error) {

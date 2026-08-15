@@ -93,13 +93,26 @@ export const searchJobsToolHandler = async (args = {}) => {
             description: j.description ? j.description.slice(0, 150) + '...' : ''
         }));
 
+        // Construct structured navigation action
+        const navParams = new URLSearchParams();
+        if (keyword) navParams.set('q', keyword);
+        if (location) navParams.set('location', location);
+        const routeQuery = navParams.toString() ? `?${navParams.toString()}` : '';
+
+        const action = {
+            label: `View Jobs ${location ? 'in ' + location : ''}`.trim(),
+            type: 'navigation',
+            route: `/jobs${routeQuery}`
+        };
+
         console.log(`[Job Tool]: Query executed successfully. Found ${formattedJobs.length} matching jobs.`);
 
         return {
             success: true,
             totalFound: formattedJobs.length,
             searchCriteria: args,
-            jobs: formattedJobs
+            jobs: formattedJobs,
+            action
         };
     } catch (error) {
         console.error('[Job Tool Error]: Failed to query MongoDB Jobs:', error);

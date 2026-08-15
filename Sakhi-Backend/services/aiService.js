@@ -14,14 +14,18 @@ import { SAKHI_SYSTEM_PROMPT } from '../ai/prompts/sakhiSystemPrompt.js';
  * @returns {Promise<Object>} Object containing response message
  */
 export const generateAiResponseService = async ({ message, messages }) => {
-    const replyText = await callCloudLlm({
+    const llmResult = await callCloudLlm({
         prompt: message,
         messages: Array.isArray(messages) && messages.length > 0 ? messages : undefined,
         systemInstruction: SAKHI_SYSTEM_PROMPT
     });
 
+    const replyText = typeof llmResult === 'string' ? llmResult : (llmResult.text || '');
+    const actions = typeof llmResult === 'object' && Array.isArray(llmResult.actions) ? llmResult.actions : [];
+
     return {
         message: replyText,
+        actions,
         timestamp: new Date().toISOString()
     };
 };

@@ -106,13 +106,27 @@ export const searchGovernmentSchemesToolHandler = async (args = {}) => {
             officialWebsite: s.officialWebsite || s.applicationUrl || ''
         }));
 
+        // Construct structured navigation action
+        const navParams = new URLSearchParams();
+        if (query) navParams.set('q', query);
+        if (category) navParams.set('category', category);
+        if (state && state !== 'All India') navParams.set('state', state);
+        const routeQuery = navParams.toString() ? `?${navParams.toString()}` : '';
+
+        const action = {
+            label: `View Government Schemes ${category ? '(' + category + ')' : ''}`.trim(),
+            type: 'navigation',
+            route: `/schemes${routeQuery}`
+        };
+
         console.log(`[Scheme Tool]: Query executed successfully. Found ${formattedSchemes.length} matching schemes.`);
 
         return {
             success: true,
             totalFound: formattedSchemes.length,
             searchCriteria: args,
-            schemes: formattedSchemes
+            schemes: formattedSchemes,
+            action
         };
     } catch (error) {
         console.error('[Scheme Tool Error]: Failed to query MongoDB GovernmentSchemes:', error);

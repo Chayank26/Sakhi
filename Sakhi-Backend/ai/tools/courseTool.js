@@ -90,13 +90,26 @@ export const searchCoursesToolHandler = async (args = {}) => {
             description: c.description ? c.description.slice(0, 150) + '...' : ''
         }));
 
+        // Construct structured navigation action
+        const navParams = new URLSearchParams();
+        if (query) navParams.set('search', query);
+        if (category) navParams.set('category', category);
+        const routeQuery = navParams.toString() ? `?${navParams.toString()}` : '';
+
+        const action = {
+            label: `View Courses ${query ? 'for ' + query : ''}`.trim(),
+            type: 'navigation',
+            route: `/academy${routeQuery}`
+        };
+
         console.log(`[Course Tool]: Query executed successfully. Found ${formattedCourses.length} matching courses.`);
 
         return {
             success: true,
             totalFound: formattedCourses.length,
             searchCriteria: args,
-            courses: formattedCourses
+            courses: formattedCourses,
+            action
         };
     } catch (error) {
         console.error('[Course Tool Error]: Failed to query MongoDB Courses:', error);
