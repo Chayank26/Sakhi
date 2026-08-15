@@ -64,20 +64,26 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
         // Pass 1: Call Google Gemini Interactions API with tools declared
         let response = await ai.interactions.create(interactionPayload);
 
-        // Check if Gemini autonomous agent requested a tool call (status === 'requires_action')
-        const toolCallStep = response.steps && response.steps.find((s) => s.type === 'function_call');
+        // Check if Gemini autonomous agent requested tool calls (status === 'requires_action')
+        const toolCallSteps = response.steps ? response.steps.filter((s) => s.type === 'function_call') : [];
 
-        if (response.status === 'requires_action' && toolCallStep) {
-            const toolName = toolCallStep.name;
-            const toolArgs = toolCallStep.arguments || {};
+        if (response.status === 'requires_action' && toolCallSteps.length > 0) {
+            console.log(`[Sakhi AI Agent]: Gemini requested execution of ${toolCallSteps.length} tool(s).`);
 
-            console.log(`[Sakhi AI Agent]: Gemini requested tool execution "${toolName}" with args:`, toolArgs);
+            // Execute all requested tools in parallel via Sakhi AI Tool Dispatcher
+            const toolResults = await Promise.all(
+                toolCallSteps.map(async (step) => {
+                    const res = await dispatchToolCall(step.name, step.arguments || {});
+                    return { toolName: step.name, arguments: step.arguments, result: res };
+                })
+            );
 
-            // Execute requested tool via Sakhi AI Tool Dispatcher
-            const toolResult = await dispatchToolCall(toolName, toolArgs);
+            const formattedResults = toolResults
+                .map((tr) => `Sakhi Tool "${tr.toolName}" returned: ${JSON.stringify(tr.result)}`)
+                .join('\n\n');
 
-            // Pass 2: Feed structured tool execution result back to Gemini to synthesize final response
-            const synthesisPrompt = `User query: "${inputPrompt}"\nSakhi Tool "${toolName}" executed successfully and returned result: ${JSON.stringify(toolResult)}\n\nPlease synthesize a friendly, clear, and helpful response for the user based on these tool results.`;
+            // Pass 2: Feed all structured tool execution results back to Gemini to synthesize combined response
+            const synthesisPrompt = `User query: "${inputPrompt}"\n\n${formattedResults}\n\nPlease synthesize a friendly, clear, and structured response for the user. When multiple tools are invoked (such as jobs and courses), clearly separate your response into:\n- Recommended Jobs\n- Recommended Courses\n- Why each recommendation is relevant to their goals.`;
 
             const synthesisPayload = {
                 model,
