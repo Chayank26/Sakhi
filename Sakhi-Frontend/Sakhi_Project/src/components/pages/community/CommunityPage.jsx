@@ -193,7 +193,7 @@ export function CommunityPage() {
       <div className="community-hero-banner">
         <div className="hero-content-wrapper">
           <div className="hero-badge">
-            <span className="sparkle-emoji">🌸</span> Sakhi Community Forum
+            Sakhi Community Forum
           </div>
           <h1 className="hero-title">A safe space to connect, share and learn together.</h1>
           <p className="hero-subtitle">

@@ -133,7 +133,7 @@ export function AcademyPage() {
                 <div className="academy-header-container">
                     <div className="academy-brand">
                         <Link to="/home" className="academy-logo">
-                            <span className="brand-badge">🎓 Sakhi</span>
+                            <span className="brand-badge">Sakhi</span>
                             <span className="brand-sub">Academy</span>
                         </Link>
                     </div>
@@ -177,7 +177,7 @@ export function AcademyPage() {
                 <section className="featured-carousel-section">
                     <div className="carousel-container">
                         <div className="carousel-header">
-                            <h2>🌟 Featured Courses</h2>
+                            <h2>Featured Courses</h2>
                             <div className="carousel-controls">
                                 <button
                                     onClick={() => setActiveCarouselIdx((prev) => (prev > 0 ? prev - 1 : featuredCourses.length - 1))}
@@ -399,7 +399,7 @@ export function AcademyPage() {
                         ) : courses.length === 0 ? (
                             /* Empty State */
                             <div className="courses-empty-state">
-                                <div className="empty-icon">📚</div>
+                                <div className="empty-icon"><FiBookOpen /></div>
                                 <h3>No matching courses found</h3>
                                 <p>Try searching for another topic or clear some of your selected filters.</p>
                                 <button onClick={handleResetFilters} className="btn-reset-filters-large">

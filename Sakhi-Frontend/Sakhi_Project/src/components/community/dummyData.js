@@ -59,7 +59,7 @@ export const INITIAL_DUMMY_POSTS = [
       role: 'Handicraft Artisan & Entrepreneur'
     },
     title: 'My small business reached 500 online orders thanks to Sakhi Network!',
-    content: 'Started my eco-friendly home decor store 6 months ago feeling unsure about digital marketing. Thanks to advice shared in this community and Sakhi Academy modules, we just fulfilled our 500th order! Never give up on your dreams, sisters! 🌸💪',
+    content: 'Started my eco-friendly home decor store 6 months ago feeling unsure about digital marketing. Thanks to advice shared in this community and Sakhi Academy modules, we just fulfilled our 500th order! Never give up on your dreams, sisters!',
     imageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1000&auto=format&fit=crop&q=80',
     category: 'Success Stories',
     likesCount: 112,

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import { sendChatMessage } from '../../../services/aiApi';
 import {
   FiSend,
@@ -11,22 +12,25 @@ import {
   FiBookOpen,
   FiShield,
   FiUser,
-  FiExternalLink
+  FiExternalLink,
+  FiCpu,
+  FiFileText,
+  FiGrid
 } from 'react-icons/fi';
 import './AiChatPage.css';
 
 const INITIAL_WELCOME_MESSAGE = {
   id: 'welcome-1',
   sender: 'ai',
-  text: "🤖 Hi! I'm Sakhi AI. How can I help you today?",
+  text: "Hello! I am Sakhi AI, your digital assistant on the Sakhi platform. How can I help you today?",
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 };
 
 const SUGGESTED_PROMPTS = [
-  { icon: '💼', label: 'Find jobs in Chennai', prompt: 'Find me software engineering jobs in Chennai.' },
-  { icon: '🎓', label: 'Recommend courses for me', prompt: 'Recommend data analytics courses for me.' },
-  { icon: '📜', label: 'Government schemes for women', prompt: 'What government schemes are available for women entrepreneurs?' },
-  { icon: '🌸', label: 'What can I do on Sakhi?', prompt: 'What features and services are available on Sakhi?' }
+  { icon: <FiBriefcase />, label: 'Find jobs in Chennai', prompt: 'Find me software engineering jobs in Chennai.' },
+  { icon: <FiBookOpen />, label: 'Recommend courses for me', prompt: 'Recommend data analytics courses for me.' },
+  { icon: <FiFileText />, label: 'Government schemes for women', prompt: 'What government schemes are available for women entrepreneurs?' },
+  { icon: <FiGrid />, label: 'What can I do on Sakhi?', prompt: 'What features and services are available on Sakhi?' }
 ];
 
 export function AiChatPage() {
@@ -100,8 +104,8 @@ export function AiChatPage() {
       const is429 = error.response?.status === 429;
       
       const errorText = is429
-        ? '⏳ Google Gemini Free Tier rate limit reached (20 requests/min). Please wait 5–10 seconds and try again!'
-        : (serverMsg || '⚠️ Unable to connect to Sakhi AI backend. Please check your connection and try again.');
+        ? 'Google Gemini Free Tier rate limit reached (20 requests/min). Please wait 5–10 seconds and try again.'
+        : (serverMsg || 'Unable to connect to Sakhi AI backend. Please check your connection and try again.');
 
       const errorMessage = {
         id: `error-${Date.now()}`,
@@ -149,7 +153,7 @@ export function AiChatPage() {
             <FiArrowLeft />
           </button>
           <div className="ai-brand-badge">
-            <span className="brand-robot-avatar">🤖</span>
+            <span className="brand-robot-avatar"><FiCpu /></span>
             <div>
               <h1 className="ai-brand-title">Sakhi AI</h1>
               <p className="ai-brand-subtitle">Your personal Sakhi assistant</p>
@@ -181,11 +185,17 @@ export function AiChatPage() {
               className={`message-row ${msg.sender === 'user' ? 'user-row' : 'ai-row'}`}
             >
               {msg.sender === 'ai' && (
-                <div className="avatar-circle ai-avatar">🤖</div>
+                <div className="avatar-circle ai-avatar"><FiCpu /></div>
               )}
 
               <div className={`message-bubble ${msg.sender === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
-                <div className="bubble-content">{msg.text}</div>
+                <div className="bubble-content">
+                  {msg.sender === 'ai' ? (
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  ) : (
+                    msg.text
+                  )}
+                </div>
 
                 {Array.isArray(msg.actions) && msg.actions.length > 0 && (
                   <div className="bubble-actions">
@@ -217,7 +227,7 @@ export function AiChatPage() {
           {/* Typing Indicator */}
           {isTyping && (
             <div className="message-row ai-row">
-              <div className="avatar-circle ai-avatar">🤖</div>
+              <div className="avatar-circle ai-avatar"><FiCpu /></div>
               <div className="message-bubble ai-bubble typing-bubble">
                 <div className="typing-dots">
                   <span className="dot"></span>

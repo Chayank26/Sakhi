@@ -34,7 +34,7 @@ export const sendCourseEnrollmentEmail = async ({
         const htmlContent = `
             <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
                 <div style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; padding: 28px 24px; text-align: center;">
-                    <h1 style="margin: 0; font-size: 24px;">Welcome to Sakhi Academy! 🎓</h1>
+                    <h1 style="margin: 0; font-size: 24px;">Welcome to Sakhi Academy!</h1>
                     <p style="margin: 8px 0 0 0; font-size: 15px; opacity: 0.9;">Empowering Women Through Knowledge</p>
                 </div>
 

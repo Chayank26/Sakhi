@@ -297,7 +297,7 @@ export function SchemeDetailsPage() {
                 {/* Sakhi AI Integration Hook Card */}
                 <div className="sidebar-ai-box">
                   <div className="ai-box-badge">
-                    <span>✨ Sakhi AI Ready</span>
+                    <span>Sakhi AI Ready</span>
                   </div>
                   <h4>AI Eligibility Analysis</h4>
                   <p>

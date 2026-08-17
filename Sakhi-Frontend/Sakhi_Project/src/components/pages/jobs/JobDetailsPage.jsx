@@ -103,7 +103,7 @@ export function JobDetailsPage() {
                     <button onClick={() => navigate('/jobs')} className="btn-back-link">
                         <FiArrowLeft /> Back to Jobs
                     </button>
-                    <Link to="/home" className="brand-logo-text">💼 Sakhi Careers</Link>
+                    <Link to="/home" className="brand-logo-text">Sakhi Careers</Link>
                 </div>
             </header>
 

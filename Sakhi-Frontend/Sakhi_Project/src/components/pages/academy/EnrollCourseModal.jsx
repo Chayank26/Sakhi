@@ -74,7 +74,7 @@ export function EnrollCourseModal({ course, onClose, onSuccess }) {
                     {successMessage ? (
                         <div className="apply-success-state">
                             <FiCheckCircle className="success-icon" />
-                            <h4>Enrollment Successful! 🎉</h4>
+                            <h4>Enrollment Successful!</h4>
                             <p>{successMessage}</p>
                         </div>
                     ) : (

@@ -1,28 +1,29 @@
 import { Link } from 'react-router-dom'
+import { FiBriefcase, FiBookOpen, FiFileText, FiUsers, FiCpu } from 'react-icons/fi'
 import { HomeHeader } from './HomeHeader'
 import './HomePage.css'
 
 const featureCards = [
     {
-        icon: '💼',
+        icon: <FiBriefcase />,
         title: 'Career Opportunities',
         description: 'Browse jobs, internships, and career opportunities designed to help women grow professionally.',
         to: '/jobs',
     },
     {
-        icon: '🎓',
+        icon: <FiBookOpen />,
         title: 'Sakhi Academy',
         description: 'Learn through free courses, skill-building programs, and practical resources.',
         to: '/academy',
     },
     {
-        icon: '📜',
+        icon: <FiFileText />,
         title: 'Government Schemes',
         description: 'Discover scholarships, financial assistance, and government initiatives tailored to your needs.',
         to: '/schemes',
     },
     {
-        icon: '🤝',
+        icon: <FiUsers />,
         title: 'Community',
         description: 'Connect with other women, share experiences, ask questions, and grow together in a supportive environment.',
         to: '/home/community',
@@ -54,7 +55,7 @@ export function HomePage() {
                     </div>
 
                     <Link className="ai-cta" to="/ai">
-                        <span className="ai-icon">🤖</span>
+                        <span className="ai-icon"><FiCpu /></span>
                         <div>
                             <strong>Ask Sakhi AI</strong>
                             <p>Get instant guidance, career advice, and answers to your questions.</p>

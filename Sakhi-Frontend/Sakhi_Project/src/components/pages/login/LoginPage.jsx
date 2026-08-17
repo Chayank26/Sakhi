@@ -6,6 +6,7 @@ import {
     signInWithEmailAndPassword,
     signOut,
 } from 'firebase/auth'
+import { FiBriefcase, FiBookOpen, FiFileText, FiUsers } from 'react-icons/fi'
 import { auth } from '../firebase/firebase'
 import './LoginPage.css'
 
@@ -85,7 +86,7 @@ export function LoginPage() {
         <section className="section login-section" id="login">
             <div className="auth-card">
                 <div className="auth-copy">
-                    <div className="brand-badge">🌸 Sakhi</div>
+                    <div className="brand-badge">Sakhi</div>
                     <h2>{user ? 'You are signed in' : 'Empowering Women. Creating Opportunities.'}</h2>
                     <p>
                         {user
@@ -95,19 +96,19 @@ export function LoginPage() {
 
                     <div className="feature-list">
                         <div className="feature-pill">
-                            <span className="feature-icon">💼</span>
+                            <span className="feature-icon"><FiBriefcase /></span>
                             <span>Career Opportunities</span>
                         </div>
                         <div className="feature-pill">
-                            <span className="feature-icon">🎓</span>
+                            <span className="feature-icon"><FiBookOpen /></span>
                             <span>Sakhi Academy</span>
                         </div>
                         <div className="feature-pill">
-                            <span className="feature-icon">📜</span>
+                            <span className="feature-icon"><FiFileText /></span>
                             <span>Government Schemes</span>
                         </div>
                         <div className="feature-pill">
-                            <span className="feature-icon">🤝</span>
+                            <span className="feature-icon"><FiUsers /></span>
                             <span>Community & Safety</span>
                         </div>
                     </div>

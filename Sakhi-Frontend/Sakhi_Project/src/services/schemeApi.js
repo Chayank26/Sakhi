@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api/schemes';
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const ROOT_API = RAW_API_URL.endsWith('/api') ? RAW_API_URL : `${RAW_API_URL.replace(/\/+$/, '')}/api`;
+const API_BASE_URL = `${ROOT_API}/schemes`;
 
 /**
  * Fetch schemes list with filtering, sorting, and pagination

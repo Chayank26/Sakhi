@@ -152,7 +152,7 @@ export function CreateCoursePage() {
                     <button onClick={() => navigate('/academy')} className="btn-back-link">
                         <FiArrowLeft /> Back to Sakhi Academy
                     </button>
-                    <Link to="/home" className="brand-logo-text">🎓 Sakhi Academy</Link>
+                    <Link to="/home" className="brand-logo-text">Sakhi Academy</Link>
                 </div>
             </header>
 

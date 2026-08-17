@@ -26,7 +26,6 @@ export function CommunityHeader({ searchQuery, setSearchQuery, onCreatePostClick
         {/* Left: Brand logo & return link */}
         <div className="community-header-left">
           <Link to="/home" className="community-back-brand" title="Return to Sakhi Home">
-            <span className="brand-logo-badge">🌸</span>
             <span className="brand-title">Sakhi</span>
           </Link>
           <span className="brand-divider">/</span>

@@ -134,7 +134,7 @@ export function JobsPage() {
                 <div className="jobs-header-container">
                     <div className="jobs-brand-section">
                         <Link to="/home" className="jobs-brand-logo">
-                            <span className="brand-badge">💼 Sakhi</span>
+                            <span className="brand-badge">Sakhi</span>
                             <span className="brand-sub">Careers</span>
                         </Link>
                     </div>
@@ -386,7 +386,7 @@ export function JobsPage() {
                         ) : jobs.length === 0 ? (
                             /* Empty State */
                             <div className="jobs-empty-state">
-                                <div className="empty-icon">🔍</div>
+                                <div className="empty-icon"><FiSearch /></div>
                                 <h3>No matching jobs found</h3>
                                 <p>Try adjusting your search keywords or clearing some filter options.</p>
                                 <button onClick={handleResetFilters} className="btn-reset-filters-large">

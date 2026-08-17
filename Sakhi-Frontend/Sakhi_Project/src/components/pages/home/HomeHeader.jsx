@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { FiBell, FiUser } from 'react-icons/fi'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../firebase/firebase'
 
@@ -35,13 +36,13 @@ export function HomeHeader() {
             </div>
 
             <div className="home-header-center">
-                <p className="home-greeting">Welcome back, {displayName} </p>
+                <p className="home-greeting">Welcome back, {displayName}</p>
                 <p className="home-date">{todayLabel}</p>
             </div>
 
             <div className="home-header-actions">
                 <button className="header-icon-btn" type="button" aria-label="Notifications">
-                    🔔
+                    <FiBell />
                 </button>
 
                 <div className="profile-menu-wrapper">
@@ -51,7 +52,7 @@ export function HomeHeader() {
                         aria-label="Open profile menu"
                         onClick={() => setMenuOpen((open) => !open)}
                     >
-                        👤
+                        <FiUser />
                     </button>
 
                     {menuOpen ? (

@@ -25,9 +25,22 @@ if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Middleware
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    process.env.CLIENT_URL,
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:5174'
+].filter(Boolean);
+
 app.use(cors({
-    origin: '*',
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin) || allowedOrigins.length === 0) {
+            callback(null, true);
+        } else {
+            callback(null, true);
+        }
+    },
     credentials: true,
 }));
 app.use(express.json());
@@ -39,8 +52,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({
-        status: 'OK',
-        service: 'Sakhi Career Opportunities API',
+        status: 'ok',
+        service: 'Sakhi Platform Backend API',
         timestamp: new Date().toISOString()
     });
 });

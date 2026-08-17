@@ -8,7 +8,6 @@ export function SchemeHeader({ onSavedClick }) {
       <div className="scheme-header-inner">
         <div className="scheme-header-left">
           <Link to="/home" className="scheme-brand-link" title="Return to Sakhi Home">
-            <span className="brand-logo-badge">🌸</span>
             <span className="brand-title">Sakhi</span>
           </Link>
           <span className="brand-divider">/</span>

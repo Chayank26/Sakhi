@@ -5,7 +5,8 @@ import admin from 'firebase-admin';
 let isFirebaseAdminInitialized = false;
 
 try {
-    if (!admin.apps.length) {
+    const apps = admin.apps || admin.default?.apps || [];
+    if (!apps.length) {
         if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
             const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
             admin.initializeApp({

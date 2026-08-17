@@ -129,7 +129,7 @@ export function SavedPostsPage() {
                   <FiBookmark />
                 </div>
                 <h3>No saved posts yet</h3>
-                <p>Click the bookmark icon (🔖 Save) on any post in the community feed to save it here for quick access later.</p>
+                <p>Click the bookmark icon (Save) on any post in the community feed to save it here for quick access later.</p>
                 <button
                   type="button"
                   className="btn-explore-feed"
