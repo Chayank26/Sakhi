@@ -216,23 +216,40 @@ body {
   margin-top: 6px;
 }
 
-.feature-card {
-  display: block;
+.feature-card-link {
   text-decoration: none;
-  padding: 24px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(139, 92, 246, 0.12);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-  color: #1e1b4b;
-  text-align: left;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  display: block;
 }
 
-.feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 18px 40px rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.3);
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 24px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  color: #0f172a;
+  text-align: left;
+}
+
+.card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-arrow-icon {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.feature-card-link:hover .card-arrow-icon {
+  transform: translateX(4px);
+  color: #7c3aed;
 }
 
 .feature-icon {

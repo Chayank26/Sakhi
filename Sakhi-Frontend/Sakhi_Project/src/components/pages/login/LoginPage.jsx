@@ -7,6 +7,7 @@ import {
     signOut,
 } from 'firebase/auth'
 import { FiBriefcase, FiBookOpen, FiFileText, FiUsers } from 'react-icons/fi'
+import { DepthCarousel } from '../../reactbits/DepthCarousel'
 import { auth } from '../firebase/firebase'
 import './LoginPage.css'
 
@@ -30,50 +31,64 @@ export function LoginPage() {
         return () => unsubscribe()
     }, [])
 
-    async function handleSubmit(event) {
-        event.preventDefault()
+    const handleAuthSubmit = async (e) => {
+        e.preventDefault()
         setStatus({ type: '', text: '' })
 
-        if (mode === 'signup' && (!name.trim() || !phone.trim())) {
-            setStatus({ type: 'error', text: 'Please enter your name and phone number to create an account.' })
+        if (!email.trim() || !password.trim()) {
+            setStatus({ type: 'error', text: 'Please fill in both email and password.' })
             return
         }
 
-        if (!email.trim() || !password.trim()) {
-            setStatus({ type: 'error', text: 'Please enter both your email and password.' })
+        if (mode === 'signup' && !name.trim()) {
+            setStatus({ type: 'error', text: 'Please enter your full name.' })
             return
         }
 
         setIsSubmitting(true)
 
         try {
-            if (mode === 'login') {
-                await signInWithEmailAndPassword(auth, email.trim(), password)
-                setStatus({ type: 'success', text: 'Welcome back! You are signed in.' })
+            if (mode === 'signup') {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+                const createdUser = userCredential.user
+                setStatus({
+                    type: 'success',
+                    text: `Account created! Welcome to Sakhi, ${name.trim() || createdUser.email}.`,
+                })
+                navigate('/home')
             } else {
-                await createUserWithEmailAndPassword(auth, email.trim(), password)
-                setStatus({ type: 'success', text: 'Account created successfully. Welcome aboard!' })
+                const userCredential = await signInWithEmailAndPassword(auth, email, password)
+                const loggedInUser = userCredential.user
+                setStatus({
+                    type: 'success',
+                    text: `Welcome back, ${loggedInUser.displayName || loggedInUser.email}!`,
+                })
+                navigate('/home')
+            }
+        } catch (error) {
+            console.error('Authentication error:', error)
+            let friendlyError = 'Authentication failed. Please check your details and try again.'
+
+            if (error.code === 'auth/email-already-in-use') {
+                friendlyError = 'An account with this email address already exists. Please sign in instead.'
+            } else if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                friendlyError = 'Invalid email address or password. Please try again.'
+            } else if (error.code === 'auth/weak-password') {
+                friendlyError = 'Password is too weak. Please use at least 6 characters.'
+            } else if (error.code === 'auth/invalid-email') {
+                friendlyError = 'Please enter a valid email address.'
             }
 
-            setName('')
-            setPhone('')
-            setEmail('')
-            setPassword('')
-            navigate('/home')
-        } catch (error) {
-            setStatus({
-                type: 'error',
-                text: error.message || 'Authentication failed. Please try again.',
-            })
+            setStatus({ type: 'error', text: friendlyError })
         } finally {
             setIsSubmitting(false)
         }
     }
 
-    async function handleSignOut() {
+    const handleSignOut = async () => {
         try {
             await signOut(auth)
-            setStatus({ type: 'success', text: 'You have been signed out.' })
+            setStatus({ type: 'success', text: 'You have been signed out safely.' })
         } catch (error) {
             setStatus({
                 type: 'error',
@@ -87,45 +102,30 @@ export function LoginPage() {
             <div className="auth-card">
                 <div className="auth-copy">
                     <div className="brand-badge">Sakhi</div>
-                    <h2>{user ? 'You are signed in' : 'Empowering Women. Creating Opportunities.'}</h2>
-                    <p>
-                        {user
-                            ? `Signed in as ${user.email || 'your account'}.`
-                            : 'Join thousands of women who are learning new skills, discovering meaningful careers, accessing government support, and becoming part of a safe, supportive community.'}
-                    </p>
+                    
+                    <h2 className="landing-invitation-title">
+                        Ready to start your journey with Sakhi?
+                    </h2>
 
-                    <div className="feature-list">
-                        <div className="feature-pill">
-                            <span className="feature-icon"><FiBriefcase /></span>
-                            <span>Career Opportunities</span>
-                        </div>
-                        <div className="feature-pill">
-                            <span className="feature-icon"><FiBookOpen /></span>
-                            <span>Sakhi Academy</span>
-                        </div>
-                        <div className="feature-pill">
-                            <span className="feature-icon"><FiFileText /></span>
-                            <span>Government Schemes</span>
-                        </div>
-                        <div className="feature-pill">
-                            <span className="feature-icon"><FiUsers /></span>
-                            <span>Community & Safety</span>
-                        </div>
+                    <div className="landing-carousel-container">
+                        <DepthCarousel />
                     </div>
 
-                    <div className="stats-grid" aria-label="Sakhi highlights">
-                        <div className="stat-pill">
-                            <strong>10,000+</strong>
-                            <span>Women Empowered</span>
-                        </div>
-                        <div className="stat-pill">
-                            <strong>500+</strong>
-                            <span>Learning Resources</span>
-                        </div>
-                        <div className="stat-pill">
-                            <strong>2,000+</strong>
-                            <span>Career Opportunities</span>
-                        </div>
+                    <div className="landing-mode-selector">
+                        <button
+                            type="button"
+                            className={`landing-mode-btn ${mode === 'login' ? 'active' : ''}`}
+                            onClick={() => setMode('login')}
+                        >
+                            Sign In
+                        </button>
+                        <button
+                            type="button"
+                            className={`landing-mode-btn ${mode === 'signup' ? 'active' : ''}`}
+                            onClick={() => setMode('signup')}
+                        >
+                            Sign Up
+                        </button>
                     </div>
                 </div>
 

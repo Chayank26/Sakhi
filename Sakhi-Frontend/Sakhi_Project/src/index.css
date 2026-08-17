@@ -1,32 +1,74 @@
 :root {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #4b5563;
-  background: linear-gradient(135deg, #fff8f2 0%, #fdf7ff 100%);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  --text: #4b5563;
-  --text-h: #1f2937;
-  --border: #ead9f2;
-  --accent: #a855f7;
-  --accent-bg: rgba(168, 85, 247, 0.12);
-  --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  /* Color System */
+  --primary-amethyst: #7c3aed;
+  --primary-hover: #6d28d9;
+  --primary-light: #f3e8ff;
+  
+  --warm-rose: #be123c;
+  --warm-rose-light: #fff1f2;
+  --warm-rose-border: #fecdd3;
+
+  --amber-gold: #d97706;
+  --amber-gold-light: #fef3c7;
+
+  --emerald-green: #059669;
+  --emerald-green-light: #d1fae5;
+
+  --bg-canvas: #faf8f5;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-subtle: #f8fafc;
+
+  --text-main: #0f172a;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+
+  --border-subtle: #f1f5f9;
+  --border-medium: #e2e8f0;
+  --border-focus: #a855f7;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.08);
+  --shadow-glow: 0 10px 30px rgba(124, 58, 237, 0.15);
+
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Global Reset & Base */
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
   scroll-behavior: smooth;
+  font-size: 16px;
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
+  font-family: var(--font-sans);
+  background-color: var(--bg-canvas);
+  color: var(--text-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
 }
 
@@ -34,13 +76,88 @@ body {
   min-height: 100vh;
 }
 
-a {
-  color: inherit;
+/* Base Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-main);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
 }
 
-h1,
-h2,
-h3,
-p {
-  margin: 0;
+h1 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; }
+h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; }
+h3 { font-size: 1.35rem; font-weight: 700; }
+h4 { font-size: 1.1rem; font-weight: 600; }
+
+a {
+  color: var(--primary-amethyst);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+/* Unified Button Component Styles */
+.sakhi-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  outline: none;
+}
+
+.sakhi-btn-primary {
+  background: var(--primary-amethyst);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
+}
+
+.sakhi-btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+}
+
+.sakhi-btn-secondary {
+  background: #ffffff;
+  color: var(--text-main);
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-sm);
+}
+
+.sakhi-btn-secondary:hover {
+  background: var(--bg-subtle);
+  border-color: var(--primary-amethyst);
+  color: var(--primary-amethyst);
+}
+
+/* Badge Utilities */
+.sakhi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.sakhi-badge-amethyst {
+  background: var(--primary-light);
+  color: var(--primary-amethyst);
+}
+
+.sakhi-badge-rose {
+  background: var(--warm-rose-light);
+  color: var(--warm-rose);
+  border: 1px solid var(--warm-rose-border);
 }
