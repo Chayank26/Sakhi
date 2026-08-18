@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { sendChatMessage } from '../../../services/aiApi';
 import {
@@ -35,11 +35,13 @@ const SUGGESTED_PROMPTS = [
 
 export function AiChatPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [messages, setMessages] = useState([INITIAL_WELCOME_MESSAGE]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+  const initialPromptProcessed = useRef(false);
 
   // Auto scroll to latest message
   const scrollToBottom = () => {
@@ -118,6 +120,17 @@ export function AiChatPage() {
       setIsTyping(false);
     }
   };
+
+  // Automatically process initial prompt from query parameter or navigation state
+  useEffect(() => {
+    if (initialPromptProcessed.current) return;
+    const searchParams = new URLSearchParams(location.search);
+    const initialPrompt = searchParams.get('prompt') || location.state?.prompt;
+    if (initialPrompt && initialPrompt.trim()) {
+      initialPromptProcessed.current = true;
+      handleSend(initialPrompt.trim());
+    }
+  }, [location.search, location.state]);
 
   // Handle keypress inside textarea (Enter sends, Shift+Enter newline)
   const handleKeyDown = (e) => {

@@ -4,8 +4,8 @@
 
 .academy-wrapper {
     min-height: 100vh;
-    background-color: var(--sakhi-bg-light);
-    color: var(--sakhi-text-dark);
+    background: transparent;
+    color: #f8fafc;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     padding-bottom: 60px;
 }
