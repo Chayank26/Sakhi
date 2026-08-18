@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiArrowLeft, FiSliders, FiBell, FiShield, FiGlobe, FiMoon, FiCheck } from 'react-icons/fi'
+import { FiSliders, FiBell, FiShield, FiGlobe, FiMoon, FiCheck } from 'react-icons/fi'
+import { HomeHeader } from '../home/HomeHeader'
 import './SettingsPage.css'
 
 export function SettingsPage() {
@@ -27,13 +28,7 @@ export function SettingsPage() {
 
     return (
         <div className="settings-page-shell">
-            <header className="settings-header">
-                <Link to="/home" className="back-btn">
-                    <FiArrowLeft /> Back to Dashboard
-                </Link>
-                <h1>Account & App Settings</h1>
-                <div className="header-spacer" />
-            </header>
+            <HomeHeader pageTitle="Settings" />
 
             <main className="settings-container">
                 {savedMsg && <div className="settings-toast">{savedMsg}</div>}

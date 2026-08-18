@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiArrowLeft, FiHelpCircle, FiPhoneCall, FiMessageSquare, FiMail, FiSend, FiChevronDown, FiChevronUp, FiShield } from 'react-icons/fi'
+import { FiHelpCircle, FiPhoneCall, FiMessageSquare, FiMail, FiSend, FiChevronDown, FiChevronUp, FiShield } from 'react-icons/fi'
+import { HomeHeader } from '../home/HomeHeader'
 import './SupportPage.css'
 
 const HELPLINES = [
@@ -48,13 +49,7 @@ export function SupportPage() {
 
     return (
         <div className="support-page-shell">
-            <header className="support-header">
-                <Link to="/home" className="back-btn">
-                    <FiArrowLeft /> Back to Dashboard
-                </Link>
-                <h1>Help & Support Center</h1>
-                <div className="header-spacer" />
-            </header>
+            <HomeHeader pageTitle="Help & Support" />
 
             <main className="support-container">
                 {/* Emergency Helplines Card */}

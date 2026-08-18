@@ -16,6 +16,7 @@ import {
     FiArrowRight
 } from 'react-icons/fi';
 import { fetchJobs } from '../../../services/api';
+import { HomeHeader } from '../home/HomeHeader';
 import './JobsPage.css';
 
 export function JobsPage() {
@@ -129,23 +130,8 @@ export function JobsPage() {
 
     return (
         <div className="jobs-portal-wrapper">
-            {/* Header */}
-            <header className="jobs-portal-header">
-                <div className="jobs-header-container">
-                    <div className="jobs-brand-section">
-                        <Link to="/home" className="jobs-brand-logo">
-                            <span className="brand-badge">Sakhi</span>
-                            <span className="brand-sub">Careers</span>
-                        </Link>
-                    </div>
-
-                    <div className="jobs-header-actions">
-                        <Link to="/jobs/create" className="btn-list-a-job">
-                            <FiPlusCircle className="icon" /> List a Job?
-                        </Link>
-                    </div>
-                </div>
-            </header>
+            {/* Unified Home Navbar with Careers Tag */}
+            <HomeHeader pageTitle="Careers" />
 
             {/* Hero Search Section */}
             <section className="jobs-search-hero">
@@ -155,12 +141,13 @@ export function JobsPage() {
                         Discover jobs, internships, and remote roles tailored to empower women professionals.
                     </p>
 
+                    {/* Glassmorphic Multi-Field Search Bar */}
                     <form onSubmit={handleSearchSubmit} className="jobs-search-bar">
                         <div className="search-input-group">
-                            <FiSearch className="search-icon" />
+                            <span className="input-icon-pill"><FiSearch /></span>
                             <input
                                 type="text"
-                                placeholder="Search jobs... (e.g. Frontend Developer, Data Analyst)"
+                                placeholder="Role, skill, or keywords (e.g. Frontend Developer, Data Analyst)"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -169,7 +156,7 @@ export function JobsPage() {
                         <div className="search-divider"></div>
 
                         <div className="search-input-group">
-                            <FiMapPin className="search-icon" />
+                            <span className="input-icon-pill pin-icon"><FiMapPin /></span>
                             <input
                                 type="text"
                                 placeholder="Location (e.g. Chennai, Bengaluru, Remote)"
@@ -344,13 +331,19 @@ export function JobsPage() {
                                 {appliedLocation && <span> in "<em>{appliedLocation}</em>"</span>}
                             </div>
 
-                            <div className="desktop-sort-box">
-                                <label>Sort by:</label>
-                                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                                    <option value="latest">Latest First</option>
-                                    <option value="highest_salary">Highest Salary</option>
-                                    <option value="oldest">Oldest First</option>
-                                </select>
+                            <div className="stats-actions-right">
+                                <div className="desktop-sort-box">
+                                    <label>Sort by:</label>
+                                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                                        <option value="latest">Latest First</option>
+                                        <option value="highest_salary">Highest Salary</option>
+                                        <option value="oldest">Oldest First</option>
+                                    </select>
+                                </div>
+
+                                <Link to="/jobs/create" className="btn-post-job-right">
+                                    <FiPlusCircle className="btn-icon-plus" /> List a Job Opening
+                                </Link>
                             </div>
                         </div>
 

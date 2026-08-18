@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { FiArrowLeft, FiUser, FiMail, FiPhone, FiCalendar, FiBriefcase, FiBookOpen, FiFileText, FiEdit2, FiCheck } from 'react-icons/fi'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../firebase/firebase'
+import { HomeHeader } from '../home/HomeHeader'
 import './ProfilePage.css'
 
 export function ProfilePage() {
@@ -46,13 +47,7 @@ export function ProfilePage() {
 
     return (
         <div className="profile-page-shell">
-            <header className="profile-header">
-                <Link to="/home" className="back-btn">
-                    <FiArrowLeft /> Back to Dashboard
-                </Link>
-                <h1>My Sakhi Profile</h1>
-                <div className="header-spacer" />
-            </header>
+            <HomeHeader pageTitle="My Profile" />
 
             <main className="profile-container">
                 {savedMsg && <div className="profile-toast">{savedMsg}</div>}

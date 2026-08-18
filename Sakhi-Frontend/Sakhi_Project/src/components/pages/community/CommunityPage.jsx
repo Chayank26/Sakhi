@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
-import { CommunityHeader } from '../../community/CommunityHeader';
+import { HomeHeader } from '../home/HomeHeader';
 import { SortControls } from '../../community/SortControls';
 import { PostFeed } from '../../community/PostFeed';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
@@ -182,12 +182,8 @@ export function CommunityPage() {
         </div>
       )}
 
-      {/* Header with Search and Create CTA */}
-      <CommunityHeader
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        onCreatePostClick={handleCreatePost}
-      />
+      {/* Header */}
+      <HomeHeader pageTitle="Community" />
 
       {/* Hero Banner */}
       <div className="community-hero-banner">

@@ -18,6 +18,7 @@ import {
     FiPlayCircle
 } from 'react-icons/fi';
 import { fetchCourses } from '../../../services/courseApi';
+import { HomeHeader } from '../home/HomeHeader';
 import './AcademyPage.css';
 
 export function AcademyPage() {
@@ -28,27 +29,20 @@ export function AcademyPage() {
     const [appliedQuery, setAppliedQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState([]);
     const [selectedDifficulty, setSelectedDifficulty] = useState([]);
-    const [selectedLanguage, setSelectedLanguage] = useState([]);
-    const [selectedType, setSelectedType] = useState('');
+    const [selectedDuration, setSelectedDuration] = useState([]);
+    const [isFreeOnly, setIsFreeOnly] = useState(false);
     const [sortBy, setSortBy] = useState('popular');
 
     // UI & Pagination
     const [courses, setCourses] = useState([]);
-    const [featuredCourses, setFeaturedCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [bookmarkedCourses, setBookmarkedCourses] = useState([]);
+    const [savedCourses, setSavedCourses] = useState([]);
+    const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCourses, setTotalCourses] = useState(0);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
-    const [activeCarouselIdx, setActiveCarouselIdx] = useState(0);
-
-    // Sync bookmarked courses from localStorage
-    useEffect(() => {
-        const saved = JSON.parse(localStorage.getItem('sakhi_bookmarked_courses') || '[]');
-        setBookmarkedCourses(saved);
-    }, []);
 
     const loadCourses = async () => {
         setLoading(true);
@@ -58,8 +52,8 @@ export function AcademyPage() {
                 q: appliedQuery,
                 category: selectedCategory,
                 difficulty: selectedDifficulty,
-                language: selectedLanguage,
-                type: selectedType,
+                duration: selectedDuration,
+                isFree: isFreeOnly ? 'true' : '',
                 sortBy,
                 page,
                 limit: 6,
@@ -70,15 +64,10 @@ export function AcademyPage() {
                 setCourses(data.courses || []);
                 setTotalPages(data.totalPages || 1);
                 setTotalCourses(data.totalCourses || 0);
-
-                // Set top featured courses for carousel on first load
-                if (data.courses.length > 0 && featuredCourses.length === 0) {
-                    setFeaturedCourses(data.courses.slice(0, 3));
-                }
             }
         } catch (err) {
             console.error('Failed to load courses:', err);
-            setError('Unable to load courses. Please ensure the backend is running.');
+            setError('Unable to connect to academy service. Please ensure the backend is running.');
         } finally {
             setLoading(false);
         }
@@ -86,7 +75,9 @@ export function AcademyPage() {
 
     useEffect(() => {
         loadCourses();
-    }, [appliedQuery, selectedCategory, selectedDifficulty, selectedLanguage, selectedType, sortBy, page]);
+        const storedEnrolled = JSON.parse(localStorage.getItem('sakhi_enrolled_courses') || '[]');
+        setEnrolledCourses(storedEnrolled);
+    }, [appliedQuery, selectedCategory, selectedDifficulty, selectedDuration, isFreeOnly, sortBy, page]);
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -103,16 +94,13 @@ export function AcademyPage() {
         }
     };
 
-    const toggleBookmark = (e, courseId) => {
+    const toggleSaveCourse = (e, courseId) => {
         e.stopPropagation();
-        let updated;
-        if (bookmarkedCourses.includes(courseId)) {
-            updated = bookmarkedCourses.filter((id) => id !== courseId);
+        if (savedCourses.includes(courseId)) {
+            setSavedCourses(savedCourses.filter((id) => id !== courseId));
         } else {
-            updated = [...bookmarkedCourses, courseId];
+            setSavedCourses([...savedCourses, courseId]);
         }
-        setBookmarkedCourses(updated);
-        localStorage.setItem('sakhi_bookmarked_courses', JSON.stringify(updated));
     };
 
     const handleResetFilters = () => {
@@ -120,34 +108,16 @@ export function AcademyPage() {
         setAppliedQuery('');
         setSelectedCategory([]);
         setSelectedDifficulty([]);
-        setSelectedLanguage([]);
-        setSelectedType('');
+        setSelectedDuration([]);
+        setIsFreeOnly(false);
         setSortBy('popular');
         setPage(1);
     };
 
     return (
         <div className="academy-wrapper">
-            {/* Header */}
-            <header className="academy-header">
-                <div className="academy-header-container">
-                    <div className="academy-brand">
-                        <Link to="/home" className="academy-logo">
-                            <span className="brand-badge">Sakhi</span>
-                            <span className="brand-sub">Academy</span>
-                        </Link>
-                    </div>
-
-                    <div className="academy-nav-actions">
-                        <Link to="/academy/my-learning" className="btn-my-learning">
-                            <FiBookOpen className="icon" /> My Learning
-                        </Link>
-                        <Link to="/academy/create" className="btn-list-a-course">
-                            <FiPlusCircle className="icon" /> List a Course
-                        </Link>
-                    </div>
-                </div>
-            </header>
+            {/* Unified Navbar */}
+            <HomeHeader pageTitle="Academy" />
 
             {/* Hero & Search Banner */}
             <section className="academy-hero">

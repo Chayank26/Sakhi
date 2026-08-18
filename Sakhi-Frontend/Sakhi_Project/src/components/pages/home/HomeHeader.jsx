@@ -51,7 +51,7 @@ const INITIAL_NOTIFS = [
     }
 ]
 
-export function HomeHeader() {
+export function HomeHeader({ pageTitle = null }) {
     const navigate = useNavigate()
     const headerRef = useRef(null)
     const [user, setUser] = useState(null)
@@ -102,7 +102,7 @@ export function HomeHeader() {
         <header ref={headerRef} className="home-header">
             <div className="home-header-left">
                 <Link className="home-brand" to="/home">
-                    Sakhi
+                    Sakhi {pageTitle && <span className="header-page-title">• {pageTitle}</span>}
                 </Link>
             </div>
 

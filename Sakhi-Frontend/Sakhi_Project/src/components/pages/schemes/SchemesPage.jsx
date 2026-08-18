@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SchemeHeader } from '../../schemes/SchemeHeader';
-import { SchemeSearch } from '../../schemes/SchemeSearch';
-import { SchemeFilters } from '../../schemes/SchemeFilters';
-import { SchemeGrid } from '../../schemes/SchemeGrid';
 import { fetchSchemes, searchSchemes } from '../../../services/schemeApi';
+import { HomeHeader } from '../home/HomeHeader';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { getSavedSchemeIds, toggleSavedScheme } from '../../../utils/schemeStorage';
 import { FiCheckCircle, FiZap, FiBookOpen } from 'react-icons/fi';
@@ -92,7 +89,7 @@ export function SchemesPage() {
       )}
 
       {/* Main Header */}
-      <SchemeHeader onSavedClick={() => navigate('/saved-schemes')} />
+      <HomeHeader pageTitle="Government Schemes" />
 
       {/* Hero Banner */}
       <div className="schemes-hero-banner">
