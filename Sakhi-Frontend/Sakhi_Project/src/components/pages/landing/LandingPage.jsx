@@ -1,12 +1,31 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { onAuthStateChanged } from 'firebase/auth'
 import { FiArrowRight, FiUserCheck, FiUserPlus } from 'react-icons/fi'
 import { DepthCarousel } from '../../reactbits/DepthCarousel'
-import { ShinyText } from '../../reactbits/ShinyText'
+import { LiquidEther } from '../../reactbits/LiquidEther'
+import { auth } from '../firebase/firebase'
 import './LandingPage.css'
 
 export function LandingPage() {
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                navigate('/home', { replace: true })
+            }
+        })
+        return () => unsubscribe()
+    }, [navigate])
+
+    const handleCardClick = () => {
+        navigate('/login?mode=signup')
+    }
+
     return (
         <div className="landing-page-shell dark-theme">
+            <LiquidEther />
             {/* Top Navigation Bar */}
             <header className="landing-topbar">
                 <Link className="landing-brand" to="/">
@@ -35,7 +54,7 @@ export function LandingPage() {
 
                 {/* 3D Depth Carousel of Sakhi Core Features */}
                 <div className="landing-depth-carousel-wrapper">
-                    <DepthCarousel autoPlay={true} interval={4500} />
+                    <DepthCarousel autoPlay={true} interval={4500} onCardClick={handleCardClick} />
                 </div>
 
                 {/* Action CTAs */}

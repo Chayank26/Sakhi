@@ -40,7 +40,7 @@ const CARDS = [
   }
 ];
 
-export function DepthCarousel({ autoPlay = true, interval = 4500 }) {
+export function DepthCarousel({ autoPlay = true, interval = 4500, onCardClick }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -58,6 +58,14 @@ export function DepthCarousel({ autoPlay = true, interval = 4500 }) {
 
   const handlePrev = () => {
     setActiveIndex((prev) => (prev - 1 + CARDS.length) % CARDS.length);
+  };
+
+  const handleCardSelect = (idx, card) => {
+    if (idx === activeIndex && onCardClick) {
+      onCardClick(card);
+    } else {
+      setActiveIndex(idx);
+    }
   };
 
   return (
@@ -101,7 +109,7 @@ export function DepthCarousel({ autoPlay = true, interval = 4500 }) {
                 opacity,
                 zIndex
               }}
-              onClick={() => setActiveIndex(idx)}
+              onClick={() => handleCardSelect(idx, card)}
             >
               {/* Full Photography Background */}
               <img src={card.image} alt={card.title} className="depth-card-bg-image" />

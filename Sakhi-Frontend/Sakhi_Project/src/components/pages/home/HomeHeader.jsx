@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FiBell, FiUser } from 'react-icons/fi'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../firebase/firebase'
 
 function formatTodayLabel() {
@@ -13,6 +13,7 @@ function formatTodayLabel() {
 }
 
 export function HomeHeader() {
+    const navigate = useNavigate()
     const [user, setUser] = useState(null)
     const [menuOpen, setMenuOpen] = useState(false)
 
@@ -24,8 +25,19 @@ export function HomeHeader() {
         return () => unsubscribe()
     }, [])
 
-    const displayName = user?.displayName?.trim() || user?.email?.split('@')[0] || 'there'
+    const localProfile = JSON.parse(localStorage.getItem('sakhi_user_profile') || '{}')
+    const displayName = user?.displayName?.trim() || localProfile?.name || user?.email?.split('@')[0] || 'there'
     const todayLabel = formatTodayLabel()
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth)
+            localStorage.removeItem('sakhi_user_profile')
+            navigate('/', { replace: true })
+        } catch (error) {
+            console.error('Error signing out:', error)
+        }
+    }
 
     return (
         <header className="home-header">
@@ -60,7 +72,7 @@ export function HomeHeader() {
                             <button type="button">My Profile</button>
                             <button type="button">Settings</button>
                             <button type="button">Help & Support</button>
-                            <button type="button">Logout</button>
+                            <button type="button" onClick={handleLogout} className="logout-btn">Logout</button>
                         </div>
                     ) : null}
                 </div>
