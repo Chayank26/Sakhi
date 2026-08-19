@@ -25,7 +25,7 @@ const featureCards = [
     {
         title: 'Community & Mentorship',
         description: 'Connect with supportive peer networks, share experiences, and access emergency helplines.',
-        to: '/home/community',
+        to: '/community',
     },
 ]
 

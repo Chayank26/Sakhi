@@ -4,7 +4,11 @@
 
 .academy-wrapper {
     min-height: 100vh;
-    background: transparent;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.25), transparent 35%),
+        radial-gradient(circle at 85% 85%, rgba(225, 29, 72, 0.18), transparent 35%),
+        linear-gradient(135deg, #060913 0%, #0f172a 50%, #181537 100%);
+    background-attachment: fixed;
     color: #f8fafc;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     padding-bottom: 60px;

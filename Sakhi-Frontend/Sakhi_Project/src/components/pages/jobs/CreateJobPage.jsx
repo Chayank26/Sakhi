@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiBriefcase, FiDollarSign, FiMapPin, FiClock, FiPlusCircle, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import { createJob } from '../../../services/api';
+import { HomeHeader } from '../home/HomeHeader';
 import './CreateJobPage.css';
 
 export function CreateJobPage() {
@@ -131,16 +132,9 @@ export function CreateJobPage() {
     return (
         <div className="create-job-wrapper">
             {/* Header */}
-            <header className="create-job-nav">
-                <div className="create-nav-container">
-                    <button onClick={() => navigate('/jobs')} className="btn-back-link">
-                        <FiArrowLeft /> Back to Jobs Portal
-                    </button>
-                    <Link to="/home" className="brand-logo-text">Sakhi Careers</Link>
-                </div>
-            </header>
+            <HomeHeader pageTitle="List a Job" />
 
-            {/* Page Header */}
+            {/* Page Hero */}
             <div className="create-job-hero">
                 <div className="create-hero-content">
                     <h1>Post a New Career Opportunity</h1>

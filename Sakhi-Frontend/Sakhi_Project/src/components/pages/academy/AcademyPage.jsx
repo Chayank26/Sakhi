@@ -128,13 +128,15 @@ export function AcademyPage() {
                     </p>
 
                     <form onSubmit={handleSearchSubmit} className="academy-search-bar">
-                        <FiSearch className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder="Search courses... (e.g. React, AI, UI/UX Design, Financial Freedom)"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                        <div className="search-input-group">
+                            <span className="input-icon-pill"><FiSearch /></span>
+                            <input
+                                type="text"
+                                placeholder="Search courses by title, skill, or topic (e.g. React, Data Analytics, Python)"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
                         <button type="submit" className="btn-search-courses">
                             Search Courses
                         </button>
@@ -334,13 +336,19 @@ export function AcademyPage() {
                                 {appliedQuery && <span> for "<em>{appliedQuery}</em>"</span>}
                             </div>
 
-                            <div className="desktop-sort-box">
-                                <label>Sort by:</label>
-                                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                                    <option value="popular">Most Popular</option>
-                                    <option value="rating">Highest Rated</option>
-                                    <option value="newest">Newest First</option>
-                                </select>
+                            <div className="stats-actions-right">
+                                <div className="desktop-sort-box">
+                                    <label>Sort by:</label>
+                                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                                        <option value="popular">Most Popular</option>
+                                        <option value="rating">Highest Rated</option>
+                                        <option value="newest">Newest First</option>
+                                    </select>
+                                </div>
+
+                                <Link to="/academy/my-learning" className="btn-my-learning-right">
+                                    <FiBookOpen className="btn-icon" /> My Learning
+                                </Link>
                             </div>
                         </div>
 

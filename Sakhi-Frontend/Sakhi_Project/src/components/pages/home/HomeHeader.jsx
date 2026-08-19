@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FiBell, FiUser, FiBriefcase, FiBookOpen, FiFileText, FiMessageSquare, FiCheck } from 'react-icons/fi'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../firebase/firebase'
@@ -53,6 +53,7 @@ const INITIAL_NOTIFS = [
 
 export function HomeHeader({ pageTitle = null }) {
     const navigate = useNavigate()
+    const location = useLocation()
     const headerRef = useRef(null)
     const [user, setUser] = useState(null)
     const [menuOpen, setMenuOpen] = useState(false)
@@ -88,6 +89,8 @@ export function HomeHeader({ pageTitle = null }) {
     const displayName = user?.displayName?.trim() || localProfile?.name || user?.email?.split('@')[0] || 'there'
     const todayLabel = formatTodayLabel()
 
+    const isHomePage = location.pathname === '/home'
+
     const handleLogout = async () => {
         try {
             await signOut(auth)
@@ -107,8 +110,45 @@ export function HomeHeader({ pageTitle = null }) {
             </div>
 
             <div className="home-header-center">
-                <p className="home-greeting">Welcome back, {displayName}</p>
-                <p className="home-date">{todayLabel}</p>
+                {isHomePage ? (
+                    <>
+                        <p className="home-greeting">Welcome back, {displayName}</p>
+                        <p className="home-date">{todayLabel}</p>
+                    </>
+                ) : (
+                    <nav className="header-nav-pills">
+                        <Link 
+                            to="/jobs" 
+                            className={`nav-pill ${location.pathname.startsWith('/jobs') ? 'active' : ''}`}
+                        >
+                            Careers
+                        </Link>
+                        <Link 
+                            to="/academy" 
+                            className={`nav-pill ${location.pathname.startsWith('/academy') ? 'active' : ''}`}
+                        >
+                            Academy
+                        </Link>
+                        <Link 
+                            to="/schemes" 
+                            className={`nav-pill ${location.pathname.startsWith('/schemes') || location.pathname.startsWith('/saved-schemes') ? 'active' : ''}`}
+                        >
+                            Schemes
+                        </Link>
+                        <Link 
+                            to="/community" 
+                            className={`nav-pill ${location.pathname.startsWith('/community') ? 'active' : ''}`}
+                        >
+                            Community
+                        </Link>
+                        <Link 
+                            to="/ai" 
+                            className={`nav-pill ${location.pathname.startsWith('/ai') ? 'active' : ''}`}
+                        >
+                            Sakhi AI
+                        </Link>
+                    </nav>
+                )}
             </div>
 
             <div className="home-header-actions">

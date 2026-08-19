@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { sendChatMessage } from '../../../services/aiApi';
+import { HomeHeader } from '../home/HomeHeader';
 import {
   FiSend,
   FiArrowLeft,
@@ -154,40 +155,7 @@ export function AiChatPage() {
 
   return (
     <div className="ai-chat-shell">
-      {/* Header Bar */}
-      <header className="ai-chat-header">
-        <div className="header-left">
-          <button
-            type="button"
-            className="btn-back-home"
-            onClick={() => navigate('/home')}
-            title="Return to Sakhi Home"
-          >
-            <FiArrowLeft />
-          </button>
-          <div className="ai-brand-badge">
-            <span className="brand-robot-avatar"><FiCpu /></span>
-            <div>
-              <h1 className="ai-brand-title">Sakhi AI</h1>
-              <p className="ai-brand-subtitle">Your personal Sakhi assistant</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="header-right">
-          <button
-            type="button"
-            className="btn-clear-chat"
-            onClick={handleClearChat}
-            title="Clear Chat History"
-          >
-            <FiTrash2 className="btn-icon" /> Clear Chat
-          </button>
-          <Link to="/home" className="btn-exit-ai">
-            Portal Home
-          </Link>
-        </div>
-      </header>
+      <HomeHeader pageTitle="Sakhi AI" />
 
       {/* Main Chat Body */}
       <main className="ai-chat-body">
