@@ -74,96 +74,92 @@ export function SchemeFilters({
     sortBy !== 'createdAt';
 
   return (
-    <div className="scheme-filters-wrapper">
-      {/* Category Pills Header */}
-      <div className="category-pills-row">
-        {SCHEME_CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            className={`category-pill-btn ${selectedCategory === cat ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(cat)}
-          >
-            {cat}
-          </button>
-        ))}
+    <div className="scheme-sidebar-filters-box">
+      <div className="filters-header">
+        <h3><FiFilter /> Categories & Filters</h3>
+        {isFiltered && (
+          <button onClick={onResetFilters} className="btn-reset-filters">Reset All</button>
+        )}
       </div>
 
-      {/* Secondary Dropdown Filter Bar */}
-      <div className="secondary-filters-bar">
-        {/* Government Level Filter */}
-        <div className="filter-dropdown-group">
-          <FiFlag className="filter-icon" />
-          <select
-            value={governmentLevel}
-            onChange={(e) => setGovernmentLevel(e.target.value)}
-            className="filter-select"
-          >
-            <option value="All">All Govt Levels</option>
-            <option value="Central">Central Govt</option>
-            <option value="State">State Govt</option>
-          </select>
+      {/* Category Selection */}
+      <div className="filter-group">
+        <h4 className="filter-title">Category</h4>
+        <div className="filter-options-vertical">
+          {SCHEME_CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              className={`filter-category-item ${selectedCategory === cat ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              <span>{cat}</span>
+              {selectedCategory === cat && <span className="active-dot">•</span>}
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* State Filter */}
-        <div className="filter-dropdown-group">
-          <FiMapPin className="filter-icon" />
-          <select
-            value={selectedState}
-            onChange={(e) => setSelectedState(e.target.value)}
-            className="filter-select"
-          >
-            {STATES_LIST.map((st) => (
-              <option key={st} value={st}>
-                {st === 'All' ? 'All States & UTs' : st}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Government Level Filter */}
+      <div className="filter-group">
+        <h4 className="filter-title"><FiFlag className="sec-icon" /> Govt Level</h4>
+        <select
+          value={governmentLevel}
+          onChange={(e) => setGovernmentLevel(e.target.value)}
+          className="sidebar-filter-select"
+        >
+          <option value="All">All Govt Levels</option>
+          <option value="Central">Central Govt</option>
+          <option value="State">State Govt</option>
+        </select>
+      </div>
 
-        {/* Target Audience Filter */}
-        <div className="filter-dropdown-group">
-          <FiUsers className="filter-icon" />
-          <select
-            value={targetAudience}
-            onChange={(e) => setTargetAudience(e.target.value)}
-            className="filter-select"
-          >
-            {TARGET_AUDIENCES.map((aud) => (
-              <option key={aud} value={aud === 'All Audiences' ? 'All' : aud}>
-                {aud}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* State Filter */}
+      <div className="filter-group">
+        <h4 className="filter-title"><FiMapPin className="sec-icon" /> State / Region</h4>
+        <select
+          value={selectedState}
+          onChange={(e) => setSelectedState(e.target.value)}
+          className="sidebar-filter-select"
+        >
+          {STATES_LIST.map((st) => (
+            <option key={st} value={st}>
+              {st === 'All' ? 'All States & UTs' : st}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Sort By Dropdown */}
-        <div className="filter-dropdown-group">
-          <FiSliders className="filter-icon" />
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="filter-select"
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                Sort: {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Target Audience Filter */}
+      <div className="filter-group">
+        <h4 className="filter-title"><FiUsers className="sec-icon" /> Target Audience</h4>
+        <select
+          value={targetAudience}
+          onChange={(e) => setTargetAudience(e.target.value)}
+          className="sidebar-filter-select"
+        >
+          {TARGET_AUDIENCES.map((aud) => (
+            <option key={aud} value={aud === 'All Audiences' ? 'All' : aud}>
+              {aud}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Reset Filters CTA */}
-        {isFiltered && (
-          <button
-            type="button"
-            className="btn-reset-filters"
-            onClick={onResetFilters}
-            title="Reset all filters"
-          >
-            <FiRefreshCw className="btn-icon" /> Reset Filters
-          </button>
-        )}
+      {/* Sort By Dropdown */}
+      <div className="filter-group">
+        <h4 className="filter-title"><FiSliders className="sec-icon" /> Sort By</h4>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="sidebar-filter-select"
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchSchemeById } from '../../../services/schemeApi';
 import { isSchemeSaved, toggleSavedScheme } from '../../../utils/schemeStorage';
-import { SchemeHeader } from '../../schemes/SchemeHeader';
+import { HomeHeader } from '../home/HomeHeader';
 import {
   FiArrowLeft,
   FiExternalLink,
@@ -50,11 +50,11 @@ export function SchemeDetailsPage() {
         if (data && data.success && data.scheme) {
           setScheme(data.scheme);
         } else {
-          setError('Scheme details could not be loaded.');
+          setError('Government scheme details not found.');
         }
       } catch (err) {
-        console.error('Error fetching scheme details:', err);
-        setError(err.response?.data?.message || 'Scheme not found or backend service unavailable.');
+        console.error('Error loading scheme details:', err);
+        setError('Failed to load scheme details. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -77,17 +77,20 @@ export function SchemeDetailsPage() {
 
   return (
     <div className="scheme-details-shell">
-      <SchemeHeader onSavedClick={() => navigate('/saved-schemes')} />
+      <HomeHeader pageTitle="Scheme Details" />
 
-      <div className="scheme-details-container">
-        {/* Back Navigation Button */}
+      {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+      <div className="details-top-nav-bar">
         <button
           type="button"
-          className="btn-back-schemes"
+          className="btn-back-link-sleek"
           onClick={() => navigate('/schemes')}
         >
-          <FiArrowLeft className="btn-icon" /> Back to All Schemes
+          <FiArrowLeft /> Back to All Schemes
         </button>
+      </div>
+
+      <div className="scheme-details-container">
 
         {loading ? (
           <div className="details-loading-card">

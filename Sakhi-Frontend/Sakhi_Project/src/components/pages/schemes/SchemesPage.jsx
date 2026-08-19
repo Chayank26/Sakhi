@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fetchSchemes, searchSchemes } from '../../../services/schemeApi';
 import { HomeHeader } from '../home/HomeHeader';
 import { SchemeSearch } from '../../schemes/SchemeSearch';
@@ -7,7 +7,7 @@ import { SchemeFilters } from '../../schemes/SchemeFilters';
 import { SchemeGrid } from '../../schemes/SchemeGrid';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { getSavedSchemeIds, toggleSavedScheme } from '../../../utils/schemeStorage';
-import { FiCheckCircle, FiZap, FiBookOpen } from 'react-icons/fi';
+import { FiCheckCircle, FiZap, FiBookOpen, FiBookmark } from 'react-icons/fi';
 import './SchemesPage.css';
 
 export function SchemesPage() {
@@ -94,12 +94,16 @@ export function SchemesPage() {
       {/* Main Header */}
       <HomeHeader pageTitle="Government Schemes" />
 
+      {/* Top Bar with Right Aligned Saved Schemes Button */}
+      <div className="schemes-top-nav-bar">
+        <Link to="/saved-schemes" className="btn-saved-schemes-top">
+          <FiBookmark /> Saved Schemes ({bookmarkedSchemeIds.length})
+        </Link>
+      </div>
+
       {/* Hero Banner */}
       <div className="schemes-hero-banner">
         <div className="schemes-hero-content">
-          <div className="hero-badge">
-            <span className="sparkle-emoji">🇮🇳</span> Government Schemes & Welfare
-          </div>
           <h1 className="hero-title">Find government support and opportunities you may be eligible for.</h1>
           <p className="hero-subtitle">
             Explore authentic central & state government welfare schemes for women, education, entrepreneurship, maternity benefits, and financial assistance.
@@ -107,46 +111,53 @@ export function SchemesPage() {
         </div>
       </div>
 
-      {/* Main Container */}
+      {/* Main Container Layout */}
       <div className="schemes-main-container">
-        {/* Search Input Bar */}
-        <SchemeSearch
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onClear={() => setSearchQuery('')}
-        />
+        <div className="schemes-portal-layout">
+          {/* Left Sidebar Filters */}
+          <aside className="schemes-sidebar-filters">
+            <SchemeFilters
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              governmentLevel={governmentLevel}
+              setGovernmentLevel={setGovernmentLevel}
+              selectedState={selectedState}
+              setSelectedState={setSelectedState}
+              targetAudience={targetAudience}
+              setTargetAudience={setTargetAudience}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              onResetFilters={handleResetFilters}
+            />
+          </aside>
 
-        {/* Filter Bar */}
-        <SchemeFilters
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          governmentLevel={governmentLevel}
-          setGovernmentLevel={setGovernmentLevel}
-          selectedState={selectedState}
-          setSelectedState={setSelectedState}
-          targetAudience={targetAudience}
-          setTargetAudience={setTargetAudience}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          onResetFilters={handleResetFilters}
-        />
+          {/* Right Feed Container */}
+          <main className="schemes-main-feed">
+            {/* Search Input Bar */}
+            <SchemeSearch
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onClear={() => setSearchQuery('')}
+            />
 
-        {/* Results Header Summary */}
-        <div className="schemes-results-summary">
-          <span className="results-count">
-            {schemes.length} scheme{schemes.length === 1 ? '' : 's'} available
-          </span>
-          {searchQuery && <span> for "<strong className="highlight">{searchQuery}</strong>"</span>}
-          {selectedCategory !== 'All' && <span> in <strong>{selectedCategory}</strong></span>}
+            {/* Results Header Summary */}
+            <div className="schemes-results-summary">
+              <span className="results-count">
+                {schemes.length} scheme{schemes.length === 1 ? '' : 's'} available
+              </span>
+              {searchQuery && <span> for "<strong className="highlight">{searchQuery}</strong>"</span>}
+              {selectedCategory !== 'All' && <span> in <strong>{selectedCategory}</strong></span>}
+            </div>
+
+            {/* Schemes Cards Grid */}
+            <SchemeGrid
+              schemes={schemes}
+              loading={loading}
+              bookmarkedSchemeIds={bookmarkedSchemeIds}
+              onBookmarkToggle={handleBookmarkToggle}
+            />
+          </main>
         </div>
-
-        {/* Schemes Cards Grid */}
-        <SchemeGrid
-          schemes={schemes}
-          loading={loading}
-          bookmarkedSchemeIds={bookmarkedSchemeIds}
-          onBookmarkToggle={handleBookmarkToggle}
-        />
       </div>
     </div>
   );

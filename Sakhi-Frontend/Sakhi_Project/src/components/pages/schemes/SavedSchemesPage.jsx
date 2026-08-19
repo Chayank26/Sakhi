@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchSchemes } from '../../../services/schemeApi';
 import { getSavedSchemeIds, toggleSavedScheme } from '../../../utils/schemeStorage';
-import { SchemeHeader } from '../../schemes/SchemeHeader';
+import { HomeHeader } from '../home/HomeHeader';
 import { SchemeGrid } from '../../schemes/SchemeGrid';
 import { FiArrowLeft, FiBookmark, FiZap, FiLoader } from 'react-icons/fi';
 import './SavedSchemesPage.css';
@@ -69,18 +69,20 @@ export function SavedSchemesPage() {
       )}
 
       {/* Header */}
-      <SchemeHeader onSavedClick={() => navigate('/saved-schemes')} />
+      <HomeHeader pageTitle="Saved Schemes" />
 
-      <div className="saved-schemes-container">
-        {/* Back Button */}
+      {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+      <div className="details-top-nav-bar">
         <button
           type="button"
-          className="btn-back-schemes"
+          className="btn-back-link-sleek"
           onClick={() => navigate('/schemes')}
         >
-          <FiArrowLeft className="btn-icon" /> Back to All Schemes
+          <FiArrowLeft /> Back to All Schemes
         </button>
+      </div>
 
+      <div className="saved-schemes-container">
         {/* Hero Title Banner */}
         <div className="saved-schemes-header-box">
           <div className="header-icon-circle">
