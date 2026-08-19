@@ -15,6 +15,7 @@ import {
     FiTrash2
 } from 'react-icons/fi';
 import { createCourse } from '../../../services/courseApi';
+import { HomeHeader } from '../home/HomeHeader';
 import './CreateCoursePage.css';
 
 export function CreateCoursePage() {
@@ -147,14 +148,14 @@ export function CreateCoursePage() {
     return (
         <div className="create-course-wrapper">
             {/* Header */}
-            <header className="create-course-nav">
-                <div className="create-nav-container">
-                    <button onClick={() => navigate('/academy')} className="btn-back-link">
-                        <FiArrowLeft /> Back to Sakhi Academy
-                    </button>
-                    <Link to="/home" className="brand-logo-text">Sakhi Academy</Link>
-                </div>
-            </header>
+            <HomeHeader pageTitle="Publish Course" />
+
+            {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+            <div className="details-top-nav-bar">
+                <button onClick={() => navigate('/academy')} className="btn-back-link-sleek">
+                    <FiArrowLeft /> Back to Sakhi Academy
+                </button>
+            </div>
 
             {/* Page Hero */}
             <div className="create-course-hero">

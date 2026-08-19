@@ -13,6 +13,7 @@ import {
     FiTrash2
 } from 'react-icons/fi';
 import { fetchCourses, fetchMyLearning } from '../../../services/courseApi';
+import { HomeHeader } from '../home/HomeHeader';
 import './MyLearningPage.css';
 
 export function MyLearningPage() {
@@ -81,14 +82,14 @@ export function MyLearningPage() {
     return (
         <div className="my-learning-wrapper">
             {/* Header */}
-            <header className="learning-header">
-                <div className="learning-header-container">
-                    <button onClick={() => navigate('/academy')} className="btn-back-link">
-                        <FiArrowLeft /> Back to Academy Portal
-                    </button>
-                    <Link to="/home" className="brand-logo-text">Sakhi Academy</Link>
-                </div>
-            </header>
+            <HomeHeader pageTitle="My Learning Dashboard" />
+
+            {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+            <div className="details-top-nav-bar">
+                <button onClick={() => navigate('/academy')} className="btn-back-link-sleek">
+                    <FiArrowLeft /> Back to Sakhi Academy
+                </button>
+            </div>
 
             {/* Banner */}
             <div className="learning-hero">

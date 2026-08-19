@@ -8,6 +8,7 @@ import {
     FiUsers,
     FiFilter,
     FiPlusCircle,
+    FiPlus,
     FiBookmark,
     FiChevronLeft,
     FiChevronRight,
@@ -149,6 +150,15 @@ export function AcademyPage() {
                             Search Courses
                         </button>
                     </form>
+
+                    <div className="academy-hero-actions">
+                        <Link to="/academy/create" className="btn-hero-action create">
+                            <FiPlus /> Create New Course
+                        </Link>
+                        <Link to="/academy/my-learning" className="btn-hero-action dashboard">
+                            <FiBookOpen /> My Learning Dashboard
+                        </Link>
+                    </div>
                 </div>
             </section>
 

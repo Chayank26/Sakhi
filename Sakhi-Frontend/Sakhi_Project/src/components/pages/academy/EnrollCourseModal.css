@@ -1,0 +1,254 @@
+/* ==========================================================================
+   Sakhi Academy - Enroll Course Modal Sleek Dark Glassmorphism Stylesheet
+   ========================================================================== */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 9, 19, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: modalFadeIn 0.25s ease-out;
+}
+
+.modal-container {
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 25px 70px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(24px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-title {
+    margin: 0 0 4px;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+}
+
+.modal-subtitle {
+    margin: 0;
+    font-size: 0.86rem;
+    color: #94a3b8;
+}
+
+.modal-subtitle strong {
+    color: #cbd5e1;
+}
+
+.btn-close-modal {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+    background: rgba(225, 29, 72, 0.2);
+    border-color: rgba(225, 29, 72, 0.4);
+    color: #ffffff;
+}
+
+.modal-body {
+    padding: 24px 28px 28px;
+}
+
+.apply-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modal-error-alert {
+    background: rgba(225, 29, 72, 0.15);
+    border: 1px solid rgba(225, 29, 72, 0.35);
+    color: #fda4af;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.86rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #cbd5e1;
+}
+
+.form-group label .req {
+    color: #ec4899;
+}
+
+.form-group input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #ffffff;
+    font-size: 0.92rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+    border-color: #a855f7;
+    background: rgba(168, 85, 247, 0.08);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
+}
+
+.form-group input::placeholder {
+    color: #64748b;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.form-section-summary {
+    background: rgba(124, 58, 237, 0.12);
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.84rem;
+    color: #cbd5e1;
+}
+
+.form-section-summary p {
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-section-summary strong {
+    color: #ffffff;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btn-cancel {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #cbd5e1;
+    padding: 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.btn-submit-app {
+    flex: 2;
+    background: linear-gradient(135deg, #7c3aed 0%, #be123c 100%);
+    border: none;
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-submit-app:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+}
+
+.apply-success-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 12px;
+}
+
+.success-icon {
+    font-size: 3.2rem;
+    color: #34d399;
+    margin-bottom: 12px;
+}
+
+.apply-success-state h4 {
+    margin: 0 0 8px;
+    font-size: 1.3rem;
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.apply-success-state p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+@media (max-width: 580px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}

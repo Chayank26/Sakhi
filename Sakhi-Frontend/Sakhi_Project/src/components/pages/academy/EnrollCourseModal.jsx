@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { FiX, FiCheckCircle, FiAlertCircle, FiBookOpen, FiUser, FiMail, FiPhone } from 'react-icons/fi';
+import { FiX, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { enrollInCourse } from '../../../services/courseApi';
+import './EnrollCourseModal.css';
 
 export function EnrollCourseModal({ course, onClose, onSuccess }) {
     const [studentName, setStudentName] = useState('');

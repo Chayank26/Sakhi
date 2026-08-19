@@ -18,6 +18,7 @@ import {
     FiLock
 } from 'react-icons/fi';
 import { fetchCourseById } from '../../../services/courseApi';
+import { HomeHeader } from '../home/HomeHeader';
 import { EnrollCourseModal } from './EnrollCourseModal';
 import './CourseDetailsPage.css';
 
@@ -128,19 +129,20 @@ export function CourseDetailsPage() {
     return (
         <div className="course-details-wrapper">
             {/* Header Navigation */}
-            <header className="course-details-nav">
-                <div className="details-nav-container">
-                    <button onClick={() => navigate('/academy')} className="btn-back-link">
-                        <FiArrowLeft /> Back to Academy
-                    </button>
-                    <Link to="/home" className="brand-logo-text">Sakhi Academy</Link>
-                </div>
-            </header>
+            <HomeHeader pageTitle="Course Details" />
+
+            {/* Top Bar for Back Navigation (Aligned with Sakhi Navbar Headline) */}
+            <div className="details-top-nav-bar">
+                <button onClick={() => navigate('/academy')} className="btn-back-link-sleek">
+                    <FiArrowLeft /> Back to Academy
+                </button>
+            </div>
 
             {/* Hero Header Section */}
             <section className="course-details-hero">
-                <div className="details-hero-container">
-                    <div className="hero-text-content">
+                <div className="details-hero-wrapper">
+                    <div className="details-hero-container">
+                        <div className="hero-text-content">
                         <div className="hero-tags">
                             <span className="tag-cat">{course.category}</span>
                             <span className="tag-diff">{course.difficulty}</span>
@@ -193,7 +195,8 @@ export function CourseDetailsPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
             {/* Main Body Content */}
             <main className="course-details-main">
