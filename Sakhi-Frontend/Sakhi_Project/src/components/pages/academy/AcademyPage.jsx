@@ -19,6 +19,7 @@ import {
 } from 'react-icons/fi';
 import { fetchCourses } from '../../../services/courseApi';
 import { HomeHeader } from '../home/HomeHeader';
+import { CardSwap } from '../../reactbits/CardSwap';
 import './AcademyPage.css';
 
 export function AcademyPage() {
@@ -30,6 +31,8 @@ export function AcademyPage() {
     const [selectedCategory, setSelectedCategory] = useState([]);
     const [selectedDifficulty, setSelectedDifficulty] = useState([]);
     const [selectedDuration, setSelectedDuration] = useState([]);
+    const [selectedLanguage, setSelectedLanguage] = useState([]);
+    const [selectedType, setSelectedType] = useState('');
     const [isFreeOnly, setIsFreeOnly] = useState(false);
     const [sortBy, setSortBy] = useState('popular');
 
@@ -37,12 +40,15 @@ export function AcademyPage() {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [savedCourses, setSavedCourses] = useState([]);
+    const [bookmarkedCourses, setBookmarkedCourses] = useState([]);
     const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCourses, setTotalCourses] = useState(0);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
+    const [activeCarouselIdx, setActiveCarouselIdx] = useState(0);
+
+    const featuredCourses = courses.filter((c) => c.rating >= 4.8 || c.featured).slice(0, 3);
 
     const loadCourses = async () => {
         setLoading(true);
@@ -94,12 +100,12 @@ export function AcademyPage() {
         }
     };
 
-    const toggleSaveCourse = (e, courseId) => {
+    const toggleBookmark = (e, courseId) => {
         e.stopPropagation();
-        if (savedCourses.includes(courseId)) {
-            setSavedCourses(savedCourses.filter((id) => id !== courseId));
+        if (bookmarkedCourses.includes(courseId)) {
+            setBookmarkedCourses(bookmarkedCourses.filter((id) => id !== courseId));
         } else {
-            setSavedCourses([...savedCourses, courseId]);
+            setBookmarkedCourses([...bookmarkedCourses, courseId]);
         }
     };
 
@@ -109,6 +115,8 @@ export function AcademyPage() {
         setSelectedCategory([]);
         setSelectedDifficulty([]);
         setSelectedDuration([]);
+        setSelectedLanguage([]);
+        setSelectedType('');
         setIsFreeOnly(false);
         setSortBy('popular');
         setPage(1);
@@ -144,64 +152,23 @@ export function AcademyPage() {
                 </div>
             </section>
 
-            {/* Featured Courses Carousel */}
-            {featuredCourses.length > 0 && (
-                <section className="featured-carousel-section">
-                    <div className="carousel-container">
-                        <div className="carousel-header">
-                            <h2>Featured Courses</h2>
-                            <div className="carousel-controls">
-                                <button
-                                    onClick={() => setActiveCarouselIdx((prev) => (prev > 0 ? prev - 1 : featuredCourses.length - 1))}
-                                    className="carousel-btn"
-                                >
-                                    <FiChevronLeft />
-                                </button>
-                                <button
-                                    onClick={() => setActiveCarouselIdx((prev) => (prev < featuredCourses.length - 1 ? prev + 1 : 0))}
-                                    className="carousel-btn"
-                                >
-                                    <FiChevronRight />
-                                </button>
-                            </div>
-                        </div>
-
-                        {featuredCourses[activeCarouselIdx] && (
-                            <div
-                                className="featured-course-banner"
-                                onClick={() => navigate(`/academy/course/${featuredCourses[activeCarouselIdx]._id}`)}
-                            >
-                                <div className="banner-image-box">
-                                    <img
-                                        src={featuredCourses[activeCarouselIdx].thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80'}
-                                        alt={featuredCourses[activeCarouselIdx].title}
-                                    />
-                                    <span className="featured-badge">Featured</span>
-                                </div>
-
-                                <div className="banner-details">
-                                    <div className="banner-meta">
-                                        <span className="banner-cat">{featuredCourses[activeCarouselIdx].category}</span>
-                                        <span className="banner-diff">{featuredCourses[activeCarouselIdx].difficulty}</span>
-                                    </div>
-
-                                    <h3 className="banner-title">{featuredCourses[activeCarouselIdx].title}</h3>
-                                    <p className="banner-instructor">Instructor: <strong>{featuredCourses[activeCarouselIdx].instructor}</strong></p>
-                                    <p className="banner-desc">{featuredCourses[activeCarouselIdx].description}</p>
-
-                                    <div className="banner-stats-row">
-                                        <span className="stat"><FiStar className="star-icon" /> {featuredCourses[activeCarouselIdx].rating || 4.9}</span>
-                                        <span className="stat"><FiClock /> {featuredCourses[activeCarouselIdx].duration}</span>
-                                        <span className="stat"><FiUsers /> {featuredCourses[activeCarouselIdx].studentsEnrolled} Students</span>
-                                    </div>
-
-                                    <button className="btn-explore-featured">
-                                        Explore Course <FiArrowRight />
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+            {/* Featured Courses Card Swap Stack */}
+            {courses.length > 0 && (
+                <section className="featured-depth-section">
+                    <CardSwap
+                        items={courses.slice(0, 6).map((c) => ({
+                            id: c._id,
+                            title: c.title,
+                            badge: c.category || 'Featured Course',
+                            category: c.category,
+                            difficulty: c.difficulty,
+                            instructor: c.instructor,
+                            rating: c.rating || 4.9,
+                            duration: c.duration || 'Self-Paced',
+                            image: c.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&auto=format&fit=crop&q=80',
+                        }))}
+                        onCardClick={(card) => navigate(`/academy/course/${card.id}`)}
+                    />
                 </section>
             )}
 

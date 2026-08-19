@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { FiBriefcase, FiBookOpen, FiFileText, FiUsers, FiCpu, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import './DepthCarousel.css';
 
-const CARDS = [
+const DEFAULT_CARDS = [
   {
     id: 'ai',
     title: 'Sakhi AI Assistant',
@@ -40,24 +40,25 @@ const CARDS = [
   }
 ];
 
-export function DepthCarousel({ autoPlay = true, interval = 4500, onCardClick }) {
+export function DepthCarousel({ items = null, autoPlay = true, interval = 4500, onCardClick }) {
+  const cardsList = items && items.length > 0 ? items : DEFAULT_CARDS;
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (!autoPlay) return;
+    if (!autoPlay || cardsList.length <= 1) return;
     const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % CARDS.length);
+      setActiveIndex((prev) => (prev + 1) % cardsList.length);
     }, interval);
 
     return () => clearInterval(timer);
-  }, [autoPlay, interval]);
+  }, [autoPlay, interval, cardsList.length]);
 
   const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % CARDS.length);
+    setActiveIndex((prev) => (prev + 1) % cardsList.length);
   };
 
   const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + CARDS.length) % CARDS.length);
+    setActiveIndex((prev) => (prev - 1 + cardsList.length) % cardsList.length);
   };
 
   const handleCardSelect = (idx, card) => {
@@ -71,10 +72,10 @@ export function DepthCarousel({ autoPlay = true, interval = 4500, onCardClick })
   return (
     <div className="depth-carousel-wrapper">
       <div className="depth-carousel-stage">
-        {CARDS.map((card, idx) => {
+        {cardsList.map((card, idx) => {
           let offset = idx - activeIndex;
-          if (offset < -2) offset += CARDS.length;
-          if (offset > 2) offset -= CARDS.length;
+          if (offset < -2) offset += cardsList.length;
+          if (offset > 2) offset -= cardsList.length;
 
           const isCenter = offset === 0;
 
@@ -86,12 +87,12 @@ export function DepthCarousel({ autoPlay = true, interval = 4500, onCardClick })
             transformStyle = 'translate3d(0, 0, 0) scale(1)';
             opacity = 1;
             zIndex = 10;
-          } else if (offset === -1 || (offset === CARDS.length - 1 && idx === CARDS.length - 1)) {
-            transformStyle = 'translate3d(-48%, 0, -140px) scale(0.85) rotateY(12deg)';
+          } else if (offset === -1 || (offset === cardsList.length - 1 && idx === cardsList.length - 1)) {
+            transformStyle = 'translate3d(-45%, 0, -140px) scale(0.85) rotateY(12deg)';
             opacity = 0.55;
             zIndex = 5;
-          } else if (offset === 1 || (offset === -(CARDS.length - 1) && idx === 0)) {
-            transformStyle = 'translate3d(48%, 0, -140px) scale(0.85) rotateY(-12deg)';
+          } else if (offset === 1 || (offset === -(cardsList.length - 1) && idx === 0)) {
+            transformStyle = 'translate3d(45%, 0, -140px) scale(0.85) rotateY(-12deg)';
             opacity = 0.55;
             zIndex = 5;
           } else {
@@ -102,7 +103,7 @@ export function DepthCarousel({ autoPlay = true, interval = 4500, onCardClick })
 
           return (
             <div
-              key={card.id}
+              key={card.id || idx}
               className={`depth-card ${isCenter ? 'active' : ''}`}
               style={{
                 transform: transformStyle,
@@ -118,7 +119,7 @@ export function DepthCarousel({ autoPlay = true, interval = 4500, onCardClick })
               {/* Glassmorphism Content Panel */}
               <div className="depth-glass-panel">
                 <div className="glass-header-row">
-                  <span className="depth-card-badge">{card.badge}</span>
+                  <span className="depth-card-badge">{card.badge || 'Featured'}</span>
                 </div>
 
                 <div className="glass-body">
@@ -138,7 +139,7 @@ export function DepthCarousel({ autoPlay = true, interval = 4500, onCardClick })
         </button>
 
         <div className="depth-indicators">
-          {CARDS.map((_, idx) => (
+          {cardsList.map((_, idx) => (
             <span
               key={idx}
               className={`indicator-dot ${idx === activeIndex ? 'active' : ''}`}
