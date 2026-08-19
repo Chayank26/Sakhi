@@ -4,7 +4,17 @@ import { FiArrowRight, FiSearch, FiMic } from 'react-icons/fi'
 import { HomeHeader } from './HomeHeader'
 import { SpotlightCard } from '../../reactbits/SpotlightCard'
 import { BlurText } from '../../reactbits/BlurText'
+import { TextLoop } from '../../reactbits/TextLoop'
 import './HomePage.css'
+
+const SAKHI_FEATURE_LOOP = [
+    'SAKHI JOBS & CAREER OPPORTUNITIES',
+    'SAKHI ACADEMY & FREE SKILL CERTIFICATIONS',
+    'GOVERNMENT SCHEMES & FINANCIAL GRANTS',
+    'COMMUNITY FORUM & MENTORSHIP NETWORK',
+    'SAKHI AI SMART CAREER ASSISTANT',
+    'EMPOWERING WOMEN ACROSS INDIA'
+]
 
 const featureCards = [
     {
@@ -45,6 +55,7 @@ export function HomePage() {
     return (
         <div className="home-page-shell dark-theme">
             <HomeHeader />
+            <TextLoop items={SAKHI_FEATURE_LOOP} speed={25} />
 
             <main className="home-hero">
                 <section className="home-hero-content">
