@@ -105,7 +105,7 @@ export function AiChatPage() {
       console.error('Failed to communicate with Sakhi AI backend:', error);
       const serverMsg = error.response?.data?.message;
       const is429 = error.response?.status === 429;
-      
+
       const errorText = is429
         ? 'Google Gemini Free Tier rate limit reached (20 requests/min). Please wait 5–10 seconds and try again.'
         : (serverMsg || 'Unable to connect to Sakhi AI backend. Please check your connection and try again.');
@@ -155,7 +155,14 @@ export function AiChatPage() {
 
   return (
     <div className="ai-chat-shell">
-      <HomeHeader pageTitle="Sakhi AI" />
+      <HomeHeader pageTitle="AI Assistant" />
+
+      {/* Top Bar with Right Aligned Clear Conversation Button */}
+      <div className="ai-top-nav-bar">
+        <button type="button" onClick={handleClearChat} className="btn-clear-chat-top">
+          <FiTrash2 /> Clear Conversation
+        </button>
+      </div>
 
       {/* Main Chat Body */}
       <main className="ai-chat-body">
@@ -165,10 +172,6 @@ export function AiChatPage() {
               key={msg.id}
               className={`message-row ${msg.sender === 'user' ? 'user-row' : 'ai-row'}`}
             >
-              {msg.sender === 'ai' && (
-                <div className="avatar-circle ai-avatar"><FiCpu /></div>
-              )}
-
               <div className={`message-bubble ${msg.sender === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
                 <div className="bubble-content">
                   {msg.sender === 'ai' ? (
@@ -196,19 +199,12 @@ export function AiChatPage() {
 
                 <div className="bubble-timestamp">{msg.timestamp}</div>
               </div>
-
-              {msg.sender === 'user' && (
-                <div className="avatar-circle user-avatar">
-                  <FiUser />
-                </div>
-              )}
             </div>
           ))}
 
           {/* Typing Indicator */}
           {isTyping && (
             <div className="message-row ai-row">
-              <div className="avatar-circle ai-avatar"><FiCpu /></div>
               <div className="message-bubble ai-bubble typing-bubble">
                 <div className="typing-dots">
                   <span className="dot"></span>
