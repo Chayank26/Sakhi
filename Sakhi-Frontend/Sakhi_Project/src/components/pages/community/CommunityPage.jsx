@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 import { HomeHeader } from '../home/HomeHeader';
@@ -8,7 +8,7 @@ import { PostFeed } from '../../community/PostFeed';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
 import { INITIAL_DUMMY_POSTS } from '../../community/dummyData';
 import { fetchPosts, likePost, unlikePost, bookmarkPost, unbookmarkPost } from '../../../services/communityService';
-import { FiPlus, FiZap } from 'react-icons/fi';
+import { FiPlus, FiZap, FiBookmark } from 'react-icons/fi';
 import './CommunityPage.css';
 
 export function CommunityPage() {
@@ -185,12 +185,19 @@ export function CommunityPage() {
       {/* Header */}
       <HomeHeader pageTitle="Community" />
 
+      {/* Top Bar with Right Aligned Action Buttons */}
+      <div className="community-top-nav-bar">
+        <Link to="/community/saved" className="btn-community-nav-action secondary">
+          <FiBookmark /> Saved Posts
+        </Link>
+        <Link to="/community/create" className="btn-community-nav-action primary">
+          <FiPlus /> Create Post
+        </Link>
+      </div>
+
       {/* Hero Banner */}
       <div className="community-hero-banner">
         <div className="hero-content-wrapper">
-          <div className="hero-badge">
-            Sakhi Community Forum
-          </div>
           <h1 className="hero-title">A safe space to connect, share and learn together.</h1>
           <p className="hero-subtitle">
             Join thousands of women inspiring each other across career growth, skill building, entrepreneurship, and personal success.

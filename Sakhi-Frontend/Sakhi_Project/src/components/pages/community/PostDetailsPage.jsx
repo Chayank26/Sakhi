@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
-import { CommunityHeader } from '../../community/CommunityHeader';
+import { HomeHeader } from '../home/HomeHeader';
 import { PostCard } from '../../community/PostCard';
 import { CommentSection } from '../../community/CommentSection';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
@@ -54,40 +54,28 @@ export function PostDetailsPage() {
     }
   }, [postId]);
 
-  const handleLikeToggle = async () => {
+  const handleLikeToggle = async (targetId) => {
     if (!post) return;
     const nextLiked = !post.isLiked;
-
-    // Optimistic UI update
-    setPost((prev) => {
-      const likesCount = nextLiked ? prev.likesCount + 1 : Math.max(0, prev.likesCount - 1);
-      return { ...prev, isLiked: nextLiked, likesCount };
-    });
+    const likesCount = nextLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1);
+    setPost({ ...post, isLiked: nextLiked, likesCount });
 
     try {
-      if (nextLiked) {
-        await likePost(postId);
-      } else {
-        await unlikePost(postId);
-      }
+      if (nextLiked) await likePost(targetId);
+      else await unlikePost(targetId);
     } catch (err) {
       console.warn('Backend upvote sync warning:', err.message);
     }
   };
 
-  const handleBookmarkToggle = async () => {
+  const handleBookmarkToggle = async (targetId) => {
     if (!post) return;
     const nextBookmarked = !post.isBookmarked;
-
-    // Optimistic UI update
-    setPost((prev) => ({ ...prev, isBookmarked: nextBookmarked }));
+    setPost({ ...post, isBookmarked: nextBookmarked });
 
     try {
-      if (nextBookmarked) {
-        await bookmarkPost(postId);
-      } else {
-        await unbookmarkPost(postId);
-      }
+      if (nextBookmarked) await bookmarkPost(targetId);
+      else await unbookmarkPost(targetId);
     } catch (err) {
       console.warn('Backend bookmark sync warning:', err.message);
     }
@@ -99,20 +87,20 @@ export function PostDetailsPage() {
 
   return (
     <div className="post-details-page-shell">
-      <CommunityHeader
-        searchQuery=""
-        setSearchQuery={() => {}}
-        onCreatePostClick={() => navigate('/community/create')}
-      />
+      <HomeHeader pageTitle="Discussion Details" />
 
-      <div className="post-details-main-container">
+      {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+      <div className="details-top-nav-bar">
         <button
           type="button"
-          className="btn-back-feed"
+          className="btn-back-link-sleek"
           onClick={() => navigate('/community')}
         >
-          <FiArrowLeft className="btn-icon" /> Back to Feed
+          <FiArrowLeft /> Back to Community
         </button>
+      </div>
+
+      <div className="post-details-main-container">
 
         {loading ? (
           <div className="details-loading-state">

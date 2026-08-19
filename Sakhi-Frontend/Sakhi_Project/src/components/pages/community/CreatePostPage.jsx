@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CommunityHeader } from '../../community/CommunityHeader';
+import { HomeHeader } from '../home/HomeHeader';
 import { CreatePost } from '../../community/CreatePost';
 import { FiCheckCircle, FiHeart, FiShield, FiArrowLeft } from 'react-icons/fi';
 import './CreatePostPage.css';
@@ -10,20 +10,20 @@ export function CreatePostPage() {
 
   return (
     <div className="create-post-page-shell">
-      <CommunityHeader
-        searchQuery=""
-        setSearchQuery={() => {}}
-        onCreatePostClick={() => {}}
-      />
+      <HomeHeader pageTitle="Create Discussion" />
 
-      <div className="create-post-container">
+      {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+      <div className="details-top-nav-bar">
         <button
           type="button"
-          className="btn-back-to-community"
+          className="btn-back-link-sleek"
           onClick={() => navigate('/community')}
         >
-          <FiArrowLeft className="btn-icon" /> Back to Feed
+          <FiArrowLeft /> Back to Community
         </button>
+      </div>
+
+      <div className="create-post-container">
 
         <div className="create-post-grid">
           {/* Main Form Column */}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
-import { CommunityHeader } from '../../community/CommunityHeader';
+import { HomeHeader } from '../home/HomeHeader';
 import { PostCard } from '../../community/PostCard';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
 import { fetchSavedPosts, bookmarkPost, unbookmarkPost, likePost, unlikePost } from '../../../services/communityService';
@@ -46,37 +46,36 @@ export function SavedPostsPage() {
     loadSavedPosts();
   }, []);
 
-  const handleLikeToggle = async (postId) => {
+  const handleLikeToggle = async (targetId) => {
+    const targetPost = savedPosts.find((p) => p.id === targetId);
+    if (!targetPost) return;
+
+    const nextLiked = !targetPost.isLiked;
+
     setSavedPosts((prev) =>
-      prev.map((p) => {
-        if (p.id === postId) {
-          const isLiked = !p.isLiked;
-          const likesCount = isLiked ? p.likesCount + 1 : Math.max(0, p.likesCount - 1);
-          return { ...p, isLiked, likesCount };
+      prev.map((post) => {
+        if (post.id === targetId) {
+          const likesCount = nextLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1);
+          return { ...post, isLiked: nextLiked, likesCount };
         }
-        return p;
+        return post;
       })
     );
 
     try {
-      const target = savedPosts.find((p) => p.id === postId);
-      if (target?.isLiked) {
-        await unlikePost(postId);
-      } else {
-        await likePost(postId);
-      }
+      if (nextLiked) await likePost(targetId);
+      else await unlikePost(targetId);
     } catch (err) {
       console.warn('Like toggle sync warning:', err.message);
     }
   };
 
-  const handleBookmarkToggle = async (postId) => {
-    // Remove from saved list optimistically
-    setSavedPosts((prev) => prev.filter((p) => p.id !== postId));
-    showToast('Post removed from your saved bookmarks.');
+  const handleBookmarkToggle = async (targetId) => {
+    setSavedPosts((prev) => prev.filter((p) => p.id !== targetId));
+    showToast('Post removed from saved bookmarks.');
 
     try {
-      await unbookmarkPost(postId);
+      await unbookmarkPost(targetId);
     } catch (err) {
       console.warn('Bookmark toggle sync warning:', err.message);
     }
@@ -92,28 +91,28 @@ export function SavedPostsPage() {
         </div>
       )}
 
-      <CommunityHeader
-        searchQuery=""
-        setSearchQuery={() => {}}
-        onCreatePostClick={() => navigate('/community/create')}
-      />
+      <HomeHeader pageTitle="Saved Discussions" />
 
-      <div className="saved-posts-main-container">
+      {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+      <div className="details-top-nav-bar">
         <button
           type="button"
-          className="btn-back-to-community"
+          className="btn-back-link-sleek"
           onClick={() => navigate('/community')}
         >
-          <FiArrowLeft className="btn-icon" /> Back to Feed
+          <FiArrowLeft /> Back to Community
         </button>
+      </div>
+
+      <div className="saved-posts-main-container">
 
         <div className="saved-posts-header-banner">
           <div className="saved-header-icon-circle">
             <FiBookmark />
           </div>
           <div>
-            <h1>Your Saved Posts</h1>
-            <p>Access all the community discussions, advice, and career resources you’ve bookmarked.</p>
+            <h1 className="saved-title">Your Saved Posts</h1>
+            <p className="saved-subtitle">Access all the community discussions, advice, and career resources you’ve bookmarked.</p>
           </div>
         </div>
 
