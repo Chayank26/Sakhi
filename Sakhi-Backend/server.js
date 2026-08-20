@@ -74,6 +74,22 @@ app.use('/api/community', communityRoutes);
 app.use('/api/schemes', schemeRoutes);
 app.use('/api/ai', aiRoutes);
 
+// Root & Fallback Endpoint
+app.all('*', (req, res) => {
+    res.json({
+        status: 'ok',
+        service: 'Sakhi Platform Backend API',
+        healthCheck: '/api/health',
+        endpoints: {
+            jobs: '/api/jobs',
+            courses: '/api/courses',
+            community: '/api/community',
+            schemes: '/api/schemes',
+            ai: '/api/ai'
+        }
+    });
+});
+
 // Database connection
 connectDB();
 
