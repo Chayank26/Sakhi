@@ -49,6 +49,15 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static resume files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Root endpoint
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Welcome to Sakhi Platform Backend API',
+        healthCheck: '/api/health',
+        documentation: 'API active and servicing Sakhi platform requests.'
+    });
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({
