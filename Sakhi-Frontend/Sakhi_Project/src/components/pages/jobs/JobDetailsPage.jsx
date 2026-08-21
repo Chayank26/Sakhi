@@ -18,6 +18,7 @@ import {
 } from 'react-icons/fi';
 import { fetchJobById } from '../../../services/api';
 import { ApplyJobModal } from './ApplyJobModal';
+import { HomeHeader } from '../home/HomeHeader';
 import './JobDetailsPage.css';
 
 export function JobDetailsPage() {
@@ -96,16 +97,15 @@ export function JobDetailsPage() {
     }
 
     return (
-        <div className="job-details-wrapper">
-            {/* Header Navigation */}
-            <header className="job-details-nav">
-                <div className="details-nav-container">
-                    <button onClick={() => navigate('/jobs')} className="btn-back-link">
-                        <FiArrowLeft /> Back to Jobs
-                    </button>
-                    <Link to="/home" className="brand-logo-text">Sakhi Careers</Link>
-                </div>
-            </header>
+        <div className="job-details-page-shell">
+            <HomeHeader pageTitle="Job Details" />
+
+            {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+            <div className="details-top-nav-bar">
+                <button onClick={() => navigate('/jobs')} className="btn-back-link-sleek">
+                    <FiArrowLeft /> Back to Jobs
+                </button>
+            </div>
 
             {/* Hero Header Section */}
             <section className="job-details-hero">
