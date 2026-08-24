@@ -89,8 +89,6 @@ export function HomeHeader({ pageTitle = null }) {
     const displayName = user?.displayName?.trim() || localProfile?.name || user?.email?.split('@')[0] || 'there'
     const todayLabel = formatTodayLabel()
 
-    const isHomePage = location.pathname === '/home'
-
     const handleLogout = async () => {
         try {
             await signOut(auth)
@@ -102,26 +100,27 @@ export function HomeHeader({ pageTitle = null }) {
     }
 
     return (
-        <header ref={headerRef} className="home-header">
-            <div className="home-header-left">
-                <Link className="home-brand" to="/home">
-                    Sakhi {pageTitle && <span className="header-page-title">• {pageTitle}</span>}
-                </Link>
-            </div>
+        <header ref={headerRef} className="home-header-shell">
+            <div className="home-header-pill">
+                <div className="home-header-left">
+                    <Link className="home-brand" to="/home">
+                        sakhi! {pageTitle && <span className="header-page-title">• {pageTitle}</span>}
+                    </Link>
+                </div>
 
-            <div className="home-header-center">
-                {isHomePage ? (
-                    <>
-                        <p className="home-greeting">Welcome back, {displayName}</p>
-                        <p className="home-date">{todayLabel}</p>
-                    </>
-                ) : (
+                <div className="home-header-center">
                     <nav className="header-nav-pills">
+                        <Link 
+                            to="/home" 
+                            className={`nav-pill ${location.pathname === '/home' ? 'active' : ''}`}
+                        >
+                            Dashboard
+                        </Link>
                         <Link 
                             to="/jobs" 
                             className={`nav-pill ${location.pathname.startsWith('/jobs') ? 'active' : ''}`}
                         >
-                            Careers
+                            Job Portal
                         </Link>
                         <Link 
                             to="/academy" 
@@ -148,86 +147,91 @@ export function HomeHeader({ pageTitle = null }) {
                             Sakhi AI
                         </Link>
                     </nav>
-                )}
-            </div>
-
-            <div className="home-header-actions">
-                {/* Notifications Bell Dropdown */}
-                <div className="profile-menu-wrapper">
-                    <button 
-                        className={`header-icon-btn ${notifOpen ? 'active' : ''}`} 
-                        type="button" 
-                        aria-label="Notifications"
-                        onClick={() => {
-                            setNotifOpen((open) => !open)
-                            setMenuOpen(false)
-                        }}
-                    >
-                        <FiBell />
-                        {unreadCount > 0 && <span className="notif-badge-dot">{unreadCount}</span>}
-                    </button>
-
-                    {notifOpen && (
-                        <div className="notif-dropdown">
-                            <div className="notif-dropdown-header">
-                                <h3>Notifications</h3>
-                                {unreadCount > 0 && (
-                                    <button type="button" className="btn-mark-read" onClick={handleMarkAllRead}>
-                                        <FiCheck /> Mark all as read
-                                    </button>
-                                )}
-                            </div>
-                            <div className="notif-list">
-                                {notifications.map((n) => (
-                                    <Link 
-                                        key={n.id} 
-                                        to={n.to} 
-                                        className={`notif-item ${n.unread ? 'unread' : ''}`}
-                                        onClick={() => setNotifOpen(false)}
-                                    >
-                                        <span className="notif-icon">{n.icon}</span>
-                                        <div className="notif-content">
-                                            <h4>{n.title}</h4>
-                                            <p>{n.desc}</p>
-                                            <span className="notif-time">{n.time}</span>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
 
-                {/* Profile Account Menu Dropdown */}
-                <div className="profile-menu-wrapper">
-                    <button
-                        className={`header-icon-btn profile-trigger ${menuOpen ? 'active' : ''}`}
-                        type="button"
-                        aria-label="Open profile menu"
-                        onClick={() => {
-                            setMenuOpen((open) => !open)
-                            setNotifOpen(false)
-                        }}
-                    >
-                        <FiUser />
-                    </button>
+                <div className="home-header-actions">
+                    {/* Notifications Bell Dropdown */}
+                    <div className="profile-menu-wrapper">
+                        <button 
+                            className={`header-icon-btn ${notifOpen ? 'active' : ''}`} 
+                            type="button" 
+                            aria-label="Notifications"
+                            onClick={() => {
+                                setNotifOpen((open) => !open)
+                                setMenuOpen(false)
+                            }}
+                        >
+                            <FiBell />
+                            {unreadCount > 0 && <span className="notif-badge-dot">{unreadCount}</span>}
+                        </button>
 
-                    {menuOpen ? (
-                        <div className="profile-dropdown">
-                            <button type="button" onClick={() => { setMenuOpen(false); navigate('/profile'); }}>
-                                My Profile
-                            </button>
-                            <button type="button" onClick={() => { setMenuOpen(false); navigate('/settings'); }}>
-                                Settings
-                            </button>
-                            <button type="button" onClick={() => { setMenuOpen(false); navigate('/support'); }}>
-                                Help & Support
-                            </button>
-                            <button type="button" onClick={handleLogout} className="logout-btn">
-                                Logout
-                            </button>
-                        </div>
-                    ) : null}
+                        {notifOpen && (
+                            <div className="notif-dropdown">
+                                <div className="notif-dropdown-header">
+                                    <h3>Notifications</h3>
+                                    {unreadCount > 0 && (
+                                        <button type="button" className="btn-mark-read" onClick={handleMarkAllRead}>
+                                            <FiCheck /> Mark read
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="notif-list">
+                                    {notifications.map((n) => (
+                                        <Link 
+                                            key={n.id} 
+                                            to={n.to} 
+                                            className={`notif-item ${n.unread ? 'unread' : ''}`}
+                                            onClick={() => setNotifOpen(false)}
+                                        >
+                                            <span className="notif-icon">{n.icon}</span>
+                                            <div className="notif-content">
+                                                <h4>{n.title}</h4>
+                                                <p>{n.desc}</p>
+                                                <span className="notif-time">{n.time}</span>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Profile Account Menu Dropdown */}
+                    <div className="profile-menu-wrapper">
+                        <button
+                            className={`header-icon-btn profile-trigger ${menuOpen ? 'active' : ''}`}
+                            type="button"
+                            aria-label="Open profile menu"
+                            onClick={() => {
+                                setMenuOpen((open) => !open)
+                                setNotifOpen(false)
+                            }}
+                        >
+                            <FiUser />
+                        </button>
+
+                        {menuOpen ? (
+                            <div className="profile-dropdown">
+                                <div className="profile-dropdown-userinfo">
+                                    <p className="user-name">{displayName}</p>
+                                    <p className="user-date">{todayLabel}</p>
+                                </div>
+                                <hr className="dropdown-divider" />
+                                <button type="button" onClick={() => { setMenuOpen(false); navigate('/profile'); }}>
+                                    My Profile
+                                </button>
+                                <button type="button" onClick={() => { setMenuOpen(false); navigate('/settings'); }}>
+                                    Settings
+                                </button>
+                                <button type="button" onClick={() => { setMenuOpen(false); navigate('/support'); }}>
+                                    Help & Support
+                                </button>
+                                <button type="button" onClick={handleLogout} className="logout-btn">
+                                    Logout
+                                </button>
+                            </div>
+                        ) : null}
+                    </div>
                 </div>
             </div>
         </header>

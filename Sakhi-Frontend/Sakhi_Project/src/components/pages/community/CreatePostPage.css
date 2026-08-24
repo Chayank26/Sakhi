@@ -1,53 +1,16 @@
 /* ==========================================================================
-   Sakhi Community Forum - Create Discussion Sleek Dark Glassmorphism Stylesheet
+   Sakhi Community Forum - Create Discussion Stylesheet (Matching Photo Theme)
    ========================================================================== */
 
 .create-post-page-shell {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.25), transparent 35%),
-    radial-gradient(circle at 85% 85%, rgba(225, 29, 72, 0.18), transparent 35%),
-    linear-gradient(135deg, #060913 0%, #0f172a 50%, #181537 100%);
-  background-attachment: fixed;
-  color: #f8fafc;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   padding-bottom: 80px;
-}
-
-.details-top-nav-bar {
-  width: 100%;
-  padding: 20px 40px 0 40px;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.btn-back-link-sleek {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #cbd5e1;
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 14px;
-  transition: all 0.2s ease;
-  width: fit-content;
-}
-
-.btn-back-link-sleek:hover {
-  background: rgba(124, 58, 237, 0.2);
-  border-color: rgba(168, 85, 247, 0.4);
-  color: #ffffff;
 }
 
 .create-post-container {
   max-width: 1100px;
   margin: 16px auto 0;
-  padding: 0 24px;
+  padding: 0 20px;
 }
 
 .create-post-grid {
@@ -58,85 +21,35 @@
 }
 
 .create-post-form-col {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  background: var(--bg-outer-card);
+  border: 1px solid var(--border-outer);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   padding: 28px;
 }
 
-.create-post-guidance-col {
-  position: sticky;
-  top: 90px;
-}
-
 .guidance-card {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  background: var(--bg-outer-card);
+  border: 1px solid var(--border-outer);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.guidance-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
 .guidance-header h3 {
-  font-size: 0.96rem;
-  font-weight: 800;
-  color: #ffffff;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--text-main);
   margin: 0;
-}
-
-.guidance-icon {
-  color: #c084fc;
-  font-size: 1.1rem;
-}
-
-.guidance-list {
-  padding-left: 0;
-  margin: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.guidance-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 0.84rem;
-  color: #cbd5e1;
-  line-height: 1.45;
-}
-
-.check-icon {
-  color: #34d399;
-  font-size: 1rem;
-  margin-top: 2px;
-  flex-shrink: 0;
 }
 
 @media (max-width: 900px) {
-  .details-top-nav-bar {
-    padding: 16px 24px 0 24px;
-  }
   .create-post-grid {
     grid-template-columns: 1fr;
-  }
-  .create-post-guidance-col {
-    position: static;
   }
 }

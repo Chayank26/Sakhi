@@ -1,48 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
 :root {
-  /* Color System */
-  --primary-amethyst: #7c3aed;
-  --primary-hover: #6d28d9;
-  --primary-light: #f3e8ff;
-  
-  --warm-rose: #be123c;
-  --warm-rose-light: #fff1f2;
-  --warm-rose-border: #fecdd3;
+  /* Sakhi Warm Aesthetic Theme (Inspired by Cream, Terracotta & Soft Mint Sage) */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
 
-  --amber-gold: #d97706;
-  --amber-gold-light: #fef3c7;
+  /* Canvas & Grid */
+  --bg-canvas: #D8E6E2;
+  --bg-grid-line: rgba(180, 202, 196, 0.45);
 
-  --emerald-green: #059669;
-  --emerald-green-light: #d1fae5;
+  /* Containers & Surfaces */
+  --bg-outer-card: #FAF0E6;
+  --bg-outer-card-hover: #F8ECE0;
+  --bg-inner-card: #FFFFFF;
+  --bg-header-pill: rgba(240, 246, 244, 0.92);
 
-  --bg-canvas: #faf8f5;
-  --bg-surface: #ffffff;
-  --bg-surface-elevated: #ffffff;
-  --bg-subtle: #f8fafc;
+  /* Brand Accent - Terracotta Orange */
+  --brand-orange: #EE5029;
+  --brand-orange-hover: #D8421B;
+  --brand-orange-light: #FDF0ED;
+  --brand-orange-border: rgba(238, 80, 41, 0.3);
 
-  --text-main: #0f172a;
-  --text-body: #334155;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
+  /* Secondary Accents */
+  --accent-sage: #5A7E75;
+  --accent-mint: #E2EBE8;
 
-  --border-subtle: #f1f5f9;
-  --border-medium: #e2e8f0;
-  --border-focus: #a855f7;
+  /* Typography Colors */
+  --text-main: #23282D;
+  --text-body: #374151;
+  --text-muted: #6B7280;
+  --text-light: #9CA3AF;
 
-  /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
+  /* Borders & Shadows */
+  --border-outer: rgba(230, 215, 200, 0.7);
+  --border-inner: rgba(0, 0, 0, 0.06);
+  --border-focus: #EE5029;
+
   /* Radii */
-  --radius-xs: 6px;
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
   --radius-pill: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.08);
-  --shadow-glow: 0 10px 30px rgba(124, 58, 237, 0.15);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 18px 45px rgba(0, 0, 0, 0.08);
+  --shadow-orange: 0 8px 22px rgba(238, 80, 41, 0.28);
 
   /* Transitions */
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -64,12 +69,13 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background:
-    radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.25), transparent 35%),
-    radial-gradient(circle at 85% 85%, rgba(225, 29, 72, 0.18), transparent 35%),
-    linear-gradient(135deg, #060913 0%, #0f172a 50%, #181537 100%);
+  background-color: var(--bg-canvas);
+  background-image:
+    linear-gradient(var(--bg-grid-line) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, var(--bg-grid-line) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
   background-attachment: fixed;
-  color: #f8fafc;
+  color: var(--text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -80,27 +86,29 @@ body {
   min-height: 100vh;
 }
 
-/* Base Headings */
-h1, h2, h3, h4, h5, h6 {
+/* Serif Headings (Matching Reference Photo Typography) */
+h1, h2, h3, .serif-title {
   color: var(--text-main);
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.02em;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
-h1 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; }
-h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; }
-h3 { font-size: 1.35rem; font-weight: 700; }
-h4 { font-size: 1.1rem; font-weight: 600; }
+h1 { font-size: clamp(2.2rem, 4.5vw, 3.5rem); }
+h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); }
+h3 { font-size: 1.4rem; }
+h4, h5, h6 { font-family: var(--font-sans); font-weight: 700; color: var(--text-main); }
 
 a {
-  color: var(--primary-amethyst);
+  color: var(--brand-orange);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--primary-hover);
+  color: var(--brand-orange-hover);
 }
 
 /* Unified Button Component Styles */
@@ -109,39 +117,40 @@ a:hover {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 22px;
+  padding: 12px 26px;
   font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid transparent;
   cursor: pointer;
   transition: all var(--transition-normal);
   outline: none;
+  font-family: var(--font-sans);
 }
 
 .sakhi-btn-primary {
-  background: var(--primary-amethyst);
+  background: var(--brand-orange);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
+  box-shadow: var(--shadow-orange);
 }
 
 .sakhi-btn-primary:hover {
-  background: var(--primary-hover);
+  background: var(--brand-orange-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+  box-shadow: 0 12px 28px rgba(238, 80, 41, 0.38);
 }
 
 .sakhi-btn-secondary {
   background: #ffffff;
-  color: var(--text-main);
-  border-color: var(--border-medium);
+  color: var(--brand-orange);
+  border-color: var(--brand-orange);
   box-shadow: var(--shadow-sm);
 }
 
 .sakhi-btn-secondary:hover {
-  background: var(--bg-subtle);
-  border-color: var(--primary-amethyst);
-  color: var(--primary-amethyst);
+  background: var(--brand-orange-light);
+  color: var(--brand-orange-hover);
+  transform: translateY(-2px);
 }
 
 /* Badge Utilities */
@@ -149,19 +158,37 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: var(--radius-pill);
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.sakhi-badge-amethyst {
-  background: var(--primary-light);
-  color: var(--primary-amethyst);
+.sakhi-badge-orange {
+  background: var(--brand-orange-light);
+  color: var(--brand-orange);
+  border: 1px solid var(--brand-orange-border);
 }
 
-.sakhi-badge-rose {
-  background: var(--warm-rose-light);
-  color: var(--warm-rose);
-  border: 1px solid var(--warm-rose-border);
+.sakhi-badge-sage {
+  background: var(--accent-mint);
+  color: var(--accent-sage);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(180, 202, 196, 0.8);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-sage);
 }
