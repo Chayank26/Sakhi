@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import './LiquidEther.css'
 
 export function LiquidEther({
-    etherColor = '#7c3aed',
-    secondaryColor = '#e11d48',
-    coreColor = '#a855f7',
+    etherColor = '#3bb5c5ff',
+    secondaryColor = '#1de1caff',
+    coreColor = '#1a53bfff',
 }) {
     const canvasRef = useRef(null)
     const [isActive, setIsActive] = useState(false)

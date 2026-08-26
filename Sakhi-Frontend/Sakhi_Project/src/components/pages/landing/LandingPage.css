@@ -1,25 +1,26 @@
 /* ==========================================================================
-   Sakhi Landing Page Stylesheet (Matching Photo Theme)
+   Sakhi Landing Page Stylesheet (Refined Proportions & Spacing)
    ========================================================================== */
 
 .landing-page-shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 0 24px 48px;
+  padding: 0 24px 32px;
   overflow: hidden;
 }
 
 .landing-topbar {
-  max-width: 1200px;
+  max-width: 1100px;
   width: 100%;
   margin: 16px auto 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 28px;
-  background: var(--bg-header-pill);
+  padding: 10px 24px;
+  background: rgba(235, 243, 240, 0.94);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-sm);
@@ -28,7 +29,7 @@
 .landing-brand {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 1.9rem;
+  font-size: 1.85rem;
   font-weight: 700;
   color: var(--brand-orange);
   text-decoration: none;
@@ -37,16 +38,16 @@
 .landing-nav-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .uiverse-nav-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 22px;
+  gap: 6px;
+  padding: 8px 20px;
   border-radius: var(--radius-pill);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 700;
   text-decoration: none;
   transition: all var(--transition-fast);
@@ -74,7 +75,7 @@
 }
 
 .landing-hero-stage {
-  max-width: 1100px;
+  max-width: 1000px;
   width: 100%;
   margin: 0 auto;
   flex: 1;
@@ -83,26 +84,43 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 32px 0 40px;
+  padding: 20px 0 28px;
+}
+
+.landing-hero-header {
+  margin-bottom: 8px;
 }
 
 .landing-hero-headline {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-size: clamp(2.2rem, 4.2vw, 3.4rem);
   font-weight: 500;
   color: var(--text-main) !important;
   -webkit-text-fill-color: var(--text-main) !important;
-  margin-bottom: 12px;
-  line-height: 1.1;
+  margin-bottom: 10px;
+  line-height: 1.12;
 }
 
 .landing-hero-subtitle {
-  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-size: clamp(0.95rem, 1.8vw, 1.08rem);
   color: var(--text-muted);
-  max-width: 680px;
-  margin: 0 auto 24px;
-  line-height: 1.6;
+  max-width: 640px;
+  margin: 0 auto 16px;
+  line-height: 1.55;
+}
+
+.landing-depth-carousel-wrapper {
+  width: 100%;
+  margin: 8px 0 24px;
+}
+
+.landing-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .uiverse-hero-btn {
@@ -110,10 +128,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 16px 38px;
+  gap: 10px;
+  padding: 13px 32px;
   border-radius: var(--radius-pill);
-  font-size: 1.05rem;
+  font-size: 0.96rem;
   font-weight: 800;
   text-decoration: none;
   transition: all var(--transition-bounce);
@@ -128,7 +146,7 @@
 
 .uiverse-hero-btn.primary:hover {
   background: var(--brand-orange-hover);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
 .uiverse-hero-btn.secondary {
@@ -139,4 +157,20 @@
 
 .uiverse-hero-btn.secondary:hover {
   background: var(--brand-orange-light);
+}
+
+@media (max-width: 768px) {
+  .landing-page-shell {
+    padding: 0 16px 24px;
+  }
+  .landing-topbar {
+    padding: 8px 16px;
+  }
+  .landing-cta-row {
+    flex-direction: column;
+    width: 100%;
+  }
+  .uiverse-hero-btn {
+    width: 100%;
+  }
 }
