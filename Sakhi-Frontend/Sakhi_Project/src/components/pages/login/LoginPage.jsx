@@ -8,7 +8,6 @@ import {
     updateProfile,
 } from 'firebase/auth'
 import { FiArrowRight, FiEye, FiEyeOff, FiLock, FiMail, FiPhone, FiUser, FiCalendar } from 'react-icons/fi'
-import { LiquidEther } from '../../reactbits/LiquidEther'
 import { auth } from '../firebase/firebase'
 import './LoginPage.css'
 
@@ -128,7 +127,6 @@ export function LoginPage() {
 
     return (
         <div className="login-split-shell">
-            <LiquidEther />
             <div className="split-auth-container">
                 {/* Left Side: Lighter Background with Evenly Spread Text */}
                 <div className="auth-info-panel">

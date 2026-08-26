@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
 import { FiArrowRight, FiUserCheck, FiUserPlus } from 'react-icons/fi'
 import { DepthCarousel } from '../../reactbits/DepthCarousel'
-import { LiquidEther } from '../../reactbits/LiquidEther'
 import { auth } from '../firebase/firebase'
 import './LandingPage.css'
 
@@ -24,8 +23,7 @@ export function LandingPage() {
     }
 
     return (
-        <div className="landing-page-shell dark-theme">
-            <LiquidEther />
+        <div className="landing-page-shell">
             {/* Top Navigation Bar */}
             <header className="landing-topbar">
                 <Link className="landing-brand" to="/">
@@ -71,4 +69,3 @@ export function LandingPage() {
         </div>
     )
 }
-
