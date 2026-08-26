@@ -1,24 +1,20 @@
 /* ==========================================================================
-   React Bits - TextLoop #C7A0CB Light Lavender Banner Animation Stylesheet
+   React Bits - TextLoop Banner (Warm Ceramic Theme)
    ========================================================================== */
-
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Syne:wght@700;800&family=Unbounded:wght@700;800&display=swap');
 
 .text-loop-container {
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
-  background: #C7A0CB;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-outer-card, #FAF0E6);
+  border-bottom: 1px solid var(--border-outer, rgba(230, 215, 200, 0.7));
+  border-top: 1px solid var(--border-outer, rgba(230, 215, 200, 0.7));
   padding: 10px 0;
   display: flex;
   align-items: center;
   position: relative;
   z-index: 10;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.03));
 }
 
 .text-loop-track {
@@ -40,9 +36,9 @@
 }
 
 .text-loop-text {
-  font-family: 'Bricolage Grotesque', 'Syne', 'Unbounded', sans-serif;
-  color: #0f172a; /* Deep midnight navy/purple for crisp contrast against #C7A0CB */
-  font-size: 0.88rem;
+  font-family: var(--font-sans);
+  color: var(--text-main, #23282D);
+  font-size: 0.86rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -51,13 +47,12 @@
 }
 
 .text-loop-item:hover .text-loop-text {
-  color: #3b0764;
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+  color: var(--brand-orange, #EE5029);
   transform: scale(1.02);
 }
 
 .text-loop-separator {
-  color: #5b21b6; /* Rich deep violet separator star */
+  color: var(--brand-orange, #EE5029);
   font-size: 0.9rem;
   font-weight: 800;
 }

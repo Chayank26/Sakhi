@@ -53,7 +53,7 @@ export function HomePage() {
     }
 
     return (
-        <div className="home-page-shell dark-theme">
+        <div className="home-page-shell">
             <HomeHeader />
             <TextLoop items={SAKHI_FEATURE_LOOP} speed={25} />
 
@@ -63,7 +63,7 @@ export function HomePage() {
                         <BlurText text="Empowering Women. Creating Opportunities." delay={100} />
                     </h1>
 
-                    {/* Hero Search / Prompt Input Bar */}
+                    {/* Hero AI Search / Prompt Input Bar */}
                     <form className="hero-ai-search-form" onSubmit={handlePromptSubmit}>
                         <div className="hero-ai-search-bar">
                             <FiSearch className="hero-search-icon" />
@@ -80,10 +80,11 @@ export function HomePage() {
                         </div>
                     </form>
 
+                    {/* Feature Cards Grid with ReactBits SpotlightCard */}
                     <div className="feature-grid">
                         {featureCards.map((card) => (
                             <Link key={card.title} to={card.to} className="feature-card-link">
-                                <SpotlightCard className="feature-card" spotlightColor="rgba(168, 85, 247, 0.22)">
+                                <SpotlightCard className="feature-card" spotlightColor="rgba(238, 80, 41, 0.15)">
                                     <div className="card-top-row">
                                         <h3>{card.title}</h3>
                                         <FiArrowRight className="card-arrow-icon" />
