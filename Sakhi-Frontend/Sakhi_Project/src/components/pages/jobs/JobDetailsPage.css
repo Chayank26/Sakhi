@@ -553,14 +553,14 @@
 }
 
 .modal-container {
-  background: #ffffff;
+  background: var(--bg-outer-card, #FAF0E6);
   border-radius: var(--radius-lg, 28px);
   width: 100%;
   max-width: 580px;
   max-height: 90vh;
   overflow-y: auto;
-  border: 1px solid var(--border-outer);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-outer, rgba(230, 215, 200, 0.7));
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
   color: var(--text-main);
   padding: 32px;
   display: flex;
