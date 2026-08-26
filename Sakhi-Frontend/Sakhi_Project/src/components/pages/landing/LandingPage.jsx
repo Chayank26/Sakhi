@@ -42,9 +42,6 @@ export function LandingPage() {
             {/* Main Hero Stage */}
             <main className="landing-hero-stage">
                 <div className="landing-hero-header">
-                    <div className="landing-eyebrow-pill">
-                        <FiCompass /> <span>Empowering Women Across India</span>
-                    </div>
                     <h1 className="landing-hero-headline">
                         Ready to start your journey with Sakhi?
                     </h1>
