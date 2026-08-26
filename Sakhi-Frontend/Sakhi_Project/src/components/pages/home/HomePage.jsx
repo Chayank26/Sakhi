@@ -55,7 +55,6 @@ export function HomePage() {
     return (
         <div className="home-page-shell">
             <HomeHeader />
-            <TextLoop items={SAKHI_FEATURE_LOOP} speed={25} />
 
             <main className="home-hero">
                 <section className="home-hero-content">
@@ -96,6 +95,11 @@ export function HomePage() {
                     </div>
                 </section>
             </main>
+
+            {/* Bottom Running Text Loop */}
+            <div className="home-bottom-loop-wrapper">
+                <TextLoop items={SAKHI_FEATURE_LOOP} speed={25} />
+            </div>
         </div>
     )
 }

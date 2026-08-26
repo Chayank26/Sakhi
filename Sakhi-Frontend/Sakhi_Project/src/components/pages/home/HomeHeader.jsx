@@ -104,7 +104,7 @@ export function HomeHeader({ pageTitle = null }) {
             <div className="home-header-pill">
                 <div className="home-header-left">
                     <Link className="home-brand" to="/home">
-                        sakhi! {pageTitle && <span className="header-page-title">• {pageTitle}</span>}
+                        sakhi {pageTitle && <span className="header-page-title">• {pageTitle}</span>}
                     </Link>
                 </div>
 

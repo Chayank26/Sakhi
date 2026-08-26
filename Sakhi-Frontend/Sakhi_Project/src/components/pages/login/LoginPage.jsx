@@ -132,7 +132,7 @@ export function LoginPage() {
                 <div className="auth-info-panel">
                     <div className="info-panel-content">
                         <div className="info-brand-tag">
-                            <span className="auth-brand-logo">sakhi!</span>
+                            <span className="auth-brand-logo">sakhi</span>
                         </div>
 
                         <div className="info-copy-block">
