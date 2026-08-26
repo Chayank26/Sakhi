@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
-import { FiArrowRight, FiUserCheck, FiUserPlus } from 'react-icons/fi'
+import { FiArrowRight, FiUserCheck, FiUserPlus, FiCompass } from 'react-icons/fi'
 import { DepthCarousel } from '../../reactbits/DepthCarousel'
 import { auth } from '../firebase/firebase'
 import './LandingPage.css'
@@ -27,7 +27,7 @@ export function LandingPage() {
             {/* Top Navigation Bar */}
             <header className="landing-topbar">
                 <Link className="landing-brand" to="/">
-                    Sakhi
+                    sakhi
                 </Link>
                 <div className="landing-nav-actions">
                     <Link className="uiverse-nav-btn secondary" to="/login?mode=login">
@@ -42,11 +42,14 @@ export function LandingPage() {
             {/* Main Hero Stage */}
             <main className="landing-hero-stage">
                 <div className="landing-hero-header">
+                    <div className="landing-eyebrow-pill">
+                        <FiCompass /> <span>Empowering Women Across India</span>
+                    </div>
                     <h1 className="landing-hero-headline">
                         Ready to start your journey with Sakhi?
                     </h1>
                     <p className="landing-hero-subtitle">
-                        Discover verified jobs, master new skills, explore government schemes, and connect with a supportive community.
+                        Sakhi is an all-in-one platform designed to empower women by connecting you directly to verified job opportunities, free certified learning courses, government welfare schemes, and 24/7 AI career guidance.
                     </p>
                 </div>
 
