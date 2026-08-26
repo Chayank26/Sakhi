@@ -7,7 +7,7 @@ import {
     signOut,
     updateProfile,
 } from 'firebase/auth'
-import { FiArrowRight, FiEye, FiEyeOff, FiLock, FiMail, FiPhone, FiUser, FiCalendar } from 'react-icons/fi'
+import { FiArrowRight, FiArrowLeft, FiEye, FiEyeOff, FiLock, FiMail, FiPhone, FiUser, FiCalendar, FiCheckCircle, FiAlertCircle } from 'react-icons/fi'
 import { auth } from '../firebase/firebase'
 import './LoginPage.css'
 
@@ -128,14 +128,18 @@ export function LoginPage() {
     return (
         <div className="login-split-shell">
             <div className="split-auth-container">
-                {/* Left Side: Lighter Background with Evenly Spread Text */}
+                {/* Left Side: Warm Light Peach Info Panel */}
                 <div className="auth-info-panel">
                     <div className="info-panel-content">
+                        <div className="info-brand-tag">
+                            <span className="auth-brand-logo">sakhi!</span>
+                        </div>
+
                         <div className="info-copy-block">
                             <h1>
                                 {mode === 'login'
-                                    ? 'Access Your Account & Support'
-                                    : 'Start Your Journey Now'}
+                                    ? 'Welcome back to Sakhi'
+                                    : 'Start your journey with Sakhi'}
                             </h1>
                             <p>
                                 {mode === 'login'
@@ -159,19 +163,19 @@ export function LoginPage() {
                             </div>
                             <div className="pillar-item">
                                 <span className="pillar-dot" />
-                                <span>24/7 Gemini AI Assistant</span>
+                                <span>24/7 Gemini AI Career Assistant</span>
                             </div>
                         </div>
 
                         <div className="info-panel-footer">
                             <Link to="/" className="back-landing-link">
-                                Back to Landing Page
+                                <FiArrowLeft /> Back to Landing Page
                             </Link>
                         </div>
                     </div>
                 </div>
 
-                {/* Right Side: Dark Background with Glassmorphism Auth Card */}
+                {/* Right Side: Auth Form Card */}
                 <div className="auth-form-panel">
                     <div className="glass-auth-card">
                         <div className="auth-mode-pills">
@@ -193,13 +197,25 @@ export function LoginPage() {
 
                         {user ? (
                             <div className="signed-in-panel">
+                                <FiCheckCircle className="signed-in-icon" />
+                                <h3>Already Logged In</h3>
                                 <p>Signed in as <strong>{user.email}</strong></p>
-                                <button className="sakhi-auth-submit-btn" type="button" onClick={handleSignOut}>
-                                    Sign Out
-                                </button>
+                                <div className="signed-in-actions">
+                                    <button className="sakhi-auth-submit-btn" type="button" onClick={() => navigate('/home')}>
+                                        Go to Dashboard <FiArrowRight />
+                                    </button>
+                                    <button className="sakhi-auth-signout-btn" type="button" onClick={handleSignOut}>
+                                        Sign Out
+                                    </button>
+                                </div>
                             </div>
                         ) : (
                             <form className="dark-auth-form" onSubmit={handleAuthSubmit}>
+                                <div className="auth-form-header">
+                                    <h2>{mode === 'login' ? 'Sign In to Sakhi' : 'Create Your Free Account'}</h2>
+                                    <p>{mode === 'login' ? 'Enter your registered email & password' : 'Fill in your details below to get started'}</p>
+                                </div>
+
                                 <div className="input-fields-stack">
                                     {mode === 'signup' ? (
                                         <>
@@ -252,7 +268,7 @@ export function LoginPage() {
                                     ) : null}
 
                                     <div className="input-group">
-                                        <label>Email ID</label>
+                                        <label>Email Address</label>
                                         <div className="input-with-icon">
                                             <FiMail className="field-icon" />
                                             <input
@@ -290,7 +306,8 @@ export function LoginPage() {
 
                                 {status.text ? (
                                     <div className={`auth-status-alert ${status.type}`}>
-                                        {status.text}
+                                        {status.type === 'error' ? <FiAlertCircle /> : <FiCheckCircle />}
+                                        <span>{status.text}</span>
                                     </div>
                                 ) : null}
 
