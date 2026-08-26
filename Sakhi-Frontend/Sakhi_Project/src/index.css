@@ -1,39 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 :root {
-  /* Sakhi Warm Aesthetic Theme (Inspired by Cream, Terracotta & Soft Mint Sage) */
+  /* Sakhi Light Blue Theme */
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
 
-  /* Canvas & Grid */
-  --bg-canvas: #D8E6E2;
-  --bg-grid-line: rgba(180, 202, 196, 0.45);
+  /* Canvas & Grid (Original Light Sky Blue Theme) */
+  --bg-canvas: #E0F2FE;
+  --bg-grid-line: rgba(186, 218, 238, 0.45);
 
   /* Containers & Surfaces */
-  --bg-outer-card: #FAF0E6;
-  --bg-outer-card-hover: #F8ECE0;
+  --bg-outer-card: #F0F9FF;
+  --bg-outer-card-hover: #E0F2FE;
   --bg-inner-card: #FFFFFF;
-  --bg-header-pill: rgba(240, 246, 244, 0.92);
+  --bg-header-pill: rgba(240, 249, 255, 0.94);
 
-  /* Brand Accent - Terracotta Orange */
+  /* Brand Accent - Terracotta Orange & Electric Blue */
   --brand-orange: #EE5029;
   --brand-orange-hover: #D8421B;
   --brand-orange-light: #FDF0ED;
   --brand-orange-border: rgba(238, 80, 41, 0.3);
 
-  /* Secondary Accents */
-  --accent-sage: #5A7E75;
-  --accent-mint: #E2EBE8;
+  /* Secondary Accents - Light Sky Blue */
+  --accent-sky: #0284C7;
+  --accent-sky-light: #E0F2FE;
 
   /* Typography Colors */
-  --text-main: #23282D;
-  --text-body: #374151;
-  --text-muted: #6B7280;
-  --text-light: #9CA3AF;
+  --text-main: #0F172A;
+  --text-body: #334155;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
 
   /* Borders & Shadows */
-  --border-outer: rgba(230, 215, 200, 0.7);
-  --border-inner: rgba(0, 0, 0, 0.06);
+  --border-outer: rgba(186, 218, 238, 0.75);
+  --border-inner: rgba(0, 0, 0, 0.05);
   --border-focus: #EE5029;
 
   /* Radii */
@@ -44,9 +44,9 @@
   --radius-pill: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 18px 45px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 10px 28px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 18px 45px rgba(15, 23, 42, 0.08);
   --shadow-orange: 0 8px 22px rgba(238, 80, 41, 0.28);
 
   /* Transitions */
@@ -69,11 +69,11 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-canvas);
+  background-color: #E0F2FE;
   background-image:
-    linear-gradient(var(--bg-grid-line) 1.5px, transparent 1.5px),
-    linear-gradient(90deg, var(--bg-grid-line) 1.5px, transparent 1.5px);
-  background-size: 32px 32px;
+    radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.25), transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.18), transparent 40%),
+    linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #E8F4F8 100%);
   background-attachment: fixed;
   color: var(--text-main);
   line-height: 1.6;
@@ -86,7 +86,7 @@ body {
   min-height: 100vh;
 }
 
-/* Serif Headings (Matching Reference Photo Typography) */
+/* Serif Headings */
 h1, h2, h3, .serif-title {
   color: var(--text-main);
   font-family: var(--font-serif);
@@ -172,9 +172,9 @@ a:hover {
   border: 1px solid var(--brand-orange-border);
 }
 
-.sakhi-badge-sage {
-  background: var(--accent-mint);
-  color: var(--accent-sage);
+.sakhi-badge-sky {
+  background: var(--accent-sky-light);
+  color: var(--accent-sky);
 }
 
 /* Custom Scrollbar */
@@ -186,9 +186,9 @@ a:hover {
   background: var(--bg-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(180, 202, 196, 0.8);
+  background: rgba(56, 189, 248, 0.5);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-sage);
+  background: #0284C7;
 }

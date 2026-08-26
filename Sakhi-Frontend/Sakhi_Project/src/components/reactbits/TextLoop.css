@@ -1,20 +1,20 @@
 /* ==========================================================================
-   React Bits - TextLoop Banner (Warm Ceramic Theme)
+   React Bits - TextLoop Banner (Light Sky Blue Theme)
    ========================================================================== */
 
 .text-loop-container {
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
-  background: var(--bg-outer-card, #FAF0E6);
-  border-bottom: 1px solid var(--border-outer, rgba(230, 215, 200, 0.7));
-  border-top: 1px solid var(--border-outer, rgba(230, 215, 200, 0.7));
+  background: var(--bg-outer-card, #F0F9FF);
+  border-bottom: 1px solid var(--border-outer, rgba(186, 218, 238, 0.75));
+  border-top: 1px solid var(--border-outer, rgba(186, 218, 238, 0.75));
   padding: 10px 0;
   display: flex;
   align-items: center;
   position: relative;
   z-index: 10;
-  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.03));
+  box-shadow: var(--shadow-sm, 0 4px 12px rgba(15, 23, 42, 0.03));
 }
 
 .text-loop-track {
@@ -37,7 +37,7 @@
 
 .text-loop-text {
   font-family: var(--font-sans);
-  color: var(--text-main, #23282D);
+  color: var(--text-main, #0F172A);
   font-size: 0.86rem;
   font-weight: 800;
   letter-spacing: 0.08em;
