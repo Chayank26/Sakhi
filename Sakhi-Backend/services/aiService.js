@@ -22,10 +22,13 @@ export const generateAiResponseService = async ({ message, messages }) => {
 
     const replyText = typeof llmResult === 'string' ? llmResult : (llmResult.text || '');
     const actions = typeof llmResult === 'object' && Array.isArray(llmResult.actions) ? llmResult.actions : [];
+    const cards = typeof llmResult === 'object' && llmResult.cards ? llmResult.cards : { jobs: [], courses: [], schemes: [] };
 
     return {
         message: replyText,
         actions,
+        cards,
         timestamp: new Date().toISOString()
     };
 };
+

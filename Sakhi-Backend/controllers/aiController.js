@@ -31,6 +31,7 @@ export const chatWithAi = async (req, res) => {
             success: true,
             message: result.message,
             actions: result.actions || [],
+            cards: result.cards || { jobs: [], courses: [], schemes: [] },
             timestamp: result.timestamp
         });
     } catch (error) {

@@ -93,6 +93,7 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
         let response = await createWithRetry(interactionPayload);
 
         let actions = [];
+        let cards = { jobs: [], courses: [], schemes: [] };
 
         // Check if Gemini autonomous agent requested tool calls (status === 'requires_action')
         const toolCallSteps = response.steps ? response.steps.filter((s) => s.type === 'function_call') : [];
@@ -108,10 +109,28 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
                 })
             );
 
-            // Collect structured action objects from tool outputs
+            // Collect structured action objects and structured cards from tool outputs
             actions = toolResults
                 .map((tr) => tr.result && tr.result.action)
                 .filter(Boolean);
+
+            let collectedJobs = [];
+            let collectedCourses = [];
+            let collectedSchemes = [];
+
+            toolResults.forEach((tr) => {
+                if (tr.result) {
+                    if (Array.isArray(tr.result.jobs)) collectedJobs.push(...tr.result.jobs);
+                    if (Array.isArray(tr.result.courses)) collectedCourses.push(...tr.result.courses);
+                    if (Array.isArray(tr.result.schemes)) collectedSchemes.push(...tr.result.schemes);
+                }
+            });
+
+            cards = {
+                jobs: collectedJobs.slice(0, 4),
+                courses: collectedCourses.slice(0, 4),
+                schemes: collectedSchemes.slice(0, 4)
+            };
 
             const formattedResults = toolResults
                 .map((tr) => `Sakhi Tool "${tr.toolName}" returned: ${JSON.stringify(tr.result)}`)
@@ -146,7 +165,8 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
 
         return {
             text: replyText,
-            actions
+            actions,
+            cards
         };
     } catch (error) {
         if (error.statusCode && error.statusCode !== 500) {
