@@ -394,9 +394,10 @@ export function AcademyPage() {
                                             </div>
 
                                             <div className="course-card-body">
-                                                <div className="course-tags-row">
-                                                    <span className="tag-category">{course.category}</span>
-                                                    <span className="tag-difficulty">{course.difficulty}</span>
+                                                <div className="course-meta-kicker">
+                                                    <span className="kicker-category">{course.category}</span>
+                                                    <span className="kicker-dot">•</span>
+                                                    <span className="kicker-level">{course.difficulty}</span>
                                                 </div>
 
                                                 <h3 className="course-card-title">{course.title}</h3>
@@ -406,9 +407,11 @@ export function AcademyPage() {
                                                     <span className="rating-badge">
                                                         <FiStar className="star-icon" /> {course.rating || 4.8}
                                                     </span>
+                                                    <span className="meta-sep">•</span>
                                                     <span className="meta-info">
                                                         <FiClock /> {course.duration}
                                                     </span>
+                                                    <span className="meta-sep">•</span>
                                                     <span className="meta-info">
                                                         <FiUsers /> {course.studentsEnrolled} learners
                                                     </span>
@@ -423,7 +426,7 @@ export function AcademyPage() {
                                                 {course.learningOutcomes && course.learningOutcomes.length > 0 && (
                                                     <div className="course-skills-list">
                                                         {course.learningOutcomes.slice(0, 3).map((outcome, idx) => (
-                                                            <span key={idx} className="skill-pill">
+                                                            <span key={idx} className="skill-item">
                                                                 ✓ {outcome.substring(0, 30)}...
                                                             </span>
                                                         ))}

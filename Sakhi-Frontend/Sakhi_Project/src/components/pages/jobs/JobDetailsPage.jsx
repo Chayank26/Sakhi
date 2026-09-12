@@ -121,10 +121,20 @@ export function JobDetailsPage() {
                         />
 
                         <div className="hero-header-text">
-                            <div className="hero-tags">
-                                <span className="tag-industry">{job.industry || 'Technology'}</span>
-                                {job.remote && <span className="tag-remote">100% Remote</span>}
-                                {job.hybrid && <span className="tag-hybrid">Hybrid Option</span>}
+                            <div className="hero-meta-kicker">
+                                <span className="meta-industry">{job.industry || 'Technology'}</span>
+                                {job.remote && (
+                                    <>
+                                        <span className="meta-dot">•</span>
+                                        <span className="meta-remote">100% Remote</span>
+                                    </>
+                                )}
+                                {job.hybrid && (
+                                    <>
+                                        <span className="meta-dot">•</span>
+                                        <span className="meta-hybrid">Hybrid Option</span>
+                                    </>
+                                )}
                             </div>
                             <h1 className="details-job-title">{job.title}</h1>
                             <p className="details-company-name">{job.company}</p>

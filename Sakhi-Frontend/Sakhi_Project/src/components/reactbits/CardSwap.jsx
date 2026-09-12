@@ -93,13 +93,13 @@ export function CardSwap({ items = [], onCardClick, autoPlay = false, interval =
                 <div className="swap-card-image-box">
                   <img src={card.image} alt={card.title} />
                   <div className="swap-card-overlay" />
-                  <span className="swap-badge">{card.badge || 'Featured'}</span>
                 </div>
 
                 <div className="swap-card-content">
-                  <div className="swap-tags">
-                    {card.category && <span className="swap-tag-cat">{card.category}</span>}
-                    {card.difficulty && <span className="swap-tag-diff">{card.difficulty}</span>}
+                  <div className="swap-meta-header">
+                    {card.category && <span className="swap-meta-category">{card.category}</span>}
+                    {card.category && card.difficulty && <span className="swap-meta-sep">•</span>}
+                    {card.difficulty && <span className="swap-meta-level">{card.difficulty}</span>}
                   </div>
 
                   <h3 className="swap-title">{card.title}</h3>
@@ -109,6 +109,7 @@ export function CardSwap({ items = [], onCardClick, autoPlay = false, interval =
 
                   <div className="swap-metrics">
                     <span className="swap-metric"><FiStar className="star-icon" /> {card.rating || 4.9}</span>
+                    <span className="swap-metric-sep">•</span>
                     <span className="swap-metric"><FiClock /> {card.duration || 'Self-Paced'}</span>
                   </div>
 

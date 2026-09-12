@@ -185,16 +185,6 @@ export function CommunityPage() {
       {/* Header */}
       <HomeHeader pageTitle="Community" />
 
-      {/* Top Bar with Right Aligned Action Buttons */}
-      <div className="community-top-nav-bar">
-        <Link to="/community/saved" className="btn-community-nav-action secondary">
-          <FiBookmark /> Saved Posts
-        </Link>
-        <Link to="/community/create" className="btn-community-nav-action primary">
-          <FiPlus /> Create Post
-        </Link>
-      </div>
-
       {/* Hero Banner */}
       <div className="community-hero-banner">
         <div className="hero-content-wrapper">
@@ -202,6 +192,14 @@ export function CommunityPage() {
           <p className="hero-subtitle">
             Join thousands of women inspiring each other across career growth, skill building, entrepreneurship, and personal success.
           </p>
+          <div className="community-hero-actions">
+            <Link to="/community/create" className="btn-hero-action create">
+              <FiPlus /> Create New Discussion
+            </Link>
+            <Link to="/community/saved" className="btn-hero-action saved">
+              <FiBookmark /> Saved Discussions
+            </Link>
+          </div>
         </div>
       </div>
 

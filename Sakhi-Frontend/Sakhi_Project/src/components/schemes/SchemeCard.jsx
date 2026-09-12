@@ -21,18 +21,18 @@ export function SchemeCard({ scheme, isBookmarked = false, onBookmarkToggle }) {
 
   return (
     <article className={`scheme-card ${featured ? 'featured-card' : ''}`}>
-      {/* Top Meta Badges */}
+      {/* Top Meta Kicker */}
       <div className="scheme-card-top">
-        <div className="badge-group-left">
+        <div className="scheme-kicker-left">
           {featured && (
-            <span className="badge-featured">
-              <FiStar className="badge-icon" /> Featured
+            <span className="featured-star-label">
+              <FiStar /> Featured •
             </span>
           )}
-          <span className="badge-category">{category}</span>
+          <span className="scheme-kicker-cat">{category}</span>
         </div>
 
-        <span className="badge-level-state">
+        <span className="scheme-kicker-state">
           <FiFlag className="badge-mini-icon" /> {governmentLevel}
           {state && state !== 'All India' && ` • ${state}`}
         </span>
@@ -44,14 +44,13 @@ export function SchemeCard({ scheme, isBookmarked = false, onBookmarkToggle }) {
         <p className="scheme-short-desc">{shortDescription}</p>
       </div>
 
-      {/* Target Audience Tags */}
+      {/* Target Audience Summary */}
       {targetAudience.length > 0 && (
-        <div className="scheme-audience-tags">
-          {targetAudience.slice(0, 3).map((aud) => (
-            <span key={aud} className="audience-tag">
-              {aud}
-            </span>
-          ))}
+        <div className="scheme-audience-summary">
+          <span className="audience-label">Target Group:</span>
+          <span className="audience-values">
+            {targetAudience.slice(0, 3).join(' • ')}
+          </span>
         </div>
       )}
 
@@ -64,19 +63,18 @@ export function SchemeCard({ scheme, isBookmarked = false, onBookmarkToggle }) {
             e.stopPropagation();
             if (onBookmarkToggle) onBookmarkToggle(schemeId);
           }}
-          aria-label="Save scheme"
+          aria-label={isBookmarked ? 'Remove saved scheme' : 'Save scheme'}
         >
-          <FiBookmark className="action-icon" />
-          <span>{isBookmarked ? 'Saved' : 'Save'}</span>
+          <FiBookmark /> {isBookmarked ? 'Saved' : 'Save'}
         </button>
 
         <button
           type="button"
-          className="btn-scheme-details"
+          className="btn-scheme-view"
           onClick={() => navigate(`/schemes/${schemeId}`)}
         >
-          <span>View Details</span>
-          <FiArrowRight className="btn-icon" />
+          <span>View Benefits</span>
+          <FiArrowRight />
         </button>
       </div>
     </article>

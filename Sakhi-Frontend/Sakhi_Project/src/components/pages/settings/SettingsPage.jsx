@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { FiSliders, FiBell, FiShield, FiGlobe, FiMoon, FiCheck } from 'react-icons/fi'
+import { Link, useNavigate } from 'react-router-dom'
+import { FiSliders, FiBell, FiShield, FiGlobe, FiMoon, FiCheck, FiArrowLeft } from 'react-icons/fi'
 import { HomeHeader } from '../home/HomeHeader'
 import './SettingsPage.css'
 
 export function SettingsPage() {
+    const navigate = useNavigate()
     const [savedMsg, setSavedMsg] = useState('')
 
     const [settings, setSettings] = useState({
@@ -29,6 +30,13 @@ export function SettingsPage() {
     return (
         <div className="settings-page-shell">
             <HomeHeader pageTitle="Settings" />
+
+            {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+            <div className="details-top-nav-bar">
+                <button onClick={() => navigate('/home')} className="btn-back-link-sleek">
+                    <FiArrowLeft /> Back to Dashboard
+                </button>
+            </div>
 
             <main className="settings-container">
                 {savedMsg && <div className="settings-toast">{savedMsg}</div>}

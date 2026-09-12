@@ -57,37 +57,37 @@ export function EnrollCourseModal({ course, onClose, onSuccess }) {
     };
 
     return (
-        <div className="modal-backdrop" onClick={onClose}>
-            <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+        <div className="enroll-course-backdrop" onClick={onClose}>
+            <div className="enroll-course-container" onClick={(e) => e.stopPropagation()}>
                 {/* Modal Header */}
-                <div className="modal-header">
+                <div className="enroll-course-header">
                     <div>
-                        <h3 className="modal-title">Enroll in Course</h3>
-                        <p className="modal-subtitle">{course.title} by <strong>{course.instructor}</strong></p>
+                        <h3 className="enroll-course-title">Enroll in Course</h3>
+                        <p className="enroll-course-subtitle">{course.title} by <strong>{course.instructor}</strong></p>
                     </div>
-                    <button className="btn-close-modal" onClick={onClose}>
+                    <button className="enroll-course-btn-close" onClick={onClose}>
                         <FiX />
                     </button>
                 </div>
 
                 {/* Modal Body */}
-                <div className="modal-body">
+                <div className="enroll-course-body">
                     {successMessage ? (
-                        <div className="apply-success-state">
-                            <FiCheckCircle className="success-icon" />
+                        <div className="enroll-course-success-state">
+                            <FiCheckCircle className="enroll-course-success-icon" />
                             <h4>Enrollment Successful!</h4>
                             <p>{successMessage}</p>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="apply-form">
+                        <form onSubmit={handleSubmit} className="enroll-course-form">
                             {error && (
-                                <div className="modal-error-alert">
+                                <div className="enroll-course-error-alert">
                                     <FiAlertCircle /> {error}
                                 </div>
                             )}
 
-                            <div className="form-group">
-                                <label>Full Name <span className="req">*</span></label>
+                            <div className="enroll-course-form-group">
+                                <label>Full Name <span className="enroll-course-req">*</span></label>
                                 <input
                                     type="text"
                                     placeholder="Enter your full name"
@@ -97,9 +97,9 @@ export function EnrollCourseModal({ course, onClose, onSuccess }) {
                                 />
                             </div>
 
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Email Address <span className="req">*</span></label>
+                            <div className="enroll-course-form-row">
+                                <div className="enroll-course-form-group">
+                                    <label>Email Address <span className="enroll-course-req">*</span></label>
                                     <input
                                         type="email"
                                         placeholder="you@example.com"
@@ -109,8 +109,8 @@ export function EnrollCourseModal({ course, onClose, onSuccess }) {
                                     />
                                 </div>
 
-                                <div className="form-group">
-                                    <label>Phone Number <span className="req">*</span></label>
+                                <div className="enroll-course-form-group">
+                                    <label>Phone Number <span className="enroll-course-req">*</span></label>
                                     <input
                                         type="tel"
                                         placeholder="+91 98765 43210"
@@ -121,18 +121,18 @@ export function EnrollCourseModal({ course, onClose, onSuccess }) {
                                 </div>
                             </div>
 
-                            <div className="form-section-summary">
+                            <div className="enroll-course-summary">
                                 <p><strong>Price:</strong> {course.price === 0 ? 'FREE' : `₹${course.price}`}</p>
                                 <p><strong>Duration:</strong> {course.duration}</p>
                                 <p><strong>Access:</strong> Full Lifetime Access + Certificate</p>
                             </div>
 
                             {/* Submit Footer */}
-                            <div className="modal-footer">
-                                <button type="button" className="btn-cancel" onClick={onClose} disabled={submitting}>
+                            <div className="enroll-course-footer">
+                                <button type="button" className="enroll-course-btn-cancel" onClick={onClose} disabled={submitting}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="btn-submit-app" disabled={submitting}>
+                                <button type="submit" className="enroll-course-btn-submit" disabled={submitting}>
                                     {submitting ? 'Enrolling...' : 'Confirm Enrollment'}
                                 </button>
                             </div>

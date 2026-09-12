@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiArrowRight } from 'react-icons/fi';
 import './DepthCarousel.css';
 
 const DEFAULT_CARDS = [
@@ -88,15 +88,15 @@ export function DepthCarousel({ items = null, autoPlay = true, interval = 4500, 
             opacity = 1;
             zIndex = 10;
           } else if (offset === -1 || (offset === cardsList.length - 1 && idx === cardsList.length - 1)) {
-            transformStyle = 'translate3d(-45%, 0, -140px) scale(0.85) rotateY(12deg)';
-            opacity = 0.55;
+            transformStyle = 'translate3d(-44%, 0, -140px) scale(0.86) rotateY(10deg)';
+            opacity = 0.65;
             zIndex = 5;
           } else if (offset === 1 || (offset === -(cardsList.length - 1) && idx === 0)) {
-            transformStyle = 'translate3d(45%, 0, -140px) scale(0.85) rotateY(-12deg)';
-            opacity = 0.55;
+            transformStyle = 'translate3d(44%, 0, -140px) scale(0.86) rotateY(-10deg)';
+            opacity = 0.65;
             zIndex = 5;
           } else {
-            transformStyle = 'translate3d(0, 0, -280px) scale(0.7)';
+            transformStyle = 'translate3d(0, 0, -280px) scale(0.72)';
             opacity = 0;
             zIndex = 1;
           }
@@ -116,15 +116,20 @@ export function DepthCarousel({ items = null, autoPlay = true, interval = 4500, 
               <img src={card.image} alt={card.title} className="depth-card-bg-image" />
               <div className="depth-card-dark-overlay" />
 
-              {/* Glassmorphism Content Panel */}
+              {/* Frosted Sand/Ceramic Glassmorphism Content Panel */}
               <div className="depth-glass-panel">
-                <div className="glass-header-row">
-                  <span className="depth-card-badge">{card.badge || 'Featured'}</span>
+                <div className="depth-glass-kicker">
+                  {card.badge || 'Platform Feature'}
                 </div>
 
                 <div className="glass-body">
                   <h3>{card.title}</h3>
                   <p>{card.description}</p>
+                </div>
+
+                <div className="depth-glass-action">
+                  <span>Explore Feature</span>
+                  <FiArrowRight />
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { FiHelpCircle, FiPhoneCall, FiMessageSquare, FiMail, FiSend, FiChevronDown, FiChevronUp, FiShield } from 'react-icons/fi'
+import { Link, useNavigate } from 'react-router-dom'
+import { FiHelpCircle, FiPhoneCall, FiMessageSquare, FiMail, FiSend, FiChevronDown, FiChevronUp, FiShield, FiArrowLeft } from 'react-icons/fi'
 import { HomeHeader } from '../home/HomeHeader'
 import './SupportPage.css'
 
@@ -30,6 +30,7 @@ const FAQS = [
 ]
 
 export function SupportPage() {
+    const navigate = useNavigate()
     const [openFaq, setOpenFaq] = useState(null)
     const [contactForm, setContactForm] = useState({ subject: '', message: '' })
     const [submitted, setSubmitted] = useState(false)
@@ -50,6 +51,13 @@ export function SupportPage() {
     return (
         <div className="support-page-shell">
             <HomeHeader pageTitle="Help & Support" />
+
+            {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+            <div className="details-top-nav-bar">
+                <button onClick={() => navigate('/home')} className="btn-back-link-sleek">
+                    <FiArrowLeft /> Back to Dashboard
+                </button>
+            </div>
 
             <main className="support-container">
                 {/* Emergency Helplines Card */}

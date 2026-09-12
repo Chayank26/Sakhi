@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 :root {
-  /* Sakhi Theme Tokens */
+  /* Sakhi Core Theme Tokens */
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
 
@@ -9,54 +9,67 @@
   --bg-canvas: #C7E0E5;
   --bg-grid-line: rgba(255, 255, 255, 0.55);
 
-  /* Containers & Surfaces */
+  /* Containers & Surfaces (Two-Tone Card Architecture) */
   --bg-outer-card: #FAF0E6;
   --bg-outer-card-hover: #F8ECE0;
   --bg-inner-card: #FFFFFF;
   --bg-header-pill: rgba(240, 246, 244, 0.94);
+  --bg-chip: #F4ECE1;
 
   /* Brand Accent - Terracotta Red-Orange */
   --brand-orange: #EE5029;
   --brand-orange-hover: #D8421B;
+  --brand-orange-active: #BF3613;
   --brand-orange-light: #FDF0ED;
-  --brand-orange-border: rgba(238, 80, 41, 0.3);
+  --brand-orange-border: rgba(238, 80, 41, 0.28);
+  --brand-orange-subtle: rgba(238, 80, 41, 0.08);
 
   /* Secondary Accents */
   --accent-sage: #5A7E75;
+  --accent-sage-dark: #3F5B54;
   --accent-mint: #E2EBE8;
+  --accent-gold: #D97706;
+  --accent-gold-bg: #FEF3C7;
 
   /* Typography Colors */
   --text-main: #23282D;
   --text-body: #374151;
   --text-muted: #6B7280;
   --text-light: #9CA3AF;
+  --text-on-orange: #FFFFFF;
 
-  /* Borders & Shadows */
-  --border-outer: rgba(230, 215, 200, 0.7);
-  --border-inner: rgba(0, 0, 0, 0.05);
+  /* Borders & Dividers */
+  --border-outer: rgba(230, 215, 200, 0.75);
+  --border-inner: rgba(0, 0, 0, 0.06);
+  --border-light: rgba(0, 0, 0, 0.04);
   --border-focus: #EE5029;
 
   /* Radii */
-  --radius-xs: 8px;
-  --radius-sm: 12px;
-  --radius-md: 18px;
-  --radius-lg: 28px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
   --radius-pill: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 18px 45px rgba(0, 0, 0, 0.08);
-  --shadow-orange: 0 8px 22px rgba(238, 80, 41, 0.28);
+  /* Shadows (Soft, Natural Ambient Shadows) */
+  --shadow-xs: 0 2px 6px rgba(35, 40, 45, 0.03);
+  --shadow-sm: 0 4px 14px rgba(35, 40, 45, 0.04);
+  --shadow-md: 0 8px 24px rgba(35, 40, 45, 0.06);
+  --shadow-lg: 0 16px 40px rgba(35, 40, 45, 0.09);
+  --shadow-orange: 0 6px 20px rgba(238, 80, 41, 0.26);
+  --shadow-orange-hover: 0 10px 28px rgba(238, 80, 41, 0.36);
 
   /* Transitions */
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-normal: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Global Reset & Base */
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -84,21 +97,23 @@ body {
 
 #root {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Serif Headings (Matching Reference Photo Typography) */
+/* Typography Standards */
 h1, h2, h3, .serif-title {
   color: var(--text-main);
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
 }
 
-h1 { font-size: clamp(2.2rem, 4.5vw, 3.5rem); }
-h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); }
-h3 { font-size: 1.4rem; }
+h1 { font-size: clamp(2rem, 4.2vw, 3.2rem); }
+h2 { font-size: clamp(1.5rem, 2.8vw, 2.2rem); }
+h3 { font-size: 1.35rem; }
 h4, h5, h6 { font-family: var(--font-sans); font-weight: 700; color: var(--text-main); }
 
 a {
@@ -111,14 +126,14 @@ a:hover {
   color: var(--brand-orange-hover);
 }
 
-/* Unified Button Component Styles */
+/* Unified Button Component Primitives */
 .sakhi-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 26px;
-  font-size: 0.95rem;
+  padding: 10px 22px;
+  font-size: 0.9rem;
   font-weight: 700;
   border-radius: var(--radius-pill);
   border: 1.5px solid transparent;
@@ -126,68 +141,213 @@ a:hover {
   transition: all var(--transition-normal);
   outline: none;
   font-family: var(--font-sans);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sakhi-btn:active {
+  transform: translateY(1px);
 }
 
 .sakhi-btn-primary {
   background: var(--brand-orange);
-  color: #ffffff;
+  color: var(--text-on-orange);
   box-shadow: var(--shadow-orange);
 }
 
 .sakhi-btn-primary:hover {
   background: var(--brand-orange-hover);
+  color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(238, 80, 41, 0.38);
+  box-shadow: var(--shadow-orange-hover);
 }
 
 .sakhi-btn-secondary {
-  background: #ffffff;
-  color: var(--brand-orange);
-  border-color: var(--brand-orange);
-  box-shadow: var(--shadow-sm);
+  background: #FFFFFF;
+  color: var(--text-main);
+  border-color: var(--border-outer);
+  box-shadow: var(--shadow-xs);
 }
 
 .sakhi-btn-secondary:hover {
-  background: var(--brand-orange-light);
-  color: var(--brand-orange-hover);
-  transform: translateY(-2px);
+  background: var(--bg-outer-card);
+  border-color: var(--brand-orange-border);
+  color: var(--brand-orange);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
-/* Badge Utilities */
+.sakhi-btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: transparent;
+}
+
+.sakhi-btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-main);
+}
+
+.sakhi-btn-sm {
+  padding: 7px 16px;
+  font-size: 0.82rem;
+}
+
+.sakhi-btn-lg {
+  padding: 14px 28px;
+  font-size: 1rem;
+}
+
+/* Standardized Top Navigation Bar (Aligned with Floating Navbar 1240px Container) */
+.details-top-nav-bar {
+  width: 100%;
+  max-width: 1240px;
+  margin: 14px auto 0;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.btn-back-link-sleek {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  background: rgba(240, 246, 244, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  font-family: var(--font-sans);
+}
+
+.btn-back-link-sleek:hover {
+  background: #ffffff;
+  color: var(--brand-orange);
+  border-color: var(--brand-orange-border);
+  transform: translateX(-3px);
+  box-shadow: 0 6px 20px rgba(238, 80, 41, 0.14);
+}
+
+.btn-back-link-sleek svg {
+  font-size: 1.05rem;
+  transition: transform var(--transition-fast);
+}
+
+.btn-back-link-sleek:hover svg {
+  transform: translateX(-2px);
+}
+
+/* Standardized Form Inputs & Controls */
+.sakhi-input,
+.sakhi-select,
+.sakhi-textarea {
+  width: 100%;
+  padding: 11px 16px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-outer);
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.sakhi-input::placeholder,
+.sakhi-textarea::placeholder {
+  color: var(--text-light);
+}
+
+.sakhi-input:focus,
+.sakhi-select:focus,
+.sakhi-textarea:focus {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px rgba(238, 80, 41, 0.16);
+  background: #FFFFFF;
+}
+
+/* Card Utilities */
+.sakhi-card {
+  background: var(--bg-outer-card);
+  border: 1px solid var(--border-outer);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.sakhi-card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-orange-border);
+}
+
+/* Badge & Kicker Utilities (Clean Editorial Text) */
 .sakhi-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  font-size: 0.8rem;
+  gap: 5px;
+  padding: 0;
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  line-height: 1;
+  background: transparent !important;
+  border: none !important;
 }
 
 .sakhi-badge-orange {
-  background: var(--brand-orange-light);
   color: var(--brand-orange);
-  border: 1px solid var(--brand-orange-border);
 }
 
 .sakhi-badge-sage {
-  background: var(--accent-mint);
-  color: var(--accent-sage);
+  color: var(--accent-sage-dark);
+}
+
+.sakhi-badge-gold {
+  color: var(--accent-gold);
+}
+
+/* Shimmer Animation for Skeleton Loaders */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-box {
+  background: linear-gradient(90deg, #f0e6da 25%, #faf3eb 50%, #f0e6da 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(180, 202, 196, 0.8);
-  border-radius: 999px;
+  background: rgba(90, 126, 117, 0.35);
+  border-radius: var(--radius-pill);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-sage);

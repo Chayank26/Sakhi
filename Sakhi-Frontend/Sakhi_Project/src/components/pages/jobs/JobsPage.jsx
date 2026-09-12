@@ -422,21 +422,21 @@ export function JobsPage() {
                                             </div>
 
                                             <div className="job-card-meta">
-                                                <span className="meta-badge location">
+                                                <span className="meta-item location">
                                                     <FiMapPin /> {job.location}
                                                     {job.remote && <span className="tag-remote">Remote</span>}
                                                 </span>
-                                                <span className="meta-badge salary">
+                                                <span className="meta-item salary">
                                                     <FiDollarSign /> {job.salary}
                                                 </span>
-                                                <span className="meta-badge exp">
+                                                <span className="meta-item exp">
                                                     <FiBriefcase /> {job.experience}
                                                 </span>
-                                                <span className="meta-badge type">
+                                                <span className="meta-item type">
                                                     {job.employmentType}
                                                 </span>
                                                 {isApplied && (
-                                                    <span className="meta-badge applied-pill">
+                                                    <span className="meta-item applied-status">
                                                         <FiCheckCircle /> Applied
                                                     </span>
                                                 )}
@@ -451,7 +451,7 @@ export function JobsPage() {
                                             {job.skills && job.skills.length > 0 && (
                                                 <div className="job-skills-list">
                                                     {job.skills.slice(0, 4).map((skill, idx) => (
-                                                        <span key={idx} className="skill-pill">
+                                                        <span key={idx} className="skill-tag">
                                                             {skill}
                                                         </span>
                                                     ))}

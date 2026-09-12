@@ -73,34 +73,12 @@
 /* Top Back Navigation Bar */
 .details-top-nav-bar {
   width: 100%;
-  max-width: 1140px;
-  margin: 16px auto 0;
+  max-width: 1240px;
+  margin: 14px auto 0;
   padding: 0 20px;
   display: flex;
   justify-content: flex-start;
-}
-
-.btn-back-link-sleek {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 20px;
-  border-radius: var(--radius-pill);
-  background: #ffffff;
-  border: 1.5px solid var(--border-outer);
-  color: var(--text-main);
-  font-size: 0.86rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
-}
-
-.btn-back-link-sleek:hover {
-  background: var(--brand-orange-light);
-  color: var(--brand-orange);
-  border-color: var(--brand-orange-border);
-  transform: translateX(-3px);
+  box-sizing: border-box;
 }
 
 /* Hero Header Section */
@@ -126,6 +104,7 @@
   display: flex;
   align-items: flex-start;
   gap: 22px;
+  flex: 1;
 }
 
 .details-company-logo {
@@ -139,40 +118,32 @@
   flex-shrink: 0;
 }
 
-.hero-tags {
+.hero-meta-kicker {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 6px;
-}
-
-.tag-industry {
-  background: var(--brand-orange-light);
-  color: var(--brand-orange);
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
-  font-size: 0.76rem;
-  font-weight: 800;
+  font-size: 0.78rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.tag-remote {
-  background: #D1FAE5;
-  color: #065F46;
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
-  font-size: 0.76rem;
-  font-weight: 800;
+.meta-industry {
+  color: var(--brand-orange);
 }
 
-.tag-hybrid {
-  background: #FEF3C7;
+.meta-remote {
+  color: #065F46;
+}
+
+.meta-hybrid {
   color: #92400E;
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
-  font-size: 0.76rem;
-  font-weight: 800;
+}
+
+.meta-dot {
+  color: var(--text-light);
+  font-weight: 400;
 }
 
 .details-job-title {
@@ -195,6 +166,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .btn-action-icon {
@@ -836,6 +809,11 @@
   }
   .details-hero-container {
     flex-direction: column;
+    align-items: stretch;
+  }
+  .hero-action-buttons {
+    align-self: flex-end;
+    margin-left: auto;
   }
   .form-row {
     grid-template-columns: 1fr;

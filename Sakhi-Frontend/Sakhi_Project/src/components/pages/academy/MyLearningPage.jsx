@@ -160,11 +160,10 @@ export function MyLearningPage() {
                                                 >
                                                     <div className="card-image-box">
                                                         <img src={course.thumbnail} alt={course.title} />
-                                                        <span className="progress-badge">{course.progress}% Completed</span>
                                                     </div>
 
                                                     <div className="card-info-box">
-                                                        <span className="cat-pill">{course.category}</span>
+                                                        <span className="meta-kicker-cat">{course.category}</span>
                                                         <h3 className="course-name">{course.title}</h3>
                                                         <p className="instructor">Instructor: {course.instructor}</p>
 
@@ -263,11 +262,10 @@ export function MyLearningPage() {
                                                 >
                                                     <div className="card-image-box">
                                                         <img src={course.thumbnail} alt={course.title} />
-                                                        <span className="progress-badge">Enrolled</span>
                                                     </div>
 
                                                     <div className="card-info-box">
-                                                        <span className="cat-pill">{course.category}</span>
+                                                        <span className="meta-kicker-cat">{course.category}</span>
                                                         <h3 className="course-name">{course.title}</h3>
                                                         <p className="instructor">Instructor: {course.instructor}</p>
                                                         <button className="btn-resume-course">View Details <FiArrowRight /></button>

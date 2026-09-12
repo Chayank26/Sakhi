@@ -116,15 +116,19 @@ export function SchemeDetailsPage() {
             <main className="scheme-details-main">
               {/* Header Meta Card */}
               <div className="scheme-title-card">
-                <div className="title-top-badges">
-                  <span className="details-category-badge">{scheme.category}</span>
-                  <span className="details-level-badge">
-                    <FiFlag className="badge-icon" /> {scheme.governmentLevel} Govt
+                <div className="scheme-details-kicker">
+                  <span className="details-category-text">{scheme.category}</span>
+                  <span className="details-kicker-dot">•</span>
+                  <span className="details-level-text">
+                    <FiFlag className="kicker-icon" /> {scheme.governmentLevel} Govt
                   </span>
                   {scheme.state && (
-                    <span className="details-state-badge">
-                      <FiMapPin className="badge-icon" /> {scheme.state}
-                    </span>
+                    <>
+                      <span className="details-kicker-dot">•</span>
+                      <span className="details-state-text">
+                        <FiMapPin className="kicker-icon" /> {scheme.state}
+                      </span>
+                    </>
                   )}
                 </div>
 

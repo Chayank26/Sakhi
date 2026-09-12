@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FiArrowLeft, FiUser, FiMail, FiPhone, FiCalendar, FiBriefcase, FiBookOpen, FiFileText, FiEdit2, FiCheck } from 'react-icons/fi'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../firebase/firebase'
@@ -7,6 +7,7 @@ import { HomeHeader } from '../home/HomeHeader'
 import './ProfilePage.css'
 
 export function ProfilePage() {
+    const navigate = useNavigate()
     const [user, setUser] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
     const [savedMsg, setSavedMsg] = useState('')
@@ -48,6 +49,13 @@ export function ProfilePage() {
     return (
         <div className="profile-page-shell">
             <HomeHeader pageTitle="My Profile" />
+
+            {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+            <div className="details-top-nav-bar">
+                <button onClick={() => navigate('/home')} className="btn-back-link-sleek">
+                    <FiArrowLeft /> Back to Dashboard
+                </button>
+            </div>
 
             <main className="profile-container">
                 {savedMsg && <div className="profile-toast">{savedMsg}</div>}

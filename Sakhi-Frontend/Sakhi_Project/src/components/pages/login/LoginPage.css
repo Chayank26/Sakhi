@@ -243,10 +243,10 @@
 .input-with-icon input:focus {
   border-color: var(--brand-orange);
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(238, 80, 41, 0.15);
+  box-shadow: 0 0 0 3.5px rgba(238, 80, 41, 0.18);
 }
 
-.input-with-icon input:focus ~ .field-icon {
+.input-with-icon:focus-within .field-icon {
   color: var(--brand-orange);
 }
 

@@ -350,34 +350,35 @@
 .jobs-cards-grid {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   background: var(--bg-outer-card);
   border: 1px solid var(--border-outer);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
 }
 
 .job-card {
-  padding: 22px 24px;
+  padding: 24px 26px;
   border-radius: var(--radius-md);
-  background: var(--bg-inner-card);
-  border: 1px solid var(--border-inner);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  background: #ffffff;
+  border: 1px solid var(--border-outer);
+  box-shadow: var(--shadow-xs);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  transition: all var(--transition-fast);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
 .job-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-  border-color: rgba(238, 80, 41, 0.3);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-orange-border);
 }
 
 .job-card.job-card-applied {
-  border-left: 4px solid #059669;
+  border-left: 4px solid #16a34a;
 }
 
 .job-card-header {
@@ -389,11 +390,12 @@
 .company-logo {
   width: 52px;
   height: 52px;
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   object-fit: cover;
   background: #ffffff;
-  padding: 3px;
-  border: 1px solid var(--border-inner);
+  padding: 4px;
+  border: 1px solid var(--border-outer);
+  box-shadow: var(--shadow-xs);
   flex-shrink: 0;
 }
 
@@ -402,12 +404,18 @@
 }
 
 .job-title {
-  margin: 0 0 2px;
+  margin: 0 0 4px;
   font-family: var(--font-sans);
   font-style: normal;
   font-size: 1.18rem;
   font-weight: 700;
   color: var(--text-main);
+  line-height: 1.35;
+  transition: color var(--transition-fast);
+}
+
+.job-card:hover .job-title {
+  color: var(--brand-orange);
 }
 
 .company-name {
@@ -419,7 +427,7 @@
 
 .btn-bookmark {
   background: var(--brand-orange-light);
-  border: none;
+  border: 1px solid var(--brand-orange-border);
   width: 38px;
   height: 38px;
   border-radius: 50%;
@@ -430,62 +438,75 @@
   cursor: pointer;
   font-size: 1.05rem;
   transition: all var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .btn-bookmark.saved {
   background: var(--brand-orange);
   color: #ffffff;
+  border-color: var(--brand-orange);
+  box-shadow: var(--shadow-orange);
 }
 
 .btn-bookmark:hover {
   background: var(--brand-orange);
   color: #ffffff;
+  border-color: var(--brand-orange);
+  transform: scale(1.08);
 }
 
 .job-card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 16px;
   align-items: center;
 }
 
-.meta-badge {
+.meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  border-radius: var(--radius-pill);
-  background: rgba(0, 0, 0, 0.04);
-  color: var(--text-body);
-  font-size: 0.82rem;
-  font-weight: 600;
+  gap: 5px;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.meta-item svg {
+  font-size: 0.95rem;
+  color: var(--text-muted);
 }
 
 .tag-remote {
   background: var(--accent-mint);
-  color: var(--accent-sage);
-  padding: 2px 8px;
-  border-radius: 999px;
+  color: var(--accent-sage-dark);
+  padding: 1px 7px;
+  border-radius: var(--radius-xs, 6px);
   font-size: 0.72rem;
   font-weight: 700;
   margin-left: 4px;
 }
 
-.meta-badge.salary {
-  background: var(--brand-orange-light);
+.meta-item.salary {
   color: var(--brand-orange);
   font-weight: 700;
 }
 
-.meta-badge.applied-pill {
-  background: #D1FAE5;
-  color: #065F46;
+.meta-item.salary svg {
+  color: var(--brand-orange);
+}
+
+.meta-item.applied-status {
+  color: #15803d;
   font-weight: 700;
+}
+
+.meta-item.applied-status svg {
+  color: #15803d;
 }
 
 .job-card-description {
   font-size: 0.92rem;
-  color: var(--text-muted);
+  color: var(--text-body);
   line-height: 1.6;
   margin: 0;
 }
@@ -496,28 +517,29 @@
   gap: 6px;
 }
 
-.skill-pill {
+.skill-tag {
   font-size: 0.76rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: #ffffff;
-  border: 1px solid var(--border-outer);
-  color: var(--text-main);
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-xs, 6px);
+  background: var(--bg-outer-card, #FAF0E6);
+  border: 1px solid var(--border-outer, rgba(230, 215, 200, 0.75));
+  color: var(--text-body);
+  transition: all var(--transition-fast);
 }
 
-.skill-pill.more {
-  background: var(--brand-orange-light);
-  color: var(--brand-orange);
+.skill-tag:hover {
   border-color: var(--brand-orange-border);
+  color: var(--brand-orange);
+  background: var(--brand-orange-light);
 }
 
 .job-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 10px;
-  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .posted-date {
@@ -525,8 +547,12 @@
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  color: var(--text-light);
+  color: var(--text-muted);
   font-weight: 600;
+}
+
+.posted-date svg {
+  color: var(--text-light);
 }
 
 .btn-apply-card {
@@ -537,31 +563,40 @@
   color: #ffffff;
   border: none;
   border-radius: var(--radius-pill);
-  padding: 8px 22px;
-  font-size: 0.82rem;
+  padding: 8px 24px;
+  font-size: 0.84rem;
   font-weight: 800;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: all var(--transition-fast);
-  box-shadow: 0 4px 12px rgba(238, 80, 41, 0.25);
+  box-shadow: var(--shadow-orange);
 }
 
 .btn-apply-card:hover {
   background: var(--brand-orange-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(238, 80, 41, 0.35);
+  box-shadow: var(--shadow-orange-hover);
+}
+
+.btn-apply-card svg {
+  transition: transform var(--transition-fast);
+}
+
+.btn-apply-card:hover svg {
+  transform: translateX(3px);
 }
 
 .btn-applied-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #D1FAE5;
-  color: #065F46;
-  padding: 8px 18px;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 8px 20px;
   border-radius: var(--radius-pill);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 800;
+  border: 1px solid #bbf7d0;
 }
 
 /* Skeleton Loader State */

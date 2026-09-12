@@ -94,13 +94,6 @@ export function SchemesPage() {
       {/* Main Header */}
       <HomeHeader pageTitle="Government Schemes" />
 
-      {/* Top Bar with Right Aligned Saved Schemes Button */}
-      <div className="schemes-top-nav-bar">
-        <Link to="/saved-schemes" className="btn-saved-schemes-top">
-          <FiBookmark /> Saved Schemes ({bookmarkedSchemeIds.length})
-        </Link>
-      </div>
-
       {/* Hero Banner */}
       <div className="schemes-hero-banner">
         <div className="schemes-hero-content">
@@ -108,6 +101,11 @@ export function SchemesPage() {
           <p className="hero-subtitle">
             Explore authentic central & state government welfare schemes for women, education, entrepreneurship, maternity benefits, and financial assistance.
           </p>
+        </div>
+        <div className="schemes-hero-actions">
+          <Link to="/saved-schemes" className="btn-hero-action saved">
+            <FiBookmark /> Saved Schemes ({bookmarkedSchemeIds.length})
+          </Link>
         </div>
       </div>
 

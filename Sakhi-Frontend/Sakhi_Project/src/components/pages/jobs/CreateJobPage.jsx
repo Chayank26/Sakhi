@@ -134,6 +134,13 @@ export function CreateJobPage() {
             {/* Header */}
             <HomeHeader pageTitle="List a Job" />
 
+            {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
+            <div className="details-top-nav-bar">
+                <button onClick={() => navigate('/jobs')} className="btn-back-link-sleek">
+                    <FiArrowLeft /> Back to Job Portal
+                </button>
+            </div>
+
             {/* Page Hero */}
             <div className="create-job-hero">
                 <div className="create-hero-content">

@@ -1,76 +1,74 @@
 /* ==========================================================================
-   Sakhi Academy - Enroll Course Modal Sleek Dark Glassmorphism Stylesheet
+   Sakhi Academy - Enroll Course Modal Stylesheet
    ========================================================================== */
 
-.modal-backdrop {
+.enroll-course-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(6, 9, 19, 0.82);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    animation: modalFadeIn 0.25s ease-out;
+    animation: enrollModalFadeIn 0.25s ease-out;
 }
 
-.modal-container {
-    background: rgba(15, 23, 42, 0.92);
-    backdrop-filter: blur(32px) saturate(180%);
-    -webkit-backdrop-filter: blur(32px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 24px;
+.enroll-course-container {
+    background: var(--bg-outer-card, #FAF0E6);
+    border: 1.5px solid var(--border-outer, rgba(230, 215, 200, 0.85));
+    border-radius: var(--radius-lg, 24px);
     width: 100%;
     max-width: 520px;
-    box-shadow: 
-        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-        0 25px 70px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 20px 50px rgba(35, 40, 45, 0.16);
     overflow: hidden;
-    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: enrollModalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes modalFadeIn {
+@keyframes enrollModalFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-@keyframes modalSlideUp {
+@keyframes enrollModalSlideUp {
     from { opacity: 0; transform: translateY(24px) scale(0.96); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.modal-header {
+.enroll-course-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     padding: 24px 28px 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-outer, rgba(230, 215, 200, 0.75));
+    background: var(--bg-header-pill, rgba(240, 246, 244, 0.6));
 }
 
-.modal-title {
+.enroll-course-title {
     margin: 0 0 4px;
     font-size: 1.3rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--text-main, #23282D);
     letter-spacing: -0.01em;
 }
 
-.modal-subtitle {
+.enroll-course-subtitle {
     margin: 0;
     font-size: 0.86rem;
-    color: #94a3b8;
+    color: var(--text-muted, #6B7280);
 }
 
-.modal-subtitle strong {
-    color: #cbd5e1;
+.enroll-course-subtitle strong {
+    color: var(--text-main, #23282D);
+    font-weight: 700;
 }
 
-.btn-close-modal {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: #cbd5e1;
+.enroll-course-btn-close {
+    background: var(--bg-inner-card, #FFFFFF);
+    border: 1.5px solid var(--border-outer, rgba(230, 215, 200, 0.75));
+    color: var(--text-muted, #6B7280);
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -82,144 +80,149 @@
     transition: all 0.2s ease;
 }
 
-.btn-close-modal:hover {
-    background: rgba(225, 29, 72, 0.2);
-    border-color: rgba(225, 29, 72, 0.4);
-    color: #ffffff;
+.enroll-course-btn-close:hover {
+    background: #FEE2E2;
+    border-color: #FCA5A5;
+    color: #DC2626;
+    transform: scale(1.05);
 }
 
-.modal-body {
+.enroll-course-body {
     padding: 24px 28px 28px;
 }
 
-.apply-form {
+.enroll-course-form {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.modal-error-alert {
-    background: rgba(225, 29, 72, 0.15);
-    border: 1px solid rgba(225, 29, 72, 0.35);
-    color: #fda4af;
+.enroll-course-error-alert {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: #DC2626;
     padding: 12px 16px;
-    border-radius: 12px;
+    border-radius: var(--radius-sm, 10px);
     font-size: 0.86rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.form-group {
+.enroll-course-form-group {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
-.form-group label {
+.enroll-course-form-group label {
     font-size: 0.84rem;
     font-weight: 700;
-    color: #cbd5e1;
+    color: var(--text-main, #23282D);
 }
 
-.form-group label .req {
-    color: #ec4899;
+.enroll-course-req {
+    color: var(--brand-orange, #EE5029);
 }
 
-.form-group input {
+.enroll-course-form-group input {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 12px;
+    background: var(--bg-inner-card, #FFFFFF);
+    border: 1.5px solid var(--border-outer, rgba(230, 215, 200, 0.75));
+    border-radius: var(--radius-sm, 10px);
     padding: 12px 16px;
-    color: #ffffff;
+    color: var(--text-main, #23282D);
     font-size: 0.92rem;
+    font-family: inherit;
     outline: none;
     transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
-.form-group input:focus {
-    border-color: #a855f7;
-    background: rgba(168, 85, 247, 0.08);
-    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
+.enroll-course-form-group input:focus {
+    border-color: var(--brand-orange, #EE5029);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(238, 80, 41, 0.15);
 }
 
-.form-group input::placeholder {
-    color: #64748b;
+.enroll-course-form-group input::placeholder {
+    color: var(--text-light, #9CA3AF);
 }
 
-.form-row {
+.enroll-course-form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
 }
 
-.form-section-summary {
-    background: rgba(124, 58, 237, 0.12);
-    border: 1px solid rgba(168, 85, 247, 0.25);
-    border-radius: 14px;
+.enroll-course-summary {
+    background: var(--bg-inner-card, #FFFFFF);
+    border: 1.5px solid var(--border-outer, rgba(230, 215, 200, 0.75));
+    border-radius: var(--radius-sm, 10px);
     padding: 14px 18px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    font-size: 0.84rem;
-    color: #cbd5e1;
+    gap: 8px;
+    font-size: 0.86rem;
+    color: var(--text-muted, #6B7280);
 }
 
-.form-section-summary p {
+.enroll-course-summary p {
     margin: 0;
     display: flex;
     justify-content: space-between;
 }
 
-.form-section-summary strong {
-    color: #ffffff;
+.enroll-course-summary strong {
+    color: var(--text-main, #23282D);
+    font-weight: 700;
 }
 
-.modal-footer {
+.enroll-course-footer {
     display: flex;
     gap: 12px;
     margin-top: 10px;
 }
 
-.btn-cancel {
+.enroll-course-btn-cancel {
     flex: 1;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #cbd5e1;
+    background: var(--bg-inner-card, #FFFFFF);
+    border: 1.5px solid var(--border-outer, rgba(230, 215, 200, 0.75));
+    color: var(--text-main, #23282D);
     padding: 12px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill, 9999px);
     font-weight: 700;
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+.enroll-course-btn-cancel:hover {
+    background: var(--bg-outer-card-hover, #F8ECE0);
 }
 
-.btn-submit-app {
+.enroll-course-btn-submit {
     flex: 2;
-    background: linear-gradient(135deg, #7c3aed 0%, #be123c 100%);
+    background: var(--brand-orange, #EE5029);
     border: none;
-    color: #ffffff;
+    color: #FFFFFF;
     padding: 12px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill, 9999px);
     font-weight: 700;
     font-size: 0.92rem;
     cursor: pointer;
-    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--shadow-orange, 0 6px 20px rgba(238, 80, 41, 0.26));
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.btn-submit-app:hover {
+.enroll-course-btn-submit:hover {
+    background: var(--brand-orange-hover, #D8421B);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+    box-shadow: 0 8px 24px rgba(238, 80, 41, 0.35);
 }
 
-.apply-success-state {
+.enroll-course-success-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -227,28 +230,28 @@
     padding: 24px 12px;
 }
 
-.success-icon {
+.enroll-course-success-icon {
     font-size: 3.2rem;
-    color: #34d399;
+    color: #10B981;
     margin-bottom: 12px;
 }
 
-.apply-success-state h4 {
+.enroll-course-success-state h4 {
     margin: 0 0 8px;
     font-size: 1.3rem;
-    color: #ffffff;
+    color: var(--text-main, #23282D);
     font-weight: 800;
 }
 
-.apply-success-state p {
+.enroll-course-success-state p {
     margin: 0;
     font-size: 0.92rem;
-    color: #94a3b8;
+    color: var(--text-muted, #6B7280);
     line-height: 1.5;
 }
 
 @media (max-width: 580px) {
-    .form-row {
+    .enroll-course-form-row {
         grid-template-columns: 1fr;
     }
 }

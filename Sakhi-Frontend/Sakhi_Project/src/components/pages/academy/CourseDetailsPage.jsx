@@ -143,10 +143,12 @@ export function CourseDetailsPage() {
                 <div className="details-hero-wrapper">
                     <div className="details-hero-container">
                         <div className="hero-text-content">
-                        <div className="hero-tags">
-                            <span className="tag-cat">{course.category}</span>
-                            <span className="tag-diff">{course.difficulty}</span>
-                            <span className="tag-lang"><FiGlobe /> {course.language}</span>
+                        <div className="hero-meta-kicker">
+                            <span className="meta-category">{course.category}</span>
+                            <span className="meta-dot">•</span>
+                            <span className="meta-difficulty">{course.difficulty}</span>
+                            <span className="meta-dot">•</span>
+                            <span className="meta-lang"><FiGlobe /> {course.language}</span>
                         </div>
 
                         <h1 className="details-course-title">{course.title}</h1>
@@ -159,19 +161,24 @@ export function CourseDetailsPage() {
                         </div>
 
                         <div className="hero-stats-bar">
-                            <div className="stat-pill rating">
+                            <span className="stat-text rating">
                                 <FiStar className="star-icon" /> {course.rating || 4.9} Rating
-                            </div>
-                            <div className="stat-pill">
+                            </span>
+                            <span className="stat-dot">•</span>
+                            <span className="stat-text">
                                 <FiClock /> {course.duration}
-                            </div>
-                            <div className="stat-pill">
+                            </span>
+                            <span className="stat-dot">•</span>
+                            <span className="stat-text">
                                 <FiUsers /> {course.studentsEnrolled} Students Enrolled
-                            </div>
+                            </span>
                             {course.certificateAvailable && (
-                                <div className="stat-pill cert">
-                                    <FiAward /> Certificate Included
-                                </div>
+                                <>
+                                    <span className="stat-dot">•</span>
+                                    <span className="stat-text cert">
+                                        <FiAward /> Certificate Included
+                                    </span>
+                                </>
                             )}
                         </div>
                     </div>
