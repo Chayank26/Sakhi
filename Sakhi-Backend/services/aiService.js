@@ -5,6 +5,7 @@ import { buildGroundingContext, extractGroundingSignals } from './aiGroundingSer
 import { buildToolExecutionPlan } from './aiToolOrchestrationService.js';
 import { buildRecommendationSet } from './aiRecommendationService.js';
 import { evaluateSafety } from './aiSafetyService.js';
+import { evaluateResponseQuality } from './aiFeedbackEvalService.js';
 
 /**
  * Sakhi AI Service Abstraction Layer
@@ -73,6 +74,13 @@ export const generateAiResponseService = async ({ message, messages, profile = {
         ? llmResult
         : (llmResult.text || '');
 
+    const qualitySignal = evaluateResponseQuality({
+        answer: replyText,
+        query: promptText,
+        recommendationCount: (llmResult && Array.isArray(llmResult.cards) ? llmResult.cards.length : 0) ||
+            ((grounding.jobs?.length || 0) + (grounding.courses?.length || 0) + (grounding.schemes?.length || 0))
+    });
+
     if (!replyText) {
         return createFallbackAiResponse(promptText || 'your request');
     }
@@ -84,6 +92,7 @@ export const generateAiResponseService = async ({ message, messages, profile = {
         message: replyText,
         actions,
         cards,
+        quality: qualitySignal,
         timestamp: new Date().toISOString()
     };
 };
