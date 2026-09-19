@@ -21,6 +21,31 @@ const getModelName = () => {
     return process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 };
 
+const normalizeConversationMessages = (messages = []) => {
+    if (!Array.isArray(messages)) return [];
+
+    return messages
+        .filter((entry) => entry && typeof entry === 'object')
+        .map((entry) => ({
+            role: entry.role === 'assistant' ? 'assistant' : 'user',
+            content: typeof entry.content === 'string' ? entry.content.trim() : ''
+        }))
+        .filter((entry) => entry.content && ['user', 'assistant'].includes(entry.role));
+};
+
+const buildInputPrompt = ({ prompt, messages }) => {
+    const normalizedMessages = normalizeConversationMessages(messages);
+
+    if (normalizedMessages.length > 0) {
+        return normalizedMessages
+            .map((message) => `${message.role === 'user' ? 'User' : 'Assistant'}: ${message.content}`)
+            .join('\n');
+    }
+
+    const trimmedPrompt = typeof prompt === 'string' ? prompt.trim() : '';
+    return trimmedPrompt;
+};
+
 /**
  * Call Cloud LLM API using Google Gemini Interactions API with Autonomous Tool Calling
  * @param {Object} options
@@ -41,14 +66,10 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
 
     try {
         const ai = new GoogleGenAI({ apiKey });
+        const inputPrompt = buildInputPrompt({ prompt, messages });
 
-        let inputPrompt = '';
-        if (Array.isArray(messages) && messages.length > 0) {
-            inputPrompt = messages
-                .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
-                .join('\n');
-        } else {
-            inputPrompt = prompt || '';
+        if (!inputPrompt) {
+            throw new Error('AI request is empty. Please provide a valid message or conversation history.');
         }
 
         const interactionPayload = {
@@ -160,7 +181,12 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
         ).trim();
 
         if (!replyText) {
-            throw new Error('LLM returned an empty response candidate.');
+            console.warn('[Cloud LLM]: Empty model output; returning safe fallback message.');
+            return {
+                text: 'I’m here to help with Sakhi jobs, courses, schemes, and support. Please clarify your request so I can guide you better.',
+                actions: [],
+                cards: { jobs: [], courses: [], schemes: [] }
+            };
         }
 
         return {
