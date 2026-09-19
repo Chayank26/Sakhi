@@ -10,6 +10,7 @@ import courseRoutes from './routes/courseRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
 import schemeRoutes from './routes/schemeRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
+import aiSessionRoutes from './routes/aiSessionRoutes.js';
 
 dotenv.config();
 
@@ -75,6 +76,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/schemes', schemeRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/ai', aiSessionRoutes);
 
 // Root & Fallback Endpoint
 app.all('*', (req, res) => {
