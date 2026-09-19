@@ -1,6 +1,7 @@
 import { callCloudLlm } from '../ai/llm.js';
 import { SAKHI_SYSTEM_PROMPT } from '../ai/prompts/sakhiSystemPrompt.js';
 import { buildProfileContext } from './aiPersonalizationService.js';
+import { buildGroundingContext, extractGroundingSignals } from './aiGroundingService.js';
 
 /**
  * Sakhi AI Service Abstraction Layer
@@ -35,13 +36,19 @@ export const createFallbackAiResponse = (context = '') => ({
  * @param {Array} [params.messages] - Multi-turn message history array
  * @returns {Promise<Object>} Object containing response message
  */
-export const generateAiResponseService = async ({ message, messages, profile = {} }) => {
+export const generateAiResponseService = async ({ message, messages, profile = {}, grounding = {} }) => {
     const normalizedMessages = normalizeMessages(messages);
     const promptText = typeof message === 'string' ? message.trim() : '';
     const profileContext = buildProfileContext(profile);
+    const groundingContext = buildGroundingContext(grounding);
+    const groundingSignals = extractGroundingSignals(promptText, profile);
+
+    const finalPrompt = groundingContext
+        ? `${promptText}\n\nGROUNDING_CONTEXT:\n${groundingContext}\n\nGROUNDING_SIGNALS:\n${groundingSignals.join(', ')}`
+        : promptText;
 
     const llmResult = await callCloudLlm({
-        prompt: promptText || undefined,
+        prompt: finalPrompt || undefined,
         messages: normalizedMessages.length > 0 ? normalizedMessages : undefined,
         systemInstruction: `${SAKHI_SYSTEM_PROMPT}${profileContext ? `\n\nUSER_PROFILE_CONTEXT:\n${profileContext}` : ''}`
     });
