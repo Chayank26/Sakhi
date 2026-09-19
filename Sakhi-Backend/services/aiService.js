@@ -4,6 +4,7 @@ import { buildProfileContext } from './aiPersonalizationService.js';
 import { buildGroundingContext, extractGroundingSignals } from './aiGroundingService.js';
 import { buildToolExecutionPlan } from './aiToolOrchestrationService.js';
 import { buildRecommendationSet } from './aiRecommendationService.js';
+import { evaluateSafety } from './aiSafetyService.js';
 
 /**
  * Sakhi AI Service Abstraction Layer
@@ -41,6 +42,17 @@ export const createFallbackAiResponse = (context = '') => ({
 export const generateAiResponseService = async ({ message, messages, profile = {}, grounding = {} }) => {
     const normalizedMessages = normalizeMessages(messages);
     const promptText = typeof message === 'string' ? message.trim() : '';
+    const safetyCheck = evaluateSafety(promptText || normalizedMessages.map((entry) => entry.content).join(' '));
+
+    if (!safetyCheck.safe) {
+        return {
+            message: safetyCheck.reason,
+            actions: [],
+            cards: { jobs: [], courses: [], schemes: [] },
+            timestamp: new Date().toISOString()
+        };
+    }
+
     const profileContext = buildProfileContext(profile);
     const groundingContext = buildGroundingContext(grounding);
     const groundingSignals = extractGroundingSignals(promptText, profile);
