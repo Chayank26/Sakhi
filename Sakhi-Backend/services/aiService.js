@@ -6,6 +6,7 @@ import { buildToolExecutionPlan } from './aiToolOrchestrationService.js';
 import { buildRecommendationSet } from './aiRecommendationService.js';
 import { evaluateSafety } from './aiSafetyService.js';
 import { evaluateResponseQuality } from './aiFeedbackEvalService.js';
+import { retrieveGroundingData } from './aiRetrievalService.js';
 
 /**
  * Sakhi AI Service Abstraction Layer
@@ -55,10 +56,17 @@ export const generateAiResponseService = async ({ message, messages, profile = {
     }
 
     const profileContext = buildProfileContext(profile);
-    const groundingContext = buildGroundingContext(grounding);
+    const retrievedGrounding = await retrieveGroundingData({ message: promptText, messages: normalizedMessages });
+    const mergedGrounding = {
+        ...grounding,
+        jobs: [...(grounding.jobs || []), ...retrievedGrounding.jobs],
+        courses: [...(grounding.courses || []), ...retrievedGrounding.courses],
+        schemes: [...(grounding.schemes || []), ...retrievedGrounding.schemes]
+    };
+    const groundingContext = buildGroundingContext(mergedGrounding);
     const groundingSignals = extractGroundingSignals(promptText, profile);
     const toolPlan = buildToolExecutionPlan(promptText, profile);
-    const recommendationSet = buildRecommendationSet({ query: promptText, profile, grounding });
+    const recommendationSet = buildRecommendationSet({ query: promptText, profile, grounding: mergedGrounding });
 
     const finalPrompt = groundingContext
         ? `${promptText}\n\nGROUNDING_CONTEXT:\n${groundingContext}\n\nGROUNDING_SIGNALS:\n${groundingSignals.join(', ')}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}\n\nRECOMMENDATION_CONTEXT:\n${JSON.stringify(recommendationSet, null, 2)}`
@@ -78,15 +86,23 @@ export const generateAiResponseService = async ({ message, messages, profile = {
         answer: replyText,
         query: promptText,
         recommendationCount: (llmResult && Array.isArray(llmResult.cards) ? llmResult.cards.length : 0) ||
-            ((grounding.jobs?.length || 0) + (grounding.courses?.length || 0) + (grounding.schemes?.length || 0))
+            ((mergedGrounding.jobs?.length || 0) + (mergedGrounding.courses?.length || 0) + (mergedGrounding.schemes?.length || 0))
     });
 
     if (!replyText) {
         return createFallbackAiResponse(promptText || 'your request');
     }
 
-    const actions = typeof llmResult === 'object' && Array.isArray(llmResult.actions) ? llmResult.actions : [];
-    const cards = typeof llmResult === 'object' && llmResult.cards ? llmResult.cards : { jobs: [], courses: [], schemes: [] };
+    const actions = [
+        ...(typeof llmResult === 'object' && Array.isArray(llmResult.actions) ? llmResult.actions : []),
+        ...retrievedGrounding.actions
+    ].filter((action, index, all) => all.findIndex((item) => item.route === action.route) === index).slice(0, 5);
+    const generatedCards = typeof llmResult === 'object' && llmResult.cards ? llmResult.cards : {};
+    const cards = {
+        jobs: generatedCards.jobs?.length ? generatedCards.jobs : mergedGrounding.jobs.slice(0, 4),
+        courses: generatedCards.courses?.length ? generatedCards.courses : mergedGrounding.courses.slice(0, 4),
+        schemes: generatedCards.schemes?.length ? generatedCards.schemes : mergedGrounding.schemes.slice(0, 4)
+    };
 
     return {
         message: replyText,
