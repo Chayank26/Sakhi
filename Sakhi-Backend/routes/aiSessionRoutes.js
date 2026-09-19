@@ -1,4 +1,5 @@
 import express from 'express';
+import { verifyToken } from '../middleware/auth.js';
 import {
     createAiSession,
     getAiSessions,
@@ -7,8 +8,8 @@ import {
 
 const router = express.Router();
 
-router.post('/sessions', createAiSession);
-router.get('/sessions', getAiSessions);
-router.post('/sessions/message', appendAiMessage);
+router.post('/sessions', verifyToken, createAiSession);
+router.get('/sessions', verifyToken, getAiSessions);
+router.post('/sessions/message', verifyToken, appendAiMessage);
 
 export default router;

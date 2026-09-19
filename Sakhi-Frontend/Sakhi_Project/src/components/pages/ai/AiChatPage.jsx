@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
 import ReactMarkdown from 'react-markdown';
 import {
   sendChatMessage,
@@ -11,6 +12,7 @@ import { HomeHeader } from '../home/HomeHeader';
 import { AiCardsContainer } from './AiChatCards';
 import { ChatSessionSidebar } from './ChatSessionSidebar';
 import { buildSessionList } from './chatSessionUtils';
+import { auth } from '../firebase/firebase';
 import {
   FiSend,
   FiArrowLeft,
@@ -38,17 +40,6 @@ const INITIAL_WELCOME_MESSAGE = {
   sender: 'ai',
   text: "Hello! I am Sakhi AI, your digital assistant on the Sakhi platform. How can I help you today?",
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-};
-
-const AI_USER_STORAGE_KEY = 'sakhi-ai-user-id';
-
-const getStoredUserId = () => {
-  const saved = localStorage.getItem(AI_USER_STORAGE_KEY);
-  if (saved && saved.trim()) return saved;
-
-  const generated = `guest-user-${Date.now()}`;
-  localStorage.setItem(AI_USER_STORAGE_KEY, generated);
-  return generated;
 };
 
 const mapSessionToSidebar = (session) => {
@@ -116,14 +107,13 @@ export function AiChatPage() {
   const [messageFeedback, setMessageFeedback] = useState({});
   const [sessions, setSessions] = useState(() => buildSessionList([INITIAL_WELCOME_MESSAGE]));
   const [activeSessionId, setActiveSessionId] = useState('session-1');
-  const [userId] = useState(() => getStoredUserId());
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const initialPromptProcessed = useRef(false);
 
   const loadAiSessions = async () => {
     try {
-      const response = await getAiSessions(userId);
+      const response = await getAiSessions();
       const backendSessions = Array.isArray(response?.sessions) ? response.sessions : [];
 
       if (!backendSessions.length) {
@@ -150,8 +140,19 @@ export function AiChatPage() {
   };
 
   useEffect(() => {
-    loadAiSessions();
-  }, [userId]);
+    if (!auth) return undefined;
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        loadAiSessions();
+      } else {
+        setSessions(buildSessionList([INITIAL_WELCOME_MESSAGE]));
+        setActiveSessionId('session-1');
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   // Auto scroll to latest message
   const scrollToBottom = () => {
@@ -171,7 +172,7 @@ export function AiChatPage() {
     let currentSessionId = activeSessionId;
     if (!currentSessionId || currentSessionId === 'session-1') {
       try {
-        const response = await createAiSession(userId);
+        const response = await createAiSession();
         currentSessionId = response?.session?._id || response?.session?.id || null;
         if (currentSessionId) {
           setActiveSessionId(currentSessionId);
@@ -293,7 +294,7 @@ export function AiChatPage() {
 
   const handleNewChat = async () => {
     try {
-      const response = await createAiSession(userId);
+      const response = await createAiSession();
       const createdSession = response?.session;
       const mappedSession = createdSession ? mapSessionToSidebar(createdSession) : null;
 

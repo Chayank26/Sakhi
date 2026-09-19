@@ -1,11 +1,12 @@
 import { AiChatSession } from '../models/AiChatSession.js';
 import { buildSessionContext, generateSessionTitle } from '../services/aiSessionService.js';
+import mongoose from 'mongoose';
 
 export const createAiSession = async (req, res) => {
     try {
-        const userId = req.user?.uid || req.body?.userId;
+        const userId = req.user?.uid;
         if (!userId) {
-            return res.status(400).json({ success: false, message: 'User ID is required.' });
+            return res.status(401).json({ success: false, message: 'Authentication is required.' });
         }
 
         const session = await AiChatSession.create({
@@ -23,9 +24,9 @@ export const createAiSession = async (req, res) => {
 
 export const getAiSessions = async (req, res) => {
     try {
-        const userId = req.user?.uid || req.query?.userId;
+        const userId = req.user?.uid;
         if (!userId) {
-            return res.status(400).json({ success: false, message: 'User ID is required.' });
+            return res.status(401).json({ success: false, message: 'Authentication is required.' });
         }
 
         const sessions = await AiChatSession.find({ userId }).sort({ lastActiveAt: -1 }).limit(20);
@@ -44,7 +45,15 @@ export const appendAiMessage = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid session payload.' });
         }
 
-        const session = await AiChatSession.findById(sessionId);
+        if (!req.user?.uid) {
+            return res.status(401).json({ success: false, message: 'Authentication is required.' });
+        }
+
+        if (!mongoose.isValidObjectId(sessionId)) {
+            return res.status(400).json({ success: false, message: 'Invalid session ID.' });
+        }
+
+        const session = await AiChatSession.findOne({ _id: sessionId, userId: req.user.uid });
         if (!session) {
             return res.status(404).json({ success: false, message: 'AI session not found.' });
         }
