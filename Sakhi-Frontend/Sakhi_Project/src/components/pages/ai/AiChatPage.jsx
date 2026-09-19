@@ -4,6 +4,8 @@ import ReactMarkdown from 'react-markdown';
 import { sendChatMessage } from '../../../services/aiApi';
 import { HomeHeader } from '../home/HomeHeader';
 import { AiCardsContainer } from './AiChatCards';
+import { ChatSessionSidebar } from './ChatSessionSidebar';
+import { buildSessionList } from './chatSessionUtils';
 import {
   FiSend,
   FiArrowLeft,
@@ -79,6 +81,8 @@ export function AiChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const [messageFeedback, setMessageFeedback] = useState({});
+  const [sessions, setSessions] = useState(() => buildSessionList([INITIAL_WELCOME_MESSAGE]));
+  const [activeSessionId, setActiveSessionId] = useState('session-1');
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const initialPromptProcessed = useRef(false);
@@ -90,6 +94,7 @@ export function AiChatPage() {
 
   useEffect(() => {
     scrollToBottom();
+    setSessions((prev) => buildSessionList(messages, prev));
   }, [messages, isTyping]);
 
   // Handle message submission
@@ -192,6 +197,14 @@ export function AiChatPage() {
   // Clear chat history
   const handleClearChat = () => {
     setMessages([INITIAL_WELCOME_MESSAGE]);
+    setSessions((prev) => buildSessionList([INITIAL_WELCOME_MESSAGE], prev));
+    setActiveSessionId('session-1');
+  };
+
+  const handleNewChat = () => {
+    setMessages([INITIAL_WELCOME_MESSAGE]);
+    setActiveSessionId('session-1');
+    setSessions((prev) => buildSessionList([INITIAL_WELCOME_MESSAGE], prev));
   };
 
   // Copy message text to clipboard
@@ -263,7 +276,13 @@ export function AiChatPage() {
       </div>
 
       {/* Main Chat Body */}
-      <main className="ai-chat-body">
+      <main className="ai-chat-body ai-chat-layout">
+        <ChatSessionSidebar
+          sessions={sessions}
+          onNewChat={handleNewChat}
+          activeSessionId={activeSessionId}
+        />
+
         <div className="chat-messages-container">
           {messages.map((msg) => (
             <div
