@@ -23,10 +23,13 @@ const getAuthHeaders = async () => {
  * @param {string|Array} input - Single string message OR array of messages [{ role: 'user'|'assistant', content: string }]
  * @returns {Promise<Object>} Backend response JSON
  */
-export const sendChatMessage = async (input) => {
+export const sendChatMessage = async (input, sessionId = null) => {
     try {
+        const headers = await getAuthHeaders();
         const payload = Array.isArray(input) ? { messages: input } : { message: input };
-        const response = await axios.post(`${API_BASE_URL}/chat`, payload);
+        if (sessionId && sessionId !== 'session-1') payload.sessionId = sessionId;
+
+        const response = await axios.post(`${API_BASE_URL}/chat`, payload, { headers });
         return response.data;
     } catch (error) {
         console.error('Error sending chat message to Sakhi AI backend:', error);

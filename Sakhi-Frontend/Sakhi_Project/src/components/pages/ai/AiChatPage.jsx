@@ -5,8 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import {
   sendChatMessage,
   getAiSessions,
-  createAiSession,
-  appendAiMessage
+  createAiSession
 } from '../../../services/aiApi';
 import { HomeHeader } from '../home/HomeHeader';
 import { AiCardsContainer } from './AiChatCards';
@@ -213,20 +212,12 @@ export function AiChatPage() {
       ];
 
       // Call Express backend endpoint POST /api/ai/chat
-      const data = await sendChatMessage(historyPayload);
+      const data = await sendChatMessage(historyPayload, currentSessionId);
       const replyText = data && data.message ? data.message : 'No response from Sakhi AI.';
       const actions = data && Array.isArray(data.actions) ? data.actions : [];
       const cards = data && data.cards ? data.cards : { jobs: [], courses: [], schemes: [] };
 
-      if (currentSessionId) {
-        try {
-          await appendAiMessage(currentSessionId, 'user', text);
-          await appendAiMessage(currentSessionId, 'assistant', replyText);
-          await loadAiSessions();
-        } catch (error) {
-          console.error('Failed to persist AI session history:', error);
-        }
-      }
+      if (currentSessionId) await loadAiSessions();
 
       const aiMessage = {
         id: `ai-${Date.now()}`,
