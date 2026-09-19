@@ -2,6 +2,7 @@ import { callCloudLlm } from '../ai/llm.js';
 import { SAKHI_SYSTEM_PROMPT } from '../ai/prompts/sakhiSystemPrompt.js';
 import { buildProfileContext } from './aiPersonalizationService.js';
 import { buildGroundingContext, extractGroundingSignals } from './aiGroundingService.js';
+import { buildToolExecutionPlan } from './aiToolOrchestrationService.js';
 
 /**
  * Sakhi AI Service Abstraction Layer
@@ -42,10 +43,11 @@ export const generateAiResponseService = async ({ message, messages, profile = {
     const profileContext = buildProfileContext(profile);
     const groundingContext = buildGroundingContext(grounding);
     const groundingSignals = extractGroundingSignals(promptText, profile);
+    const toolPlan = buildToolExecutionPlan(promptText, profile);
 
     const finalPrompt = groundingContext
-        ? `${promptText}\n\nGROUNDING_CONTEXT:\n${groundingContext}\n\nGROUNDING_SIGNALS:\n${groundingSignals.join(', ')}`
-        : promptText;
+        ? `${promptText}\n\nGROUNDING_CONTEXT:\n${groundingContext}\n\nGROUNDING_SIGNALS:\n${groundingSignals.join(', ')}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}`
+        : `${promptText}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}`;
 
     const llmResult = await callCloudLlm({
         prompt: finalPrompt || undefined,
