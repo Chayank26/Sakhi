@@ -3,6 +3,7 @@ import { SAKHI_SYSTEM_PROMPT } from '../ai/prompts/sakhiSystemPrompt.js';
 import { buildProfileContext } from './aiPersonalizationService.js';
 import { buildGroundingContext, extractGroundingSignals } from './aiGroundingService.js';
 import { buildToolExecutionPlan } from './aiToolOrchestrationService.js';
+import { buildRecommendationSet } from './aiRecommendationService.js';
 
 /**
  * Sakhi AI Service Abstraction Layer
@@ -44,10 +45,11 @@ export const generateAiResponseService = async ({ message, messages, profile = {
     const groundingContext = buildGroundingContext(grounding);
     const groundingSignals = extractGroundingSignals(promptText, profile);
     const toolPlan = buildToolExecutionPlan(promptText, profile);
+    const recommendationSet = buildRecommendationSet({ query: promptText, profile, grounding });
 
     const finalPrompt = groundingContext
-        ? `${promptText}\n\nGROUNDING_CONTEXT:\n${groundingContext}\n\nGROUNDING_SIGNALS:\n${groundingSignals.join(', ')}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}`
-        : `${promptText}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}`;
+        ? `${promptText}\n\nGROUNDING_CONTEXT:\n${groundingContext}\n\nGROUNDING_SIGNALS:\n${groundingSignals.join(', ')}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}\n\nRECOMMENDATION_CONTEXT:\n${JSON.stringify(recommendationSet, null, 2)}`
+        : `${promptText}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}\n\nRECOMMENDATION_CONTEXT:\n${JSON.stringify(recommendationSet, null, 2)}`;
 
     const llmResult = await callCloudLlm({
         prompt: finalPrompt || undefined,
