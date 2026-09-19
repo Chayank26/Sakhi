@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiPlus, FiMessageSquare } from 'react-icons/fi';
 
-export function ChatSessionSidebar({ sessions = [], onNewChat, activeSessionId }) {
+export function ChatSessionSidebar({ sessions = [], onNewChat, activeSessionId, onSelectSession }) {
   return (
     <aside className="chat-session-sidebar">
       <div className="chat-session-header">
@@ -20,6 +20,7 @@ export function ChatSessionSidebar({ sessions = [], onNewChat, activeSessionId }
               key={session.id}
               type="button"
               className={`chat-session-item ${session.id === activeSessionId ? 'active' : ''}`}
+              onClick={() => onSelectSession?.(session.id)}
             >
               <span className="chat-session-icon"><FiMessageSquare /></span>
               <span className="chat-session-meta">

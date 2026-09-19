@@ -1,7 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { sendChatMessage } from '../../../services/aiApi';
+import {
+  sendChatMessage,
+  getAiSessions,
+  createAiSession,
+  appendAiMessage
+} from '../../../services/aiApi';
 import { HomeHeader } from '../home/HomeHeader';
 import { AiCardsContainer } from './AiChatCards';
 import { ChatSessionSidebar } from './ChatSessionSidebar';
@@ -33,6 +38,34 @@ const INITIAL_WELCOME_MESSAGE = {
   sender: 'ai',
   text: "Hello! I am Sakhi AI, your digital assistant on the Sakhi platform. How can I help you today?",
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+};
+
+const AI_USER_STORAGE_KEY = 'sakhi-ai-user-id';
+
+const getStoredUserId = () => {
+  const saved = localStorage.getItem(AI_USER_STORAGE_KEY);
+  if (saved && saved.trim()) return saved;
+
+  const generated = `guest-user-${Date.now()}`;
+  localStorage.setItem(AI_USER_STORAGE_KEY, generated);
+  return generated;
+};
+
+const mapSessionToSidebar = (session) => {
+  const messages = Array.isArray(session?.messages) ? session.messages : [];
+  const lastUserMessage = [...messages].reverse().find((msg) => msg?.role === 'user')?.content || 'Start a new conversation';
+
+  return {
+    id: session?._id || session?.id,
+    title: session?.title || 'New conversation',
+    preview: lastUserMessage,
+    messages: messages.map((msg) => ({
+      id: `${session?._id || 'session'}-${msg?._id || `${msg.role}-${Date.now()}`}`,
+      sender: msg?.role === 'assistant' ? 'ai' : 'user',
+      text: msg?.content || '',
+      timestamp: new Date(msg?.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }))
+  };
 };
 
 const CATEGORIZED_PROMPTS = [
@@ -83,9 +116,42 @@ export function AiChatPage() {
   const [messageFeedback, setMessageFeedback] = useState({});
   const [sessions, setSessions] = useState(() => buildSessionList([INITIAL_WELCOME_MESSAGE]));
   const [activeSessionId, setActiveSessionId] = useState('session-1');
+  const [userId] = useState(() => getStoredUserId());
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const initialPromptProcessed = useRef(false);
+
+  const loadAiSessions = async () => {
+    try {
+      const response = await getAiSessions(userId);
+      const backendSessions = Array.isArray(response?.sessions) ? response.sessions : [];
+
+      if (!backendSessions.length) {
+        setSessions(buildSessionList([INITIAL_WELCOME_MESSAGE]));
+        setActiveSessionId('session-1');
+        return;
+      }
+
+      const mappedSessions = backendSessions.map(mapSessionToSidebar);
+      setSessions(mappedSessions);
+
+      if (!activeSessionId || activeSessionId === 'session-1') {
+        const firstSession = mappedSessions[0];
+        setActiveSessionId(firstSession.id);
+        if (firstSession.messages?.length) {
+          setMessages(firstSession.messages);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load Sakhi AI sessions:', error);
+      setSessions(buildSessionList([INITIAL_WELCOME_MESSAGE]));
+      setActiveSessionId('session-1');
+    }
+  };
+
+  useEffect(() => {
+    loadAiSessions();
+  }, [userId]);
 
   // Auto scroll to latest message
   const scrollToBottom = () => {
@@ -101,6 +167,20 @@ export function AiChatPage() {
   const handleSend = async (textToSend = null) => {
     const text = (textToSend || inputValue).trim();
     if (!text || isTyping) return;
+
+    let currentSessionId = activeSessionId;
+    if (!currentSessionId || currentSessionId === 'session-1') {
+      try {
+        const response = await createAiSession(userId);
+        currentSessionId = response?.session?._id || response?.session?.id || null;
+        if (currentSessionId) {
+          setActiveSessionId(currentSessionId);
+          await loadAiSessions();
+        }
+      } catch (error) {
+        console.error('Failed to create AI session before sending:', error);
+      }
+    }
 
     const userMessage = {
       id: `user-${Date.now()}`,
@@ -136,6 +216,16 @@ export function AiChatPage() {
       const replyText = data && data.message ? data.message : 'No response from Sakhi AI.';
       const actions = data && Array.isArray(data.actions) ? data.actions : [];
       const cards = data && data.cards ? data.cards : { jobs: [], courses: [], schemes: [] };
+
+      if (currentSessionId) {
+        try {
+          await appendAiMessage(currentSessionId, 'user', text);
+          await appendAiMessage(currentSessionId, 'assistant', replyText);
+          await loadAiSessions();
+        } catch (error) {
+          console.error('Failed to persist AI session history:', error);
+        }
+      }
 
       const aiMessage = {
         id: `ai-${Date.now()}`,
@@ -201,10 +291,40 @@ export function AiChatPage() {
     setActiveSessionId('session-1');
   };
 
-  const handleNewChat = () => {
+  const handleNewChat = async () => {
+    try {
+      const response = await createAiSession(userId);
+      const createdSession = response?.session;
+      const mappedSession = createdSession ? mapSessionToSidebar(createdSession) : null;
+
+      setMessages([INITIAL_WELCOME_MESSAGE]);
+      setActiveSessionId(mappedSession?.id || 'session-1');
+
+      if (mappedSession) {
+        setSessions((prev) => [mappedSession, ...prev.filter((session) => session.id !== mappedSession.id)].slice(0, 6));
+      } else {
+        setSessions((prev) => buildSessionList([INITIAL_WELCOME_MESSAGE], prev));
+      }
+    } catch (error) {
+      console.error('Failed to create new Sakhi AI session:', error);
+      setMessages([INITIAL_WELCOME_MESSAGE]);
+      setActiveSessionId('session-1');
+      setSessions((prev) => buildSessionList([INITIAL_WELCOME_MESSAGE], prev));
+    }
+  };
+
+  const handleSelectSession = (sessionId) => {
+    const selectedSession = sessions.find((session) => session.id === sessionId);
+    if (!selectedSession) return;
+
+    setActiveSessionId(sessionId);
+
+    if (Array.isArray(selectedSession.messages) && selectedSession.messages.length > 0) {
+      setMessages(selectedSession.messages);
+      return;
+    }
+
     setMessages([INITIAL_WELCOME_MESSAGE]);
-    setActiveSessionId('session-1');
-    setSessions((prev) => buildSessionList([INITIAL_WELCOME_MESSAGE], prev));
   };
 
   // Copy message text to clipboard
@@ -280,6 +400,7 @@ export function AiChatPage() {
         <ChatSessionSidebar
           sessions={sessions}
           onNewChat={handleNewChat}
+          onSelectSession={handleSelectSession}
           activeSessionId={activeSessionId}
         />
 

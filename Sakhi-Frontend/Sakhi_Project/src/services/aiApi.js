@@ -19,3 +19,39 @@ export const sendChatMessage = async (input) => {
         throw error;
     }
 };
+
+export const getAiSessions = async (userId = 'guest-user') => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/sessions`, {
+            params: { userId }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching Sakhi AI sessions:', error);
+        throw error;
+    }
+};
+
+export const createAiSession = async (userId = 'guest-user') => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/sessions`, { userId });
+        return response.data;
+    } catch (error) {
+        console.error('Error creating Sakhi AI session:', error);
+        throw error;
+    }
+};
+
+export const appendAiMessage = async (sessionId, role, content) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/sessions/message`, {
+            sessionId,
+            role,
+            content
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error saving Sakhi AI message:', error);
+        throw error;
+    }
+};
