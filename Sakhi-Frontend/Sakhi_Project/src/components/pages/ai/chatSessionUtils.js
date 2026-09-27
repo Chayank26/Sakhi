@@ -1,25 +1,50 @@
-export const createSessionTitle = (text = '') => {
-  const cleaned = String(text || '').replace(/\s+/g, ' ').trim();
-
-  if (!cleaned) return 'New conversation';
-  if (cleaned.length <= 30) return cleaned;
-
-  return `${cleaned.slice(0, 27).trim()}...`;
+export const mapSessionToSidebar = (session) => {
+  const id = session._id || session.id;
+  const messages = Array.isArray(session.messages) ? session.messages : [];
+  return {
+    id,
+    persisted: true,
+    title: session.title || 'New conversation',
+    preview: [...messages].reverse().find((msg) => msg.role === 'user')?.content || 'Start a new conversation',
+    messages: messages.map((msg, index) => ({
+      id: `${id}-${msg._id || index}`,
+      sender: msg.role === 'assistant' ? 'ai' : 'user',
+      text: msg.content || '',
+      actions: msg.actions || [],
+      cards: msg.cards || { jobs: [], courses: [], schemes: [] },
+      timestamp: msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+    }))
+  };
 };
 
-export const buildSessionList = (messages = [], previous = []) => {
-  const currentConversation = Array.isArray(messages) ? messages.filter((message) => message && typeof message.text === 'string' && message.text.trim()) : [];
+export const createDraft = (id) => ({ id, persisted: false, title: 'New conversation', preview: '', messages: [] });
+export const createChatState = (id) => ({ sessions: [createDraft(id)], activeId: id, pendingId: null, ready: false });
 
-  const latestUserMessage = [...currentConversation].reverse().find((message) => message.sender === 'user')?.text || '';
-  const title = createSessionTitle(latestUserMessage || 'Sakhi AI');
-  const preview = latestUserMessage || 'Start a new Sakhi AI conversation';
-
-  const nextSession = {
-    id: `session-${Date.now()}`,
-    title,
-    preview,
-    createdAt: new Date().toISOString()
-  };
-
-  return [nextSession, ...Array.isArray(previous) ? previous : []].slice(0, 6);
+// Every response targets its originating session; changing the selection never redirects it.
+export const chatSessionReducer = (state, action) => {
+  switch (action.type) {
+    case 'reset': return createChatState(action.id);
+    case 'loaded': {
+      const sessions = [...action.sessions, ...state.sessions.filter((session) => !session.persisted)];
+      return { ...state, sessions, ready: true,
+        activeId: action.selectFirst && action.sessions.length ? action.sessions[0].id : state.activeId };
+    }
+    case 'new': return { ...state, activeId: action.id,
+      sessions: [...state.sessions.filter((session) => session.messages.length || session.persisted || session.id === state.pendingId), createDraft(action.id)] };
+    case 'select': return state.sessions.some((session) => session.id === action.id) ? { ...state, activeId: action.id } : state;
+    case 'start': return { ...state, pendingId: action.id };
+    case 'finish': return { ...state, pendingId: null };
+    case 'saved': return { ...state,
+      activeId: state.activeId === action.previousId ? action.session.id : state.activeId,
+      pendingId: state.pendingId === action.previousId ? action.session.id : state.pendingId,
+      sessions: [action.session, ...state.sessions.filter((session) => session.id !== action.previousId && session.id !== action.session.id)] };
+    case 'append': return { ...state, sessions: state.sessions.map((session) => {
+      if (session.id !== action.id) return session;
+      const firstUser = action.message.sender === 'user' && !session.messages.some((message) => message.sender === 'user');
+      return { ...session, messages: [...session.messages, action.message],
+        title: firstUser ? action.message.text.slice(0, 32) : session.title,
+        preview: action.message.sender === 'user' ? action.message.text : session.preview };
+    }) };
+    default: return state;
+  }
 };

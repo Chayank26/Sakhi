@@ -1,3 +1,4 @@
+import { buildSessionContext, generateSessionTitle } from '../services/aiSessionService.js';
 import { randomUUID } from 'crypto';
 import mongoose from 'mongoose';
 import { AiChatSession } from '../models/AiChatSession.js';
@@ -27,12 +28,12 @@ const normalizeChatInput = (payload = {}) => {
  * POST /api/ai/chat
  * Endpoint for processing Sakhi AI chat interactions
  */
-export const chatWithAi = async (req, res) => {
+export const createChatHandler = ({ Session = AiChatSession, generateResponse = generateAiResponseService } = {}) => async (req, res) => {
     const requestId = randomUUID();
 
     try {
         const { sessionId } = req.body || {};
-        const { hasValidMessagesArray, hasValidSingleMessage, normalizedMessage, normalizedMessages } = normalizeChatInput(req.body);
+        const { hasValidMessagesArray, hasValidSingleMessage, normalizedMessage, normalizedMessages } = normalizeChatInput(req.body || {});
 
         if (!hasValidMessagesArray && !hasValidSingleMessage) {
             console.warn(`[AI Controller]: Invalid request payload received. requestId=${requestId}`);
@@ -44,7 +45,7 @@ export const chatWithAi = async (req, res) => {
         }
 
         let message = normalizedMessage;
-        let messages = normalizedMessages;
+        let messages = buildSessionContext(normalizedMessages);
         let session;
 
         if (sessionId) {
@@ -64,7 +65,7 @@ export const chatWithAi = async (req, res) => {
                 });
             }
 
-            session = await AiChatSession.findOne({ _id: sessionId, userId: req.user.uid });
+            session = await Session.findOne({ _id: sessionId, userId: req.user.uid });
             if (!session) {
                 return res.status(404).json({
                     success: false,
@@ -82,23 +83,27 @@ export const chatWithAi = async (req, res) => {
                 });
             }
 
-            messages = [
-                ...session.messages.map((entry) => ({ role: entry.role, content: entry.content })),
+            messages = buildSessionContext([
+                ...session.messages,
                 { role: 'user', content: message }
-            ];
+            ]);
         }
 
         console.info(`[AI Controller]: Processing AI request. requestId=${requestId}, messageCount=${messages?.length || 1}, sessionId=${sessionId || 'none'}`);
 
-        const result = await generateAiResponseService({
+        const result = await generateResponse({
             message,
             messages
         });
 
         if (session) {
+            if (!session.messages.some((entry) => entry.role === 'user')) {
+                session.title = generateSessionTitle(message);
+            }
             session.messages.push(
                 { role: 'user', content: message, createdAt: new Date() },
-                { role: 'assistant', content: result.message, createdAt: new Date() }
+                { role: 'assistant', content: result.message, actions: result.actions || [],
+                    cards: result.cards || { jobs: [], courses: [], schemes: [] }, createdAt: new Date() }
             );
             session.lastActiveAt = new Date();
             await session.save();
@@ -106,6 +111,7 @@ export const chatWithAi = async (req, res) => {
 
         res.json({
             success: true,
+            session: session || undefined,
             message: result.message,
             actions: result.actions || [],
             cards: result.cards || { jobs: [], courses: [], schemes: [] },
@@ -123,3 +129,5 @@ export const chatWithAi = async (req, res) => {
         });
     }
 };
+
+export const chatWithAi = createChatHandler();

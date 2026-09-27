@@ -1,3 +1,4 @@
+import { buildInputPrompt } from './conversationPrompt.js';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -19,31 +20,6 @@ const getApiKey = () => {
 
 const getModelName = () => {
     return process.env.GEMINI_MODEL || 'gemini-3.6-flash';
-};
-
-const normalizeConversationMessages = (messages = []) => {
-    if (!Array.isArray(messages)) return [];
-
-    return messages
-        .filter((entry) => entry && typeof entry === 'object')
-        .map((entry) => ({
-            role: entry.role === 'assistant' ? 'assistant' : 'user',
-            content: typeof entry.content === 'string' ? entry.content.trim() : ''
-        }))
-        .filter((entry) => entry.content && ['user', 'assistant'].includes(entry.role));
-};
-
-const buildInputPrompt = ({ prompt, messages }) => {
-    const normalizedMessages = normalizeConversationMessages(messages);
-
-    if (normalizedMessages.length > 0) {
-        return normalizedMessages
-            .map((message) => `${message.role === 'user' ? 'User' : 'Assistant'}: ${message.content}`)
-            .join('\n');
-    }
-
-    const trimmedPrompt = typeof prompt === 'string' ? prompt.trim() : '';
-    return trimmedPrompt;
 };
 
 /**

@@ -1,31 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import {
-  sendChatMessage,
-  getAiSessions,
-  createAiSession
-} from '../../../services/aiApi';
+import { useAiConversations } from './useAiConversations';
 import { HomeHeader } from '../home/HomeHeader';
 import { AiCardsContainer } from './AiChatCards';
 import { ChatSessionSidebar } from './ChatSessionSidebar';
-import { buildSessionList } from './chatSessionUtils';
-import { auth } from '../firebase/firebase';
 import {
   FiSend,
-  FiArrowLeft,
   FiTrash2,
   FiCompass,
-  FiCornerDownLeft,
   FiBriefcase,
   FiBookOpen,
   FiShield,
-  FiUser,
   FiExternalLink,
-  FiCpu,
   FiFileText,
-  FiGrid,
   FiCopy,
   FiCheck,
   FiThumbsUp,
@@ -39,23 +27,6 @@ const INITIAL_WELCOME_MESSAGE = {
   sender: 'ai',
   text: "Hello! I am Sakhi AI, your digital assistant on the Sakhi platform. How can I help you today?",
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-};
-
-const mapSessionToSidebar = (session) => {
-  const messages = Array.isArray(session?.messages) ? session.messages : [];
-  const lastUserMessage = [...messages].reverse().find((msg) => msg?.role === 'user')?.content || 'Start a new conversation';
-
-  return {
-    id: session?._id || session?.id,
-    title: session?.title || 'New conversation',
-    preview: lastUserMessage,
-    messages: messages.map((msg) => ({
-      id: `${session?._id || 'session'}-${msg?._id || `${msg.role}-${Date.now()}`}`,
-      sender: msg?.role === 'assistant' ? 'ai' : 'user',
-      text: msg?.content || '',
-      timestamp: new Date(msg?.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }))
-  };
 };
 
 const CATEGORIZED_PROMPTS = [
@@ -99,167 +70,39 @@ const CATEGORIZED_PROMPTS = [
 export function AiChatPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [messages, setMessages] = useState([INITIAL_WELCOME_MESSAGE]);
+  const { messages: conversationMessages, sessions, activeSessionId, ready, busy, isTyping,
+    send, newChat, selectSession } = useAiConversations();
+  const messages = conversationMessages.length ? conversationMessages : [INITIAL_WELCOME_MESSAGE];
   const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const [messageFeedback, setMessageFeedback] = useState({});
-  const [sessions, setSessions] = useState(() => buildSessionList([INITIAL_WELCOME_MESSAGE]));
-  const [activeSessionId, setActiveSessionId] = useState('session-1');
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const initialPromptProcessed = useRef(false);
 
-  const loadAiSessions = async () => {
-    try {
-      const response = await getAiSessions();
-      const backendSessions = Array.isArray(response?.sessions) ? response.sessions : [];
-
-      if (!backendSessions.length) {
-        setSessions(buildSessionList([INITIAL_WELCOME_MESSAGE]));
-        setActiveSessionId('session-1');
-        return;
-      }
-
-      const mappedSessions = backendSessions.map(mapSessionToSidebar);
-      setSessions(mappedSessions);
-
-      if (!activeSessionId || activeSessionId === 'session-1') {
-        const firstSession = mappedSessions[0];
-        setActiveSessionId(firstSession.id);
-        if (firstSession.messages?.length) {
-          setMessages(firstSession.messages);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load Sakhi AI sessions:', error);
-      setSessions(buildSessionList([INITIAL_WELCOME_MESSAGE]));
-      setActiveSessionId('session-1');
-    }
-  };
-
   useEffect(() => {
-    if (!auth) return undefined;
-
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        loadAiSessions();
-      } else {
-        setSessions(buildSessionList([INITIAL_WELCOME_MESSAGE]));
-        setActiveSessionId('session-1');
-      }
-    });
-
-    return unsubscribe;
-  }, []);
-
-  // Auto scroll to latest message
-  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [conversationMessages, isTyping]);
 
-  useEffect(() => {
-    scrollToBottom();
-    setSessions((prev) => buildSessionList(messages, prev));
-  }, [messages, isTyping]);
-
-  // Handle message submission
-  const handleSend = async (textToSend = null) => {
+  const handleSend = useCallback((textToSend = null) => {
     const text = (textToSend || inputValue).trim();
-    if (!text || isTyping) return;
-
-    let currentSessionId = activeSessionId;
-    if (!currentSessionId || currentSessionId === 'session-1') {
-      try {
-        const response = await createAiSession();
-        currentSessionId = response?.session?._id || response?.session?.id || null;
-        if (currentSessionId) {
-          setActiveSessionId(currentSessionId);
-          await loadAiSessions();
-        }
-      } catch (error) {
-        console.error('Failed to create AI session before sending:', error);
-      }
-    }
-
-    const userMessage = {
-      id: `user-${Date.now()}`,
-      sender: 'user',
-      text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    if (!text || busy || !ready) return;
+    void send(text);
     if (!textToSend) setInputValue('');
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
+  }, [inputValue, busy, ready, send]);
 
-    // Reset textarea height
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-    }
-
-    setIsTyping(true);
-
-    try {
-      // Build conversation history payload for multi-turn context
-      const existingHistory = messages.map((m) => ({
-        role: m.sender === 'user' ? 'user' : 'assistant',
-        content: m.text
-      }));
-
-      const historyPayload = [
-        ...existingHistory,
-        { role: 'user', content: text }
-      ];
-
-      // Call Express backend endpoint POST /api/ai/chat
-      const data = await sendChatMessage(historyPayload, currentSessionId);
-      const replyText = data && data.message ? data.message : 'No response from Sakhi AI.';
-      const actions = data && Array.isArray(data.actions) ? data.actions : [];
-      const cards = data && data.cards ? data.cards : { jobs: [], courses: [], schemes: [] };
-
-      if (currentSessionId) await loadAiSessions();
-
-      const aiMessage = {
-        id: `ai-${Date.now()}`,
-        sender: 'ai',
-        text: replyText,
-        actions,
-        cards,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.error('Failed to communicate with Sakhi AI backend:', error);
-      const serverMsg = error.response?.data?.message;
-      const is429 = error.response?.status === 429;
-
-      const errorText = is429
-        ? 'Google Gemini Free Tier rate limit reached (20 requests/min). Please wait 5–10 seconds and try again.'
-        : (serverMsg || 'Unable to connect to Sakhi AI backend. Please check your connection and try again.');
-
-      const errorMessage = {
-        id: `error-${Date.now()}`,
-        sender: 'ai',
-        text: errorText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
-  // Automatically process initial prompt from query parameter or navigation state
   useEffect(() => {
-    if (initialPromptProcessed.current) return;
-    const searchParams = new URLSearchParams(location.search);
-    const initialPrompt = searchParams.get('prompt') || location.state?.prompt;
-    if (initialPrompt && initialPrompt.trim()) {
-      initialPromptProcessed.current = true;
-      handleSend(initialPrompt.trim());
+    if (!ready || busy || initialPromptProcessed.current) return;
+    const initialPrompt = new URLSearchParams(location.search).get('prompt') || location.state?.prompt;
+    if (initialPrompt?.trim()) {
+      const timer = setTimeout(() => {
+        initialPromptProcessed.current = true;
+        handleSend(initialPrompt.trim());
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [location.search, location.state]);
+  }, [location.search, location.state, ready, busy, handleSend]);
 
   // Handle keypress inside textarea (Enter sends, Shift+Enter newline)
   const handleKeyDown = (e) => {
@@ -274,49 +117,6 @@ export function AiChatPage() {
     setInputValue(e.target.value);
     e.target.style.height = 'auto';
     e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
-  };
-
-  // Clear chat history
-  const handleClearChat = () => {
-    setMessages([INITIAL_WELCOME_MESSAGE]);
-    setSessions((prev) => buildSessionList([INITIAL_WELCOME_MESSAGE], prev));
-    setActiveSessionId('session-1');
-  };
-
-  const handleNewChat = async () => {
-    try {
-      const response = await createAiSession();
-      const createdSession = response?.session;
-      const mappedSession = createdSession ? mapSessionToSidebar(createdSession) : null;
-
-      setMessages([INITIAL_WELCOME_MESSAGE]);
-      setActiveSessionId(mappedSession?.id || 'session-1');
-
-      if (mappedSession) {
-        setSessions((prev) => [mappedSession, ...prev.filter((session) => session.id !== mappedSession.id)].slice(0, 6));
-      } else {
-        setSessions((prev) => buildSessionList([INITIAL_WELCOME_MESSAGE], prev));
-      }
-    } catch (error) {
-      console.error('Failed to create new Sakhi AI session:', error);
-      setMessages([INITIAL_WELCOME_MESSAGE]);
-      setActiveSessionId('session-1');
-      setSessions((prev) => buildSessionList([INITIAL_WELCOME_MESSAGE], prev));
-    }
-  };
-
-  const handleSelectSession = (sessionId) => {
-    const selectedSession = sessions.find((session) => session.id === sessionId);
-    if (!selectedSession) return;
-
-    setActiveSessionId(sessionId);
-
-    if (Array.isArray(selectedSession.messages) && selectedSession.messages.length > 0) {
-      setMessages(selectedSession.messages);
-      return;
-    }
-
-    setMessages([INITIAL_WELCOME_MESSAGE]);
   };
 
   // Copy message text to clipboard
@@ -378,9 +178,9 @@ export function AiChatPage() {
           </button>
           <button
             type="button"
-            onClick={handleClearChat}
+            onClick={newChat}
             className="btn-top-action danger"
-            title="Clear all messages"
+            title="Start a fresh conversation; saved chats remain in Recent chats"
           >
             <FiTrash2 /> Clear Chat
           </button>
@@ -391,8 +191,8 @@ export function AiChatPage() {
       <main className="ai-chat-body ai-chat-layout">
         <ChatSessionSidebar
           sessions={sessions}
-          onNewChat={handleNewChat}
-          onSelectSession={handleSelectSession}
+          onNewChat={newChat}
+          onSelectSession={selectSession}
           activeSessionId={activeSessionId}
         />
 
@@ -520,6 +320,7 @@ export function AiChatPage() {
                         key={itemIdx}
                         type="button"
                         className="prompt-chip-btn"
+                        disabled={busy || !ready}
                         onClick={() => handleSend(item.prompt)}
                       >
                         {item.label}
@@ -549,7 +350,7 @@ export function AiChatPage() {
             type="button"
             className="btn-send-message"
             onClick={() => handleSend()}
-            disabled={!inputValue.trim() || isTyping}
+            disabled={!inputValue.trim() || busy || !ready}
             aria-label="Send message"
           >
             <FiSend />

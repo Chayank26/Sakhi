@@ -25,6 +25,12 @@ const aiChatSessionSchema = new mongoose.Schema(
                     required: true,
                     trim: true
                 },
+                actions: { type: [mongoose.Schema.Types.Mixed], default: [] },
+                cards: {
+                    jobs: { type: [mongoose.Schema.Types.Mixed], default: [] },
+                    courses: { type: [mongoose.Schema.Types.Mixed], default: [] },
+                    schemes: { type: [mongoose.Schema.Types.Mixed], default: [] }
+                },
                 createdAt: {
                     type: Date,
                     default: Date.now

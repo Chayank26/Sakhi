@@ -27,7 +27,7 @@ export const sendChatMessage = async (input, sessionId = null) => {
     try {
         const headers = await getAuthHeaders();
         const payload = Array.isArray(input) ? { messages: input } : { message: input };
-        if (sessionId && sessionId !== 'session-1') payload.sessionId = sessionId;
+        if (sessionId) payload.sessionId = sessionId;
 
         const response = await axios.post(`${API_BASE_URL}/chat`, payload, { headers });
         return response.data;
@@ -37,7 +37,7 @@ export const sendChatMessage = async (input, sessionId = null) => {
     }
 };
 
-export const getAiSessions = async (userId = 'guest-user') => {
+export const getAiSessions = async () => {
     try {
         const headers = await getAuthHeaders();
         const response = await axios.get(`${API_BASE_URL}/sessions`, {
@@ -50,7 +50,7 @@ export const getAiSessions = async (userId = 'guest-user') => {
     }
 };
 
-export const createAiSession = async (userId = 'guest-user') => {
+export const createAiSession = async () => {
     try {
         const headers = await getAuthHeaders();
         const response = await axios.post(`${API_BASE_URL}/sessions`, {}, { headers });

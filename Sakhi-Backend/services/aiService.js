@@ -1,3 +1,4 @@
+import { buildSessionContext } from './aiSessionService.js';
 import { callCloudLlm } from '../ai/llm.js';
 import { SAKHI_SYSTEM_PROMPT } from '../ai/prompts/sakhiSystemPrompt.js';
 import { buildProfileContext } from './aiPersonalizationService.js';
@@ -41,9 +42,11 @@ export const createFallbackAiResponse = (context = '') => ({
  * @param {Array} [params.messages] - Multi-turn message history array
  * @returns {Promise<Object>} Object containing response message
  */
-export const generateAiResponseService = async ({ message, messages, profile = {}, grounding = {} }) => {
-    const normalizedMessages = normalizeMessages(messages);
-    const promptText = typeof message === 'string' ? message.trim() : '';
+export const generateAiResponseService = async ({ message, messages, profile = {}, grounding = {} },
+    { callLlm = callCloudLlm, retrieve = retrieveGroundingData } = {}) => {
+    const normalizedMessages = buildSessionContext(messages);
+    const promptText = (typeof message === 'string' ? message.trim() : '') ||
+        [...normalizedMessages].reverse().find((entry) => entry.role === 'user')?.content || '';
     const safetyCheck = evaluateSafety(promptText || normalizedMessages.map((entry) => entry.content).join(' '));
 
     if (!safetyCheck.safe) {
@@ -56,7 +59,7 @@ export const generateAiResponseService = async ({ message, messages, profile = {
     }
 
     const profileContext = buildProfileContext(profile);
-    const retrievedGrounding = await retrieveGroundingData({ message: promptText, messages: normalizedMessages });
+    const retrievedGrounding = await retrieve({ message: promptText, messages: normalizedMessages });
     const mergedGrounding = {
         ...grounding,
         jobs: [...(grounding.jobs || []), ...retrievedGrounding.jobs],
@@ -72,7 +75,7 @@ export const generateAiResponseService = async ({ message, messages, profile = {
         ? `${promptText}\n\nGROUNDING_CONTEXT:\n${groundingContext}\n\nGROUNDING_SIGNALS:\n${groundingSignals.join(', ')}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}\n\nRECOMMENDATION_CONTEXT:\n${JSON.stringify(recommendationSet, null, 2)}`
         : `${promptText}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}\n\nRECOMMENDATION_CONTEXT:\n${JSON.stringify(recommendationSet, null, 2)}`;
 
-    const llmResult = await callCloudLlm({
+    const llmResult = await callLlm({
         prompt: finalPrompt || undefined,
         messages: normalizedMessages.length > 0 ? normalizedMessages : undefined,
         systemInstruction: `${SAKHI_SYSTEM_PROMPT}${profileContext ? `\n\nUSER_PROFILE_CONTEXT:\n${profileContext}` : ''}`
