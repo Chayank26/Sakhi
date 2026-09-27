@@ -7,7 +7,7 @@ import { buildToolExecutionPlan } from './aiToolOrchestrationService.js';
 import { buildRecommendationSet } from './aiRecommendationService.js';
 import { evaluateSafety } from './aiSafetyService.js';
 import { evaluateResponseQuality } from './aiFeedbackEvalService.js';
-import { retrieveGroundingData } from './aiRetrievalService.js';
+import { retrieveGroundingData, describeRetrievalStatus } from './aiRetrievalService.js';
 
 /**
  * Sakhi AI Service Abstraction Layer
@@ -66,6 +66,13 @@ export const generateAiResponseService = async ({ message, messages, profile = {
         courses: [...(grounding.courses || []), ...retrievedGrounding.courses],
         schemes: [...(grounding.schemes || []), ...retrievedGrounding.schemes]
     };
+    const retrievalNotice = describeRetrievalStatus(retrievedGrounding.status);
+    const hasRetrieval = retrievedGrounding.domains?.length > 0;
+    const hasRecords = ['jobs', 'courses', 'schemes'].some((domain) => mergedGrounding[domain].length);
+    if (hasRetrieval && !hasRecords) {
+        return { message: retrievalNotice, actions: retrievedGrounding.actions,
+            cards: { jobs: [], courses: [], schemes: [] }, timestamp: new Date().toISOString() };
+    }
     const groundingContext = buildGroundingContext(mergedGrounding);
     const groundingSignals = extractGroundingSignals(promptText, profile);
     const toolPlan = buildToolExecutionPlan(promptText, profile);
@@ -76,7 +83,8 @@ export const generateAiResponseService = async ({ message, messages, profile = {
         : `${promptText}\n\nTOOL_PLAN:\n${toolPlan.join(', ')}\n\nRECOMMENDATION_CONTEXT:\n${JSON.stringify(recommendationSet, null, 2)}`;
 
     const llmResult = await callLlm({
-        prompt: finalPrompt || undefined,
+        prompt: `${finalPrompt}\n\nRETRIEVAL_STATUS:\n${JSON.stringify(retrievedGrounding.status || {})}\n${retrievalNotice}`,
+        allowTools: !hasRetrieval,
         messages: normalizedMessages.length > 0 ? normalizedMessages : undefined,
         systemInstruction: `${SAKHI_SYSTEM_PROMPT}${profileContext ? `\n\nUSER_PROFILE_CONTEXT:\n${profileContext}` : ''}`
     });
@@ -97,10 +105,10 @@ export const generateAiResponseService = async ({ message, messages, profile = {
     }
 
     const actions = [
-        ...(typeof llmResult === 'object' && Array.isArray(llmResult.actions) ? llmResult.actions : []),
+        ...(!hasRetrieval && typeof llmResult === 'object' && Array.isArray(llmResult.actions) ? llmResult.actions : []),
         ...retrievedGrounding.actions
     ].filter((action, index, all) => all.findIndex((item) => item.route === action.route) === index).slice(0, 5);
-    const generatedCards = typeof llmResult === 'object' && llmResult.cards ? llmResult.cards : {};
+    const generatedCards = !hasRetrieval && typeof llmResult === 'object' && llmResult.cards ? llmResult.cards : {};
     const cards = {
         jobs: generatedCards.jobs?.length ? generatedCards.jobs : mergedGrounding.jobs.slice(0, 4),
         courses: generatedCards.courses?.length ? generatedCards.courses : mergedGrounding.courses.slice(0, 4),
@@ -108,7 +116,7 @@ export const generateAiResponseService = async ({ message, messages, profile = {
     };
 
     return {
-        message: replyText,
+        message: [replyText, retrievalNotice].filter(Boolean).join('\n\n'),
         actions,
         cards,
         quality: qualitySignal,

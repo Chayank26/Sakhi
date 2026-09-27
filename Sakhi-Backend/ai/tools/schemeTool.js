@@ -1,3 +1,4 @@
+import { literalRegex, keywordConditions } from './searchQuery.js';
 import mongoose from 'mongoose';
 import GovernmentScheme from '../../models/GovernmentScheme.js';
 
@@ -13,11 +14,11 @@ import GovernmentScheme from '../../models/GovernmentScheme.js';
  * @param {string} [args.targetAudience] - Target demographic group
  * @returns {Promise<Object>} Structured MongoDB Government Scheme search results
  */
-export const searchGovernmentSchemesToolHandler = async (args = {}) => {
+export const searchGovernmentSchemesToolHandler = async (args = {}, { model = GovernmentScheme, isConnected = () => mongoose.connection.readyState === 1 } = {}) => {
     try {
         const { query, category, state, governmentLevel } = args;
 
-        const isDbConnected = mongoose.connection.readyState === 1;
+        const isDbConnected = isConnected();
 
         if (!isDbConnected) {
             console.warn('[Scheme Tool]: Mongoose is not connected. Returning empty dataset.');
@@ -32,38 +33,23 @@ export const searchGovernmentSchemesToolHandler = async (args = {}) => {
         const queryConditions = {};
         const andConditions = [];
 
-        // 1. Keyword search across name, shortDescription, fullDescription, category, ministry, tags, benefits, eligibility
-        if (query && typeof query === 'string' && query.trim()) {
-            const qRegex = new RegExp(query.trim(), 'i');
-            andConditions.push({
-                $or: [
-                    { name: qRegex },
-                    { shortDescription: qRegex },
-                    { fullDescription: qRegex },
-                    { category: qRegex },
-                    { ministry: qRegex },
-                    { tags: qRegex },
-                    { benefits: qRegex },
-                    { eligibility: qRegex }
-                ]
-            });
-        }
+        andConditions.push(...keywordConditions(query, ['name', 'shortDescription', 'fullDescription', 'category', 'ministry', 'tags', 'benefits', 'eligibility']));
 
         // 2. Category filter
         if (category && typeof category === 'string' && category.trim()) {
-            const catRegex = new RegExp(category.trim(), 'i');
+            const catRegex = literalRegex(category);
             andConditions.push({ category: catRegex });
         }
 
         // 3. Government Level filter (Central vs State)
         if (governmentLevel && typeof governmentLevel === 'string' && governmentLevel.trim()) {
-            const levelRegex = new RegExp(governmentLevel.trim(), 'i');
+            const levelRegex = literalRegex(governmentLevel);
             andConditions.push({ governmentLevel: levelRegex });
         }
 
         // 4. State filter
         if (state && typeof state === 'string' && state.trim()) {
-            const stateRegex = new RegExp(state.trim(), 'i');
+            const stateRegex = literalRegex(state);
             andConditions.push({
                 $or: [
                     { state: stateRegex },
@@ -77,19 +63,11 @@ export const searchGovernmentSchemesToolHandler = async (args = {}) => {
         }
 
         // Query MongoDB GovernmentScheme collection
-        let dbSchemes = await GovernmentScheme.find(queryConditions)
+        const dbSchemes = await model.find(queryConditions)
             .sort({ featured: -1, createdAt: -1 })
             .limit(6)
+            .maxTimeMS(3000)
             .lean();
-
-        // Fallback: If query returned 0 results, query top featured central schemes
-        if (dbSchemes.length === 0 && (query || category || state || governmentLevel)) {
-            console.log('[Scheme Tool]: Specific query yielded 0 results. Returning recommended central schemes.');
-            dbSchemes = await GovernmentScheme.find({})
-                .sort({ featured: -1 })
-                .limit(4)
-                .lean();
-        }
 
         // Format clean, structured data for LLM consumption
         const formattedSchemes = dbSchemes.map((s) => ({

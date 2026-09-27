@@ -121,10 +121,11 @@ export const createChatHandler = ({ Session = AiChatSession, generateResponse = 
     } catch (error) {
         console.error(`[AI Controller Error]: Failed to process chat request. requestId=${requestId}:`, error);
         const statusCode = error.statusCode || 500;
+        if (error.retryAfter) res.set('Retry-After', String(error.retryAfter));
         res.status(statusCode).json({
             success: false,
             message: error.message || 'An error occurred while processing your AI request.',
-            error: error.message,
+            retryAfter: error.retryAfter,
             requestId
         });
     }

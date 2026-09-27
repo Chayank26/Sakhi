@@ -1,3 +1,4 @@
+import { literalRegex, keywordConditions } from './searchQuery.js';
 import mongoose from 'mongoose';
 import { Course } from '../../models/Course.js';
 
@@ -12,11 +13,11 @@ import { Course } from '../../models/Course.js';
  * @param {string} [args.duration] - Estimated completion time
  * @returns {Promise<Object>} Structured MongoDB course search results
  */
-export const searchCoursesToolHandler = async (args = {}) => {
+export const searchCoursesToolHandler = async (args = {}, { model = Course, isConnected = () => mongoose.connection.readyState === 1 } = {}) => {
     try {
-        const { query, category, difficulty } = args;
+        const { query, category, difficulty, freeOnly, certificateAvailable } = args;
 
-        const isDbConnected = mongoose.connection.readyState === 1;
+        const isDbConnected = isConnected();
 
         if (!isDbConnected) {
             console.warn('[Course Tool]: Mongoose is not connected. Returning empty dataset.');
@@ -28,32 +29,23 @@ export const searchCoursesToolHandler = async (args = {}) => {
             };
         }
 
-        const queryConditions = {};
+        const queryConditions = { visibility: 'Public' };
+        if (freeOnly === true) queryConditions.price = 0;
+        if (freeOnly === false) queryConditions.price = { $gt: 0 };
+        if (certificateAvailable === true) queryConditions.certificateAvailable = true;
         const andConditions = [];
 
-        // 1. Topic / search query search across title, description, category, instructor
-        if (query && typeof query === 'string' && query.trim()) {
-            const qRegex = new RegExp(query.trim(), 'i');
-            andConditions.push({
-                $or: [
-                    { title: qRegex },
-                    { description: qRegex },
-                    { category: qRegex },
-                    { instructor: qRegex },
-                    { learningOutcomes: qRegex }
-                ]
-            });
-        }
+        andConditions.push(...keywordConditions(query, ['title', 'description', 'category', 'instructor', 'learningOutcomes']));
 
         // 2. Category filter
         if (category && typeof category === 'string' && category.trim()) {
-            const catRegex = new RegExp(category.trim(), 'i');
+            const catRegex = literalRegex(category);
             andConditions.push({ category: catRegex });
         }
 
         // 3. Difficulty level filter
         if (difficulty && typeof difficulty === 'string' && difficulty.trim()) {
-            const diffRegex = new RegExp(difficulty.trim(), 'i');
+            const diffRegex = literalRegex(difficulty);
             andConditions.push({ difficulty: diffRegex });
         }
 
@@ -62,19 +54,11 @@ export const searchCoursesToolHandler = async (args = {}) => {
         }
 
         // Query MongoDB Course collection
-        let dbCourses = await Course.find(queryConditions)
+        const dbCourses = await model.find(queryConditions)
             .sort({ rating: -1, createdAt: -1 })
             .limit(6)
+            .maxTimeMS(3000)
             .lean();
-
-        // Fallback: If strict query returns 0 results, return top rated Sakhi Academy courses
-        if (dbCourses.length === 0 && (query || category || difficulty)) {
-            console.log('[Course Tool]: Specific query yielded 0 results. Returning recommended top courses.');
-            dbCourses = await Course.find({})
-                .sort({ rating: -1 })
-                .limit(4)
-                .lean();
-        }
 
         // Format clean, structured data for LLM consumption
         const formattedCourses = dbCourses.map((c) => ({

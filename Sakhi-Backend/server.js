@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import { connectDB } from './config/db.js';
+import { connectDB, healthCheck } from './config/db.js';
 import jobRoutes from './routes/jobRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
@@ -62,13 +62,7 @@ app.get(['/', '/index.html'], (req, res) => {
 });
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'ok',
-        service: 'Sakhi Platform Backend API',
-        timestamp: new Date().toISOString()
-    });
-});
+app.get('/api/health', healthCheck);
 
 // API Routes
 app.use('/api/jobs', jobRoutes);

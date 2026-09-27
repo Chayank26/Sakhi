@@ -87,7 +87,9 @@ export function useAiConversations() {
       }
     } catch (error) {
       if (isCurrent()) dispatch({ type: 'append', id: sessionId,
-        message: displayMessage('ai', error.response?.data?.message || 'Unable to connect to Sakhi AI. Please try again.', { isError: true }) });
+        message: displayMessage('ai', error.response?.data?.message || (error.code === 'ECONNABORTED'
+            ? 'Sakhi AI took too long to respond. Reopen this conversation to check whether the reply was saved before trying again.'
+            : 'Unable to connect to Sakhi AI. Please try again.'), { isError: true }) });
     } finally {
       if (isCurrent()) {
         inFlight.current = false;

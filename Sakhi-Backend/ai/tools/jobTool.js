@@ -1,3 +1,4 @@
+import { literalRegex, keywordConditions } from './searchQuery.js';
 import mongoose from 'mongoose';
 import { Job } from '../../models/Job.js';
 
@@ -13,11 +14,11 @@ import { Job } from '../../models/Job.js';
  * @param {string} [args.experience] - Required experience, e.g., Fresher, 1+, 2+
  * @returns {Promise<Object>} Structured MongoDB job search results
  */
-export const searchJobsToolHandler = async (args = {}) => {
+export const searchJobsToolHandler = async (args = {}, { model = Job, isConnected = () => mongoose.connection.readyState === 1 } = {}) => {
     try {
         const { keyword, location, jobType, experience } = args;
 
-        const isDbConnected = mongoose.connection.readyState === 1;
+        const isDbConnected = isConnected();
 
         if (!isDbConnected) {
             console.warn('[Job Tool]: Mongoose is not connected. Returning empty dataset.');
@@ -32,23 +33,11 @@ export const searchJobsToolHandler = async (args = {}) => {
         const queryConditions = {};
         const andConditions = [];
 
-        // 1. Keyword search across title, company, skills, industry, description
-        if (keyword && typeof keyword === 'string' && keyword.trim()) {
-            const kwRegex = new RegExp(keyword.trim(), 'i');
-            andConditions.push({
-                $or: [
-                    { title: kwRegex },
-                    { company: kwRegex },
-                    { skills: kwRegex },
-                    { industry: kwRegex },
-                    { description: kwRegex }
-                ]
-            });
-        }
+        andConditions.push(...keywordConditions(keyword, ['title', 'company', 'skills', 'industry', 'description']));
 
         // 2. Location search
         if (location && typeof location === 'string' && location.trim()) {
-            const locRegex = new RegExp(location.trim(), 'i');
+            const locRegex = literalRegex(location);
             andConditions.push({
                 $or: [
                     { location: locRegex },
@@ -59,13 +48,15 @@ export const searchJobsToolHandler = async (args = {}) => {
 
         // 3. Employment Type search
         if (jobType && typeof jobType === 'string' && jobType.trim()) {
-            const typeRegex = new RegExp(jobType.trim(), 'i');
-            andConditions.push({ employmentType: typeRegex });
+            const typeRegex = literalRegex(jobType);
+            andConditions.push(jobType.toLowerCase() === 'remote'
+                ? { $or: [{ remote: true }, { employmentType: typeRegex }, { location: typeRegex }] }
+                : { employmentType: typeRegex });
         }
 
         // 4. Experience requirement search
         if (experience && typeof experience === 'string' && experience.trim()) {
-            const expRegex = new RegExp(experience.trim(), 'i');
+            const expRegex = literalRegex(experience);
             andConditions.push({ experience: expRegex });
         }
 
@@ -74,9 +65,10 @@ export const searchJobsToolHandler = async (args = {}) => {
         }
 
         // Query MongoDB Job collection
-        const dbJobs = await Job.find(queryConditions)
+        const dbJobs = await model.find(queryConditions)
             .sort({ createdAt: -1 })
             .limit(6)
+            .maxTimeMS(3000)
             .lean();
 
         // Format clean, structured data for LLM consumption

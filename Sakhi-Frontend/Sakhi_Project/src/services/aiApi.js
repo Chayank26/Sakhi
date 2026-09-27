@@ -4,6 +4,8 @@ import { auth } from '../components/pages/firebase/firebase';
 const RAW_API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'https://sakhi-c0b4.onrender.com/api';
 const ROOT_API = RAW_API_URL.endsWith('/api') ? RAW_API_URL : `${RAW_API_URL.replace(/\/+$/, '')}/api`;
 const API_BASE_URL = `${ROOT_API}/ai`;
+// Allows the bounded provider request plus database lookup/persistence to finish.
+const aiHttpClient = axios.create({ timeout: 90000 });
 
 const getAuthHeaders = async () => {
     try {
@@ -29,7 +31,7 @@ export const sendChatMessage = async (input, sessionId = null) => {
         const payload = Array.isArray(input) ? { messages: input } : { message: input };
         if (sessionId) payload.sessionId = sessionId;
 
-        const response = await axios.post(`${API_BASE_URL}/chat`, payload, { headers });
+        const response = await aiHttpClient.post(`${API_BASE_URL}/chat`, payload, { headers });
         return response.data;
     } catch (error) {
         console.error('Error sending chat message to Sakhi AI backend:', error);
@@ -40,7 +42,7 @@ export const sendChatMessage = async (input, sessionId = null) => {
 export const getAiSessions = async () => {
     try {
         const headers = await getAuthHeaders();
-        const response = await axios.get(`${API_BASE_URL}/sessions`, {
+        const response = await aiHttpClient.get(`${API_BASE_URL}/sessions`, {
             headers
         });
         return response.data;
@@ -53,7 +55,7 @@ export const getAiSessions = async () => {
 export const createAiSession = async () => {
     try {
         const headers = await getAuthHeaders();
-        const response = await axios.post(`${API_BASE_URL}/sessions`, {}, { headers });
+        const response = await aiHttpClient.post(`${API_BASE_URL}/sessions`, {}, { headers });
         return response.data;
     } catch (error) {
         console.error('Error creating Sakhi AI session:', error);
@@ -64,7 +66,7 @@ export const createAiSession = async () => {
 export const appendAiMessage = async (sessionId, role, content) => {
     try {
         const headers = await getAuthHeaders();
-        const response = await axios.post(`${API_BASE_URL}/sessions/message`, {
+        const response = await aiHttpClient.post(`${API_BASE_URL}/sessions/message`, {
             sessionId,
             role,
             content
