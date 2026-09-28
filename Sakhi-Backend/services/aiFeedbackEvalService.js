@@ -41,3 +41,15 @@ export const summarizeFeedback = (feedbackEntries = []) => {
         total: total.length
     };
 };
+
+// Heuristic review signals, not a claim of factual accuracy or an LLM evaluation.
+export const summarizeResponseSignals = (messages = []) => {
+    const replies = messages.filter((message) => message.role === 'assistant');
+    const scored = replies.filter((message) => Number.isFinite(message.quality?.score));
+    return {
+        replies: replies.length,
+        averageScore: scored.length ? Math.round(scored.reduce((sum, message) => sum + message.quality.score, 0) / scored.length) : null,
+        feedback: summarizeFeedback(replies.map((message) => message.feedback).filter((feedback) => feedback?.rating)),
+        needsReview: replies.filter((message) => message.feedback?.rating === 'down' || message.quality?.score < 85).length
+    };
+};

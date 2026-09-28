@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { getAiProfile, saveAiProfile } from '../../../services/aiApi';
+import { readLocalProfile, saveLocalProfile } from '../../../services/profileStorage';
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { FiArrowLeft, FiUser, FiMail, FiPhone, FiCalendar, FiBriefcase, FiBookOpen, FiFileText, FiEdit2, FiCheck } from 'react-icons/fi'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../firebase/firebase'
@@ -12,38 +14,57 @@ export function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false)
     const [savedMsg, setSavedMsg] = useState('')
 
-    const [profile, setProfile] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        age: '',
-        bio: 'Passionate learner exploring new tech skills, career opportunities, and government welfare programs through Sakhi.',
-        preferredDomain: 'Software Development & Data Analytics',
-        location: 'Chennai, Tamil Nadu',
-        skills: ['React', 'Python', 'Data Analytics', 'Communication', 'Problem Solving']
-    })
+    const emptyProfile = { name: '', email: '', phone: '', age: '', bio: '', preferredDomain: '', location: '', skills: [], interests: [], jobType: '', level: '' };
+    const [profile, setProfile] = useState(emptyProfile)
+    const [preferencesReady, setPreferencesReady] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
+    const [reload, setReload] = useState(0)
+    const accountVersion = useRef(0)
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            const version = ++accountVersion.current
             setUser(currentUser)
-            const local = JSON.parse(localStorage.getItem('sakhi_user_profile') || '{}')
-            setProfile((prev) => ({
-                ...prev,
-                name: currentUser?.displayName || local.name || 'Sakhi User',
-                email: currentUser?.email || local.email || 'user@sakhi.org',
-                phone: local.phone || '+91 98765 43210',
-                age: local.age || '24'
-            }))
+            setPreferencesReady(false)
+            setIsEditing(false)
+            const local = readLocalProfile(currentUser)
+            setProfile({ name: currentUser?.displayName || local.name || '', email: currentUser?.email || '',
+                phone: local.phone || '', age: local.age || '', bio: local.bio || '', preferredDomain: '', location: '',
+                skills: [], interests: [], jobType: '', level: '' })
+            if (!currentUser) return
+            try {
+                const { profile: preferences } = await getAiProfile()
+                if (version !== accountVersion.current) return
+                setProfile((previous) => ({ ...previous, preferredDomain: preferences.goal, location: preferences.city,
+                    skills: preferences.skills, interests: preferences.interests, jobType: preferences.jobType, level: preferences.level }))
+                setPreferencesReady(true)
+                setSavedMsg('')
+            } catch {
+                if (version === accountVersion.current) setSavedMsg('Could not load your AI preferences. Please retry before editing.')
+            }
         })
-        return () => unsubscribe()
-    }, [])
+        return () => { accountVersion.current += 1; unsubscribe() }
+    }, [reload])
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault()
-        localStorage.setItem('sakhi_user_profile', JSON.stringify(profile))
-        setIsEditing(false)
-        setSavedMsg('Profile updated successfully!')
-        setTimeout(() => setSavedMsg(''), 3000)
+        if (!user || !preferencesReady || isSaving) return
+        const version = accountVersion.current
+        setIsSaving(true)
+        try {
+            const { profile: savedPreferences } = await saveAiProfile({ city: profile.location, goal: profile.preferredDomain, skills: profile.skills,
+                interests: profile.interests, jobType: profile.jobType, level: profile.level })
+            if (version !== accountVersion.current) return
+            const savedProfile = { ...profile, skills: savedPreferences.skills, interests: savedPreferences.interests }
+            setProfile(savedProfile)
+            saveLocalProfile(user, savedProfile)
+            setIsEditing(false)
+            setSavedMsg('Profile saved. Sakhi AI will use these preferences in your next message.')
+        } catch {
+            if (version === accountVersion.current) setSavedMsg('Could not finish saving your profile. Please try again.')
+        } finally {
+            setIsSaving(false)
+        }
     }
 
     return (
@@ -58,13 +79,14 @@ export function ProfilePage() {
             </div>
 
             <main className="profile-container">
-                {savedMsg && <div className="profile-toast">{savedMsg}</div>}
+                {savedMsg && <div className="profile-toast" role="status">{savedMsg}</div>}
+                {user && !preferencesReady && <button type="button" onClick={() => setReload((value) => value + 1)}>Reload preferences</button>}
 
                 {/* Profile Card Header */}
                 <section className="profile-card hero-card">
                     <div className="profile-avatar-wrapper">
                         <div className="profile-avatar">
-                            {profile.name.charAt(0).toUpperCase()}
+                            {profile.name.charAt(0).toUpperCase() || 'S'}
                         </div>
                     </div>
                     <div className="profile-hero-info">
@@ -74,7 +96,8 @@ export function ProfilePage() {
                     </div>
                     <button 
                         className="btn-edit-profile" 
-                        onClick={() => setIsEditing(!isEditing)}
+                        disabled={!preferencesReady || isSaving}
+                        onClick={() => { if (isEditing) setReload((value) => value + 1); setIsEditing(!isEditing) }}
                     >
                         {isEditing ? <><FiCheck /> Cancel</> : <><FiEdit2 /> Edit Profile</>}
                     </button>
@@ -151,8 +174,25 @@ export function ProfilePage() {
                                     rows={3}
                                 />
                             </div>
+                            <p>Your saved skills, interests, location and goal help personalize Sakhi AI recommendations.</p>
+                            <div className="form-group"><label htmlFor="profile-location">Preferred city</label>
+                                <input id="profile-location" value={profile.location} onChange={(e) => setProfile({ ...profile, location: e.target.value })} maxLength={160} /></div>
+                            <div className="form-group"><label htmlFor="profile-goal">Career goal</label>
+                                <input id="profile-goal" value={profile.preferredDomain} onChange={(e) => setProfile({ ...profile, preferredDomain: e.target.value })} maxLength={160} /></div>
+                            <div className="form-group"><label htmlFor="profile-skills">Skills (comma-separated)</label>
+                                <input id="profile-skills" value={profile.skills.join(',')} onChange={(e) => setProfile({ ...profile, skills: e.target.value.split(',') })} /></div>
+                            <div className="form-group"><label htmlFor="profile-interests">Interests (comma-separated)</label>
+                                <input id="profile-interests" value={profile.interests.join(',')} onChange={(e) => setProfile({ ...profile, interests: e.target.value.split(',') })} /></div>
+                            <div className="form-group"><label htmlFor="profile-work">Work preference</label>
+                                <select id="profile-work" value={profile.jobType} onChange={(e) => setProfile({ ...profile, jobType: e.target.value })}>
+                                    {['', 'Full Time', 'Part Time', 'Internship', 'Contract', 'Remote', 'Hybrid'].map((value) => <option key={value} value={value}>{value || 'Any'}</option>)}
+                                </select></div>
+                            <div className="form-group"><label htmlFor="profile-level">Learning level</label>
+                                <select id="profile-level" value={profile.level} onChange={(e) => setProfile({ ...profile, level: e.target.value })}>
+                                    {['', 'Beginner', 'Intermediate', 'Advanced'].map((value) => <option key={value} value={value}>{value || 'Any'}</option>)}
+                                </select></div>
                             <div className="form-actions">
-                                <button type="submit" className="btn-save-profile">Save Changes</button>
+                                <button type="submit" className="btn-save-profile" disabled={isSaving}>{isSaving ? 'Saving…' : 'Save Changes'}</button>
                             </div>
                         </form>
                     ) : (

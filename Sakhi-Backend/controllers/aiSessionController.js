@@ -1,3 +1,4 @@
+import { publicAiSession } from '../services/aiSessionPresentation.js';
 import { AiChatSession } from '../models/AiChatSession.js';
 import { buildSessionContext, generateSessionTitle } from '../services/aiSessionService.js';
 import mongoose from 'mongoose';
@@ -15,7 +16,7 @@ export const createAiSession = async (req, res) => {
             messages: []
         });
 
-        return res.status(201).json({ success: true, session });
+        return res.status(201).json({ success: true, session: publicAiSession(session) });
     } catch (error) {
         console.error('[AI Session Controller]: createAiSession failed', error);
         return res.status(500).json({ success: false, message: 'Failed to create AI session.' });
@@ -30,7 +31,7 @@ export const getAiSessions = async (req, res) => {
         }
 
         const sessions = await AiChatSession.find({ userId }).sort({ lastActiveAt: -1 }).limit(20);
-        return res.json({ success: true, sessions });
+        return res.json({ success: true, sessions: sessions.map(publicAiSession) });
     } catch (error) {
         console.error('[AI Session Controller]: getAiSessions failed', error);
         return res.status(500).json({ success: false, message: 'Failed to fetch AI sessions.' });
@@ -74,7 +75,7 @@ export const appendAiMessage = async (req, res) => {
 
         return res.json({
             success: true,
-            session,
+            session: publicAiSession(session),
             context: buildSessionContext(session.messages, 12)
         });
     } catch (error) {

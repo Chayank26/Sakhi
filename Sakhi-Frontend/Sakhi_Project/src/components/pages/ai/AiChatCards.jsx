@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FiBriefcase,
@@ -10,8 +9,6 @@ import {
   FiStar,
   FiFileText,
   FiArrowRight,
-  FiShield,
-  FiExternalLink
 } from 'react-icons/fi';
 import './AiChatCards.css';
 
@@ -73,6 +70,7 @@ export function JobMiniCard({ job }) {
         )}
       </div>
 
+      {(job.recommendationReason) && <p className="ai-card-description"><strong>Why this fits:</strong> {job.recommendationReason}</p>}
       <button type="button" className="ai-card-action-btn" onClick={handleNavigate}>
         <span>View Details</span>
         <FiArrowRight />
@@ -92,7 +90,6 @@ export function CourseMiniCard({ course }) {
     courseId,
     title,
     instructor,
-    category,
     difficulty,
     duration,
     price,
@@ -140,6 +137,7 @@ export function CourseMiniCard({ course }) {
         )}
       </div>
 
+      {course.recommendationReason && <p className="ai-card-description"><strong>Why this fits:</strong> {course.recommendationReason}</p>}
       <button type="button" className="ai-card-action-btn" onClick={handleNavigate}>
         <span>Explore Course</span>
         <FiArrowRight />
@@ -190,6 +188,7 @@ export function SchemeMiniCard({ scheme }) {
         </p>
       )}
 
+      {scheme.recommendationReason && <p className="ai-card-description"><strong>Why this fits:</strong> {scheme.recommendationReason}</p>}
       <button type="button" className="ai-card-action-btn" onClick={handleNavigate}>
         <span>View Scheme</span>
         <FiArrowRight />

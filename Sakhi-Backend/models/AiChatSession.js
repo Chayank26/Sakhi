@@ -25,6 +25,12 @@ const aiChatSessionSchema = new mongoose.Schema(
                     required: true,
                     trim: true
                 },
+                turnId: { type: String },
+                feedback: {
+                    rating: { type: String, enum: ['up', 'down', null], default: null },
+                    updatedAt: { type: Date }
+                },
+                quality: { type: mongoose.Schema.Types.Mixed },
                 actions: { type: [mongoose.Schema.Types.Mixed], default: [] },
                 cards: {
                     jobs: { type: [mongoose.Schema.Types.Mixed], default: [] },

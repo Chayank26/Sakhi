@@ -17,7 +17,7 @@ export const extractReplyText = (response) => {
 };
 
 // All provider requests, retries and tool rounds share one deadline.
-export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = '', allowTools = true }, dependencies = {}) => {
+export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = '', allowTools = true, signal }, dependencies = {}) => {
     const apiKey = dependencies.apiKey ?? (process.env.GEMINI_API_KEY || process.env.LLM_API_KEY || process.env.GOOGLE_API_KEY || '');
     const model = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
     const policy = dependencies.policy || getAiRequestPolicy();
@@ -60,7 +60,7 @@ export const callCloudLlm = async ({ prompt, messages = [], systemInstruction = 
                 for (const domain of Object.keys(cards)) cards[domain] = cards[domain].slice(0, 4);
                 response = await create({ ...base, previous_interaction_id: response.id, input: results });
             }
-        }, policy.timeoutMs);
+        }, policy.timeoutMs, signal);
     } catch (error) {
         const formatted = formatAiError(error);
         console.error(`[Cloud LLM]: model=${model}, status=${error.status || error.statusCode || 'network'}`);

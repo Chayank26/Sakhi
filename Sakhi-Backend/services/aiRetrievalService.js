@@ -7,6 +7,21 @@ const handlers = { jobs: searchJobsToolHandler, courses: searchCoursesToolHandle
 
 export const retrieveGroundingData = async (input = {}, tools = handlers) => {
     const intent = buildSearchIntent(input);
+    const profile = input.profile || {};
+    for (const domain of intent.domains) {
+        const filters = intent.filters[domain];
+        const topicKey = domain === 'jobs' ? 'keyword' : 'query';
+        // Explicit query filters always take precedence over profile defaults.
+        if (!filters[topicKey] && domain !== 'schemes') {
+            const topic = domain === 'jobs' ? profile.skills?.[0] : (profile.interests?.[0] || profile.skills?.[0]);
+            if (topic) filters[topicKey] = topic;
+            if (domain === 'jobs') {
+                if (filters.location === undefined && profile.city && filters.jobType !== 'Remote' && profile.jobType !== 'Remote') filters.location = profile.city;
+                if (!filters.jobType && profile.jobType) filters.jobType = profile.jobType;
+            }
+            if (domain === 'courses' && !filters.difficulty && profile.level) filters.difficulty = profile.level;
+        }
+    }
     const grounding = { ...intent, jobs: [], courses: [], schemes: [], actions: [], status: {} };
     const results = await Promise.allSettled(intent.domains.map((domain) => tools[domain](intent.filters[domain])));
     results.forEach((result, index) => {

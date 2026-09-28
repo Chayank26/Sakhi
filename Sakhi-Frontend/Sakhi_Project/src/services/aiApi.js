@@ -25,13 +25,14 @@ const getAuthHeaders = async () => {
  * @param {string|Array} input - Single string message OR array of messages [{ role: 'user'|'assistant', content: string }]
  * @returns {Promise<Object>} Backend response JSON
  */
-export const sendChatMessage = async (input, sessionId = null) => {
+export const sendChatMessage = async (input, sessionId = null, { signal, clientTurnId } = {}) => {
     try {
         const headers = await getAuthHeaders();
         const payload = Array.isArray(input) ? { messages: input } : { message: input };
         if (sessionId) payload.sessionId = sessionId;
+        if (clientTurnId) payload.clientTurnId = clientTurnId;
 
-        const response = await aiHttpClient.post(`${API_BASE_URL}/chat`, payload, { headers });
+        const response = await aiHttpClient.post(`${API_BASE_URL}/chat`, payload, { headers, signal });
         return response.data;
     } catch (error) {
         console.error('Error sending chat message to Sakhi AI backend:', error);
@@ -52,10 +53,10 @@ export const getAiSessions = async () => {
     }
 };
 
-export const createAiSession = async () => {
+export const createAiSession = async ({ signal } = {}) => {
     try {
         const headers = await getAuthHeaders();
-        const response = await aiHttpClient.post(`${API_BASE_URL}/sessions`, {}, { headers });
+        const response = await aiHttpClient.post(`${API_BASE_URL}/sessions`, {}, { headers, signal });
         return response.data;
     } catch (error) {
         console.error('Error creating Sakhi AI session:', error);
@@ -76,4 +77,17 @@ export const appendAiMessage = async (sessionId, role, content) => {
         console.error('Error saving Sakhi AI message:', error);
         throw error;
     }
+};
+
+export const getAiProfile = async () => {
+    const headers = await getAuthHeaders();
+    return (await aiHttpClient.get(`${API_BASE_URL}/profile`, { headers })).data;
+};
+export const saveAiProfile = async (profile) => {
+    const headers = await getAuthHeaders();
+    return (await aiHttpClient.put(`${API_BASE_URL}/profile`, profile, { headers })).data;
+};
+export const saveAiFeedback = async (sessionId, messageId, rating) => {
+    const headers = await getAuthHeaders();
+    return (await aiHttpClient.put(`${API_BASE_URL}/sessions/${sessionId}/messages/${messageId}/feedback`, { rating }, { headers })).data;
 };

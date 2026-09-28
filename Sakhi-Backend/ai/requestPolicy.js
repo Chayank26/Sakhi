@@ -12,16 +12,22 @@ export const isTransientError = (error) => [408, 500, 502, 503, 504].includes(er
         error.name === 'TimeoutError' || (error instanceof TypeError && /fetch failed/i.test(error.message))));
 const timeoutError = () => Object.assign(new Error('Sakhi AI took too long to respond. Please try again.'), { statusCode: 504 });
 
-export const withRequestDeadline = async (operation, timeoutMs) => {
+export const withRequestDeadline = async (operation, timeoutMs, parentSignal) => {
     const controller = new AbortController();
     let timer;
     const deadline = Date.now() + timeoutMs;
+    let rejectCancellation;
+    const cancelled = new Promise((_, reject) => { rejectCancellation = reject; });
+    const onAbort = () => { controller.abort(); rejectCancellation(Object.assign(new Error('Request cancelled'), { name: 'AbortError' })); };
+    parentSignal?.addEventListener('abort', onAbort, { once: true });
     const timeout = new Promise((_, reject) => {
         timer = setTimeout(() => { controller.abort(); reject(timeoutError()); }, timeoutMs);
     });
     try {
-        return await Promise.race([operation({ signal: controller.signal, remaining: () => Math.max(0, deadline - Date.now()) }), timeout]);
+        if (parentSignal?.aborted) onAbort();
+        return await Promise.race([cancelled, operation({ signal: controller.signal, remaining: () => Math.max(0, deadline - Date.now()) }), timeout]);
     } finally {
+        parentSignal?.removeEventListener('abort', onAbort);
         clearTimeout(timer);
         controller.abort();
     }

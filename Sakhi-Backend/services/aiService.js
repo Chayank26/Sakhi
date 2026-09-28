@@ -4,7 +4,7 @@ import { SAKHI_SYSTEM_PROMPT } from '../ai/prompts/sakhiSystemPrompt.js';
 import { buildProfileContext } from './aiPersonalizationService.js';
 import { buildGroundingContext, extractGroundingSignals } from './aiGroundingService.js';
 import { buildToolExecutionPlan } from './aiToolOrchestrationService.js';
-import { buildRecommendationSet } from './aiRecommendationService.js';
+import { buildRecommendationSet, rankRecommendations } from './aiRecommendationService.js';
 import { evaluateSafety } from './aiSafetyService.js';
 import { evaluateResponseQuality } from './aiFeedbackEvalService.js';
 import { retrieveGroundingData, describeRetrievalStatus } from './aiRetrievalService.js';
@@ -42,8 +42,9 @@ export const createFallbackAiResponse = (context = '') => ({
  * @param {Array} [params.messages] - Multi-turn message history array
  * @returns {Promise<Object>} Object containing response message
  */
-export const generateAiResponseService = async ({ message, messages, profile = {}, grounding = {} },
+export const generateAiResponseService = async ({ message, messages, profile = {}, grounding = {}, signal },
     { callLlm = callCloudLlm, retrieve = retrieveGroundingData } = {}) => {
+    signal?.throwIfAborted();
     const normalizedMessages = buildSessionContext(messages);
     const promptText = (typeof message === 'string' ? message.trim() : '') ||
         [...normalizedMessages].reverse().find((entry) => entry.role === 'user')?.content || '';
@@ -59,13 +60,15 @@ export const generateAiResponseService = async ({ message, messages, profile = {
     }
 
     const profileContext = buildProfileContext(profile);
-    const retrievedGrounding = await retrieve({ message: promptText, messages: normalizedMessages });
+    const retrievedGrounding = await retrieve({ message: promptText, messages: normalizedMessages, profile });
+    signal?.throwIfAborted();
     const mergedGrounding = {
         ...grounding,
         jobs: [...(grounding.jobs || []), ...retrievedGrounding.jobs],
         courses: [...(grounding.courses || []), ...retrievedGrounding.courses],
         schemes: [...(grounding.schemes || []), ...retrievedGrounding.schemes]
     };
+    for (const domain of ['jobs', 'courses', 'schemes']) mergedGrounding[domain] = rankRecommendations(mergedGrounding[domain], profile, promptText);
     const retrievalNotice = describeRetrievalStatus(retrievedGrounding.status);
     const hasRetrieval = retrievedGrounding.domains?.length > 0;
     const hasRecords = ['jobs', 'courses', 'schemes'].some((domain) => mergedGrounding[domain].length);
@@ -85,6 +88,7 @@ export const generateAiResponseService = async ({ message, messages, profile = {
     const llmResult = await callLlm({
         prompt: `${finalPrompt}\n\nRETRIEVAL_STATUS:\n${JSON.stringify(retrievedGrounding.status || {})}\n${retrievalNotice}`,
         allowTools: !hasRetrieval,
+        signal,
         messages: normalizedMessages.length > 0 ? normalizedMessages : undefined,
         systemInstruction: `${SAKHI_SYSTEM_PROMPT}${profileContext ? `\n\nUSER_PROFILE_CONTEXT:\n${profileContext}` : ''}`
     });
@@ -110,9 +114,9 @@ export const generateAiResponseService = async ({ message, messages, profile = {
     ].filter((action, index, all) => all.findIndex((item) => item.route === action.route) === index).slice(0, 5);
     const generatedCards = !hasRetrieval && typeof llmResult === 'object' && llmResult.cards ? llmResult.cards : {};
     const cards = {
-        jobs: generatedCards.jobs?.length ? generatedCards.jobs : mergedGrounding.jobs.slice(0, 4),
-        courses: generatedCards.courses?.length ? generatedCards.courses : mergedGrounding.courses.slice(0, 4),
-        schemes: generatedCards.schemes?.length ? generatedCards.schemes : mergedGrounding.schemes.slice(0, 4)
+        jobs: generatedCards.jobs?.length ? rankRecommendations(generatedCards.jobs, profile, promptText) : mergedGrounding.jobs.slice(0, 4),
+        courses: generatedCards.courses?.length ? rankRecommendations(generatedCards.courses, profile, promptText) : mergedGrounding.courses.slice(0, 4),
+        schemes: generatedCards.schemes?.length ? rankRecommendations(generatedCards.schemes, profile, promptText) : mergedGrounding.schemes.slice(0, 4)
     };
 
     return {

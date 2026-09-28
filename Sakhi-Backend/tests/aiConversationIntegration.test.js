@@ -32,7 +32,7 @@ test('chat persists both turns, title and rich response and returns the saved se
   const session = new AiChatSession({ userId: 'owner' });
   let saved = false;
   session.save = async () => { saved = true; };
-  const handler = createChatHandler({
+  const handler = createChatHandler({ loadProfile: async () => ({}),
     Session: { findOne: async (query) => { assert.equal(query.userId, 'owner'); return session; } },
     generateResponse: async () => ({ message: 'Here is a job', cards, actions })
   });
@@ -52,7 +52,7 @@ test('saved history is bounded for generation without removing stored turns', as
   const session = new AiChatSession({ userId: 'owner', title: 'Existing title', messages:
     Array.from({ length: 30 }, (_, index) => ({ role: index % 2 ? 'assistant' : 'user', content: `turn ${index}` })) });
   session.save = async () => {};
-  const handler = createChatHandler({ Session: { findOne: async () => session }, generateResponse: async ({ messages }) => {
+  const handler = createChatHandler({ loadProfile: async () => ({}), Session: { findOne: async () => session }, generateResponse: async ({ messages }) => {
     assert.equal(messages.length, 12);
     assert.equal(messages.at(-1).content, 'Next question');
     assert.equal(messages.some((entry) => entry.content === 'turn 0'), false);
@@ -64,7 +64,7 @@ test('saved history is bounded for generation without removing stored turns', as
 });
 
 test('missing ownership and invalid sessions cannot generate or persist a response', async () => {
-  const handler = createChatHandler({ Session: { findOne: async () => null }, generateResponse: async () => assert.fail('must not generate') });
+  const handler = createChatHandler({ loadProfile: async () => ({}), Session: { findOne: async () => null }, generateResponse: async () => assert.fail('must not generate') });
   for (const [user, sessionId, status] of [[undefined, '507f1f77bcf86cd799439011', 401], [{ uid: 'other' }, '507f1f77bcf86cd799439011', 404], [{ uid: 'owner' }, 'local-123', 400]]) {
     const res = response();
     await handler({ user, body: { sessionId, message: 'Hello' } }, res);
@@ -75,7 +75,7 @@ test('missing ownership and invalid sessions cannot generate or persist a respon
 test('generation failure leaves persisted conversation unchanged', async () => {
   const session = new AiChatSession({ userId: 'owner' });
   session.save = async () => assert.fail('failed generation must not save a partial turn');
-  const handler = createChatHandler({ Session: { findOne: async () => session }, generateResponse: async () => {
+  const handler = createChatHandler({ loadProfile: async () => ({}), Session: { findOne: async () => session }, generateResponse: async () => {
     throw Object.assign(new Error('Provider unavailable'), { statusCode: 503 });
   } });
   const res = response();

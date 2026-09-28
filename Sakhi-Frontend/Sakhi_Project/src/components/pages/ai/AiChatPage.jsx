@@ -1,3 +1,4 @@
+import { buildChatTranscript } from './chatExport';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -71,11 +72,15 @@ export function AiChatPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { messages: conversationMessages, sessions, activeSessionId, ready, busy, isTyping,
-    send, newChat, selectSession } = useAiConversations();
+    send, newChat, selectSession, cancel, rateMessage, reloadSessions, loadError, notice, accountKey } = useAiConversations();
   const messages = conversationMessages.length ? conversationMessages : [INITIAL_WELCOME_MESSAGE];
-  const [inputValue, setInputValue] = useState('');
+  const [inputDraft, setInputDraft] = useState({ accountKey: null, text: '' });
+  const inputValue = inputDraft.accountKey === accountKey ? inputDraft.text : '';
+  const setInputValue = useCallback((text) => setInputDraft({ accountKey, text }), [accountKey]);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
-  const [messageFeedback, setMessageFeedback] = useState({});
+  const [utilityNotice, setUtilityNotice] = useState('');
+  const copyTimer = useRef(null);
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const initialPromptProcessed = useRef(false);
@@ -90,7 +95,7 @@ export function AiChatPage() {
     void send(text);
     if (!textToSend) setInputValue('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
-  }, [inputValue, busy, ready, send]);
+  }, [inputValue, busy, ready, send, setInputValue]);
 
   useEffect(() => {
     if (!ready || busy || initialPromptProcessed.current) return;
@@ -119,31 +124,21 @@ export function AiChatPage() {
     e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
   };
 
-  // Copy message text to clipboard
-  const handleCopyMessage = (msgId, text) => {
-    navigator.clipboard.writeText(text);
-    setCopiedMessageId(msgId);
-    setTimeout(() => {
-      setCopiedMessageId(null);
-    }, 2000);
-  };
-
-  // Set thumbs up / thumbs down feedback
-  const handleFeedback = (msgId, type) => {
-    setMessageFeedback((prev) => ({
-      ...prev,
-      [msgId]: prev[msgId] === type ? null : type
-    }));
+  const handleCopyMessage = async (msgId, text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageId(msgId);
+      setUtilityNotice('Message copied.');
+      clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopiedMessageId(null), 2000);
+    } catch {
+      setUtilityNotice('Could not copy. Select the message text to copy it manually.');
+    }
   };
 
   // Export conversation as text file
   const handleDownloadChat = () => {
-    const formattedTranscript = messages
-      .map((m) => `[${m.timestamp}] ${m.sender === 'user' ? 'YOU' : 'SAKHI AI'}:\n${m.text}\n`)
-      .join('\n----------------------------------------\n\n');
-
-    const fileHeader = `========================================\n SAKHI AI CONVERSATION TRANSCRIPT\n Exported: ${new Date().toLocaleString()}\n========================================\n\n`;
-    const fullContent = fileHeader + formattedTranscript;
+    const fullContent = buildChatTranscript(conversationMessages);
 
     const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -153,7 +148,7 @@ export function AiChatPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (
@@ -171,6 +166,7 @@ export function AiChatPage() {
           <button
             type="button"
             onClick={handleDownloadChat}
+            disabled={!conversationMessages.some((message) => !message.failed && !message.isError)}
             className="btn-top-action"
             title="Download conversation transcript"
           >
@@ -187,6 +183,12 @@ export function AiChatPage() {
         </div>
       </div>
 
+      <div className="ai-chat-notices" role="status" aria-live="polite">
+        {!ready && <p>Loading your conversations…</p>}
+        {loadError && <p>{loadError} <button type="button" disabled={busy} onClick={reloadSessions}>Retry loading</button></p>}
+        {(notice || utilityNotice) && <p>{notice || utilityNotice}</p>}
+        {busy && !isTyping && <p>A response is still running in another conversation. <button type="button" onClick={cancel}>Stop response</button></p>}
+      </div>
       {/* Main Chat Body */}
       <main className="ai-chat-body ai-chat-layout">
         <ChatSessionSidebar
@@ -234,6 +236,10 @@ export function AiChatPage() {
                   </div>
                 )}
 
+                {msg.retry && msg.id === messages.at(-1)?.id && (
+                  <button type="button" className="btn-top-action" disabled={busy || !ready}
+                    onClick={() => send(msg.retry.text, { retry: msg.retry })}>Retry message</button>
+                )}
                 {/* Bottom Footer Meta & Controls */}
                 <div className="bubble-footer-row">
                   <span className="bubble-timestamp">{msg.timestamp}</span>
@@ -261,18 +267,22 @@ export function AiChatPage() {
 
                       <button
                         type="button"
-                        className={`btn-bubble-tool ${messageFeedback[msg.id] === 'up' ? 'active-like' : ''}`}
-                        onClick={() => handleFeedback(msg.id, 'up')}
-                        title="Good response"
+                        className={`btn-bubble-tool ${msg.feedback === 'up' ? 'active-like' : ''}`}
+                        onClick={() => rateMessage(msg, 'up')}
+                        disabled={!msg.serverId || msg.feedbackPending}
+                        aria-pressed={msg.feedback === 'up'}
+                        title={msg.serverId ? 'Good response' : 'Feedback is available for saved responses'}
                       >
                         <FiThumbsUp className="tool-icon" />
                       </button>
 
                       <button
                         type="button"
-                        className={`btn-bubble-tool ${messageFeedback[msg.id] === 'down' ? 'active-dislike' : ''}`}
-                        onClick={() => handleFeedback(msg.id, 'down')}
-                        title="Poor response"
+                        className={`btn-bubble-tool ${msg.feedback === 'down' ? 'active-dislike' : ''}`}
+                        onClick={() => rateMessage(msg, 'down')}
+                        disabled={!msg.serverId || msg.feedbackPending}
+                        aria-pressed={msg.feedback === 'down'}
+                        title={msg.serverId ? 'Poor response' : 'Feedback is available for saved responses'}
                       >
                         <FiThumbsDown className="tool-icon" />
                       </button>
@@ -345,7 +355,10 @@ export function AiChatPage() {
             onKeyDown={handleKeyDown}
             placeholder="Ask Sakhi anything about jobs, courses, government schemes, or safety..."
             className="ai-chat-textarea"
+            disabled={!ready}
+            aria-label="Message Sakhi AI"
           />
+          {busy && <button type="button" className="btn-top-action" onClick={cancel}>Stop</button>}
           <button
             type="button"
             className="btn-send-message"
