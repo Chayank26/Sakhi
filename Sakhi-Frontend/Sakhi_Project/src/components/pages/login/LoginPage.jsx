@@ -14,12 +14,14 @@ import './LoginPage.css'
 export function LoginPage() {
     const navigate = useNavigate()
     const location = useLocation()
+    const returnTo = typeof location.state?.returnTo === 'string' && location.state.returnTo.startsWith('/') && !location.state.returnTo.startsWith('//') ? location.state.returnTo : '/home'
 
     // Determine initial mode from URL search param e.g. /login?mode=signup
     const searchParams = new URLSearchParams(location.search)
     const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'login'
 
-    const [mode, setMode] = useState(initialMode)
+    const [modeOverride, setMode] = useState(null)
+    const mode = modeOverride || initialMode
     const [name, setName] = useState('')
     const [age, setAge] = useState('')
     const [phone, setPhone] = useState('')
@@ -31,22 +33,15 @@ export function LoginPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     useEffect(() => {
-        const queryMode = new URLSearchParams(location.search).get('mode')
-        if (queryMode === 'signup' || queryMode === 'login') {
-            setMode(queryMode)
-        }
-    }, [location.search])
-
-    useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser)
             if (currentUser) {
-                navigate('/home', { replace: true })
+                navigate(returnTo, { replace: true })
             }
         })
 
         return () => unsubscribe()
-    }, [navigate])
+    }, [navigate, returnTo])
 
     const handleAuthSubmit = async (e) => {
         e.preventDefault()
@@ -82,7 +77,7 @@ export function LoginPage() {
                     type: 'success',
                     text: `Account created! Welcome to Sakhi, ${name.trim()}!`,
                 })
-                navigate('/home', { replace: true })
+                navigate(returnTo, { replace: true })
             } else {
                 const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password)
                 const loggedInUser = userCredential.user
@@ -90,7 +85,7 @@ export function LoginPage() {
                     type: 'success',
                     text: `Welcome back, ${loggedInUser.displayName || loggedInUser.email}!`,
                 })
-                navigate('/home', { replace: true })
+                navigate(returnTo, { replace: true })
             }
         } catch (error) {
             console.error('Authentication error:', error)

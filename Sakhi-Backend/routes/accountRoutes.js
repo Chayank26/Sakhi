@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { verifyToken } from '../middleware/auth.js';
+import { requireDatabase } from '../config/db.js';
+import { accountController as controller } from '../controllers/accountController.js';
+const router = Router();
+router.use(verifyToken, requireDatabase);
+router.get('/', controller.get);
+router.put('/saved/:kind/:id', controller.save);
+router.put('/profile', controller.profile);
+router.get('/support', controller.tickets);
+router.post('/support', controller.support);
+export default router;

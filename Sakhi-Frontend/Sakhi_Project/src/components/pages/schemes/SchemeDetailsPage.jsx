@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { safeHttpUrl } from '../../../utils/safeUrl';
+import { useAccount } from '../../account/accountContext';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchSchemeById } from '../../../services/schemeApi';
-import { isSchemeSaved, toggleSavedScheme } from '../../../utils/schemeStorage';
 import { HomeHeader } from '../home/HomeHeader';
 import {
   FiArrowLeft,
@@ -22,24 +23,19 @@ import {
 import './SchemeDetailsPage.css';
 
 export function SchemeDetailsPage() {
+    const { id } = useParams();
+    return <RecordDetails key={id} />;
+}
+
+function RecordDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [scheme, setScheme] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isBookmarked, setIsBookmarked] = useState(false);
-
-  useEffect(() => {
-    if (id) {
-      setIsBookmarked(isSchemeSaved(id));
-    }
-  }, [id]);
-
-  const handleBookmarkToggle = () => {
-    if (!id) return;
-    const { isSaved } = toggleSavedScheme(id);
-    setIsBookmarked(isSaved);
-  };
+  const { data: activity, toggleSaved } = useAccount();
+  const isBookmarked = activity.saved.schemes.some(s => s._id === id);
+  const handleBookmarkToggle = () => toggleSaved('schemes', id);
 
   useEffect(() => {
     const loadSchemeDetails = async () => {
@@ -66,7 +62,7 @@ export function SchemeDetailsPage() {
   }, [id]);
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Recently verified';
+    if (!dateString) return 'Verification date unavailable';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       month: 'short',
@@ -142,7 +138,7 @@ export function SchemeDetailsPage() {
 
                 <div className="details-meta-row">
                   <span className="verification-status">
-                    <FiShield className="check-icon" /> Official Verified Information
+                    <FiShield className="check-icon" /> Scheme information
                   </span>
                   {scheme.lastVerifiedAt && (
                     <span className="verification-date">
@@ -156,12 +152,12 @@ export function SchemeDetailsPage() {
               <div className="apply-official-banner">
                 <div className="apply-banner-text">
                   <h3>Ready to apply for this scheme?</h3>
-                  <p>Applications are submitted directly on the official government portal.</p>
+                  <p>Check current eligibility, deadlines, and documents on the issuing authority’s portal before applying.</p>
                 </div>
                 <div className="apply-banner-actions">
-                  {scheme.applicationUrl ? (
+                  {safeHttpUrl(scheme.applicationUrl) ? (
                     <a
-                      href={scheme.applicationUrl}
+                      href={safeHttpUrl(scheme.applicationUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn-apply-official"
@@ -169,9 +165,9 @@ export function SchemeDetailsPage() {
                       <span>Apply on Official Website</span>
                       <FiExternalLink className="btn-icon" />
                     </a>
-                  ) : scheme.officialWebsite ? (
+                  ) : safeHttpUrl(scheme.officialWebsite) ? (
                     <a
-                      href={scheme.officialWebsite}
+                      href={safeHttpUrl(scheme.officialWebsite)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn-apply-official"
@@ -179,7 +175,7 @@ export function SchemeDetailsPage() {
                       <span>Visit Official Portal</span>
                       <FiExternalLink className="btn-icon" />
                     </a>
-                  ) : null}
+                  ) : <p>No application link has been provided. Check with the issuing authority.</p>}
 
                   <button
                     type="button"
@@ -277,7 +273,7 @@ export function SchemeDetailsPage() {
 
                 {scheme.applicationUrl && (
                   <a
-                    href={scheme.applicationUrl}
+                    href={safeHttpUrl(scheme.applicationUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="sidebar-link-btn primary"
@@ -289,7 +285,7 @@ export function SchemeDetailsPage() {
 
                 {scheme.officialWebsite && (
                   <a
-                    href={scheme.officialWebsite}
+                    href={safeHttpUrl(scheme.officialWebsite)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="sidebar-link-btn secondary"

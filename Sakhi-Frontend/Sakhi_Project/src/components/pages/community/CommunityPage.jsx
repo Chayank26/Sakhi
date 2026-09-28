@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useAccount } from '../../account/accountContext';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
@@ -6,15 +7,17 @@ import { HomeHeader } from '../home/HomeHeader';
 import { SortControls } from '../../community/SortControls';
 import { PostFeed } from '../../community/PostFeed';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
-import { INITIAL_DUMMY_POSTS } from '../../community/dummyData';
 import { fetchPosts, likePost, unlikePost, bookmarkPost, unbookmarkPost } from '../../../services/communityService';
 import { FiPlus, FiZap, FiBookmark } from 'react-icons/fi';
 import './CommunityPage.css';
 
 export function CommunityPage() {
   const navigate = useNavigate();
+  const { requireLogin } = useAccount();
+  const pending = useRef(new Set());
+  const [loadError, setLoadError] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
-  const [posts, setPosts] = useState(INITIAL_DUMMY_POSTS);
+  const [posts, setPosts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('latest');
@@ -28,91 +31,61 @@ export function CommunityPage() {
     return () => unsubscribe();
   }, []);
 
-  const loadPostsFromBackend = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchPosts({
-        q: searchQuery,
-        category: selectedCategory,
-        sortBy
-      });
-      if (data && data.success && Array.isArray(data.posts) && data.posts.length > 0) {
-        setPosts(data.posts);
-      }
-    } catch (err) {
-      console.warn('Using local dummy posts (backend API unavailable or starting up):', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
+    let active = true;
+    const loadPostsFromBackend = async () => {
+      setLoading(true);
+      setLoadError('');
+      try {
+        const data = await fetchPosts({
+          q: searchQuery,
+          category: selectedCategory,
+          sortBy
+        });
+        if (!active) return;
+        if (data && data.success && Array.isArray(data.posts)) {
+          setPosts(data.posts);
+        }
+      } catch (err) {
+        if (!active) return;
+        setPosts([]);
+        setLoadError(err.response?.data?.message || 'Could not load community posts.');
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
     loadPostsFromBackend();
-  }, [searchQuery, selectedCategory, sortBy]);
+    return () => { active = false; };
+  }, [searchQuery, selectedCategory, sortBy, currentUser?.uid, retry]);
 
   const showToast = (msg) => {
     setNotification(msg);
     setTimeout(() => setNotification(null), 3000);
   };
 
-  // Upvote / Like Handler
-  const handleLikeToggle = async (postId) => {
-    const targetPost = posts.find((p) => p.id === postId);
-    if (!targetPost) return;
-
-    const nextLiked = !targetPost.isLiked;
-
-    // Optimistic UI update
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === postId) {
-          const likesCount = nextLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1);
-          return { ...post, isLiked: nextLiked, likesCount };
-        }
-        return post;
-      })
-    );
-
+  const mutatePost = async (postId, kind) => {
+    if (!requireLogin()) return;
+    const key = `${postId}:${kind}`;
+    if (pending.current.has(key)) return;
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    pending.current.add(key);
     try {
-      if (nextLiked) {
-        await likePost(postId);
+      if (kind === 'like') {
+        await (post.isLiked ? unlikePost(postId) : likePost(postId));
+        setPosts(items => items.map(item => item.id === postId ? { ...item, isLiked: !post.isLiked, likesCount: Math.max(0, item.likesCount + (post.isLiked ? -1 : 1)) } : item));
       } else {
-        await unlikePost(postId);
+        await (post.isBookmarked ? unbookmarkPost(postId) : bookmarkPost(postId));
+        setPosts(items => items.map(item => item.id === postId ? { ...item, isBookmarked: !post.isBookmarked } : item));
+        showToast(post.isBookmarked ? 'Bookmark removed.' : 'Post saved.');
       }
-    } catch (err) {
-      console.warn('Backend upvote sync warning:', err.message);
-    }
+    } catch (err) { showToast(err.response?.data?.message || 'Change was not saved. Please retry.'); }
+    finally { pending.current.delete(key); }
   };
-
-  // Bookmark / Save Handler
-  const handleBookmarkToggle = async (postId) => {
-    const targetPost = posts.find((p) => p.id === postId);
-    if (!targetPost) return;
-
-    const nextBookmarked = !targetPost.isBookmarked;
-
-    // Optimistic UI update
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === postId) {
-          return { ...post, isBookmarked: nextBookmarked };
-        }
-        return post;
-      })
-    );
-
-    showToast(nextBookmarked ? 'Post saved to your bookmarks!' : 'Post removed from saved bookmarks.');
-
-    try {
-      if (nextBookmarked) {
-        await bookmarkPost(postId);
-      } else {
-        await unbookmarkPost(postId);
-      }
-    } catch (err) {
-      console.warn('Backend bookmark sync warning:', err.message);
-    }
-  };
+  const handleLikeToggle = id => mutatePost(id, 'like');
+  const handleBookmarkToggle = id => mutatePost(id, 'bookmark');
 
   const handleCommentClick = (postId) => {
     navigate(`/community/post/${postId}`);
@@ -184,6 +157,9 @@ export function CommunityPage() {
 
       {/* Header */}
       <HomeHeader pageTitle="Community" />
+      <label className="activity-page">Search discussions<input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} /></label>
+      {loading && <p role="status">Loading discussions…</p>}
+      {loadError && <p role="alert">{loadError} <button onClick={() => setRetry(r => r + 1)}>Retry</button></p>}
 
       {/* Hero Banner */}
       <div className="community-hero-banner">

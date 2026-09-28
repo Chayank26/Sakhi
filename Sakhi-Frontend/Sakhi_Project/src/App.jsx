@@ -1,4 +1,8 @@
 import './App.css'
+import { AccountProvider, RequireAccount, AccountNotice } from './components/account/AccountProvider'
+import { JobApplicationsPage } from './components/pages/jobs/JobApplicationsPage'
+import { JobActivityPage } from './components/pages/jobs/JobActivityPage'
+import { LearnCoursePage } from './components/pages/academy/LearnCoursePage'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { LandingPage } from './components/pages/landing/LandingPage'
 import { LoginPage } from './components/pages/login/LoginPage'
@@ -25,33 +29,42 @@ import { SupportPage } from './components/pages/support/SupportPage'
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/support" element={<SupportPage />} />
-        <Route path="/ai" element={<AiChatPage />} />
-        <Route path="/home/ai" element={<AiChatPage />} />
-        <Route path="/jobs" element={<JobsPage />} />
-        <Route path="/jobs/create" element={<CreateJobPage />} />
-        <Route path="/jobs/:jobId" element={<JobDetailsPage />} />
-        <Route path="/academy" element={<AcademyPage />} />
-        <Route path="/academy/create" element={<CreateCoursePage />} />
-        <Route path="/academy/my-learning" element={<MyLearningPage />} />
-        <Route path="/academy/course/:courseId" element={<CourseDetailsPage />} />
-        <Route path="/community" element={<CommunityPage />} />
-        <Route path="/community/create" element={<CreatePostPage />} />
-        <Route path="/community/saved" element={<SavedPostsPage />} />
-        <Route path="/community/post/:postId" element={<PostDetailsPage />} />
-        <Route path="/schemes" element={<SchemesPage />} />
-        <Route path="/schemes/:id" element={<SchemeDetailsPage />} />
-        <Route path="/saved-schemes" element={<SavedSchemesPage />} />
-        <Route path="/home/schemes" element={<SchemesPage />} />
-        <Route path="/home/community" element={<CommunityPage />} />
-        <Route path="/home/:section" element={<HomePage />} />
-      </Routes>
+      <AccountProvider>
+        <AccountNotice />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/support" element={<SupportPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/ai" element={<AiChatPage />} />
+          <Route path="/home/ai" element={<AiChatPage />} />
+          <Route path="/jobs" element={<JobsPage />} />
+          <Route path="/jobs/:jobId" element={<JobDetailsPage />} />
+          <Route path="/academy" element={<AcademyPage />} />
+          <Route path="/academy/course/:courseId" element={<CourseDetailsPage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/community/post/:postId" element={<PostDetailsPage />} />
+          <Route path="/schemes" element={<SchemesPage />} />
+          <Route path="/schemes/:id" element={<SchemeDetailsPage />} />
+          <Route path="/home/schemes" element={<SchemesPage />} />
+          <Route path="/home/community" element={<CommunityPage />} />
+          <Route path="/home/:section" element={<HomePage />} />
+          <Route element={<RequireAccount />}>
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/jobs/create" element={<CreateJobPage />} />
+            <Route path="/academy/create" element={<CreateCoursePage />} />
+            <Route path="/academy/my-learning" element={<MyLearningPage />} />
+            <Route path="/community/create" element={<CreatePostPage />} />
+            <Route path="/community/saved" element={<SavedPostsPage />} />
+            <Route path="/saved-schemes" element={<SavedSchemesPage />} />
+            <Route path="/jobs/:jobId/applications" element={<JobApplicationsPage />} />
+            <Route path="/jobs/my-activity" element={<JobActivityPage />} />
+            <Route path="/academy/course/:courseId/learn" element={<LearnCoursePage />} />
+          </Route>
+          <Route path="*" element={<main><h1>Page not found</h1><a href="/home">Back to Sakhi</a></main>} />
+        </Routes>
+      </AccountProvider>
     </BrowserRouter>
   )
 }

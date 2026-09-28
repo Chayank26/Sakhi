@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 
 const enrollmentSchema = new mongoose.Schema(
     {
+        enrollmentKey: { type: String, unique: true, sparse: true },
+        completedLessons: { type: [String], default: [] },
         userId: {
             type: String,
             default: 'guest',

@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { connectDB, healthCheck } from './config/db.js';
+import accountRoutes from './routes/accountRoutes.js';
 import jobRoutes from './routes/jobRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
@@ -47,8 +48,11 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static resume files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Resumes are downloaded through the authenticated recruiter endpoint.
+app.use('/uploads/resumes', (req, res) => res.status(403).json({ success: false, message: 'Sign in to review this application.' }));
+// Serve public community uploads
+app.use('/uploads/community', express.static(path.join(__dirname, 'uploads', 'community')));
+app.use('/uploads', (req, res) => res.status(404).json({ success: false, message: 'Upload not found.' }));
 
 // Root welcome endpoint
 app.get(['/', '/index.html'], (req, res) => {
@@ -65,6 +69,7 @@ app.get(['/', '/index.html'], (req, res) => {
 app.get('/api/health', healthCheck);
 
 // API Routes
+app.use('/api/me', accountRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/community', communityRoutes);

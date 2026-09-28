@@ -1,170 +1,58 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { FiHelpCircle, FiPhoneCall, FiMessageSquare, FiMail, FiSend, FiChevronDown, FiChevronUp, FiShield, FiArrowLeft } from 'react-icons/fi'
-import { HomeHeader } from '../home/HomeHeader'
-import './SupportPage.css'
-
-const HELPLINES = [
-    { name: 'Women Helpline (National)', number: '181', desc: '24/7 Toll-Free Emergency Helpline for women in distress' },
-    { name: 'Cyber Crime Helpline', number: '1930', desc: 'Online harassment, financial fraud, and cyber security support' },
-    { name: 'National Commission for Women', number: '7827170170', desc: 'Legal aid, complaints, and crisis counseling' },
-]
-
-const FAQS = [
-    {
-        q: 'How does Sakhi AI generate personalized recommendations?',
-        a: 'Sakhi AI analyzes your skill profile, career interests, and location preferences to match you with verified job postings, recommended skill courses, and eligible government welfare schemes.'
-    },
-    {
-        q: 'Are all job postings and government schemes verified on Sakhi?',
-        a: 'Yes! Every job opening, internship, and government welfare initiative listed on Sakhi is manually reviewed and cross-referenced with official portals.'
-    },
-    {
-        q: 'Is my personal data safe on Sakhi?',
-        a: 'We strictly protect your privacy. Your personal information, contact details, and career data are encrypted and never shared with unauthorized third parties.'
-    },
-    {
-        q: 'How can I apply for financial grants or schemes?',
-        a: 'Navigate to the Government Schemes page, select your state/category, click on any scheme to view step-by-step eligibility criteria, and click "Apply via Official Portal".'
-    }
-]
-
+import { useAccount } from '../../account/accountContext';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../../../services/api';
+import { HomeHeader } from '../home/HomeHeader';
 export function SupportPage() {
-    const navigate = useNavigate()
-    const [openFaq, setOpenFaq] = useState(null)
-    const [contactForm, setContactForm] = useState({ subject: '', message: '' })
-    const [submitted, setSubmitted] = useState(false)
+    const { user } = useAccount();
+    return <SupportForm key={user?.uid || 'guest'} />;
+}
 
-    const toggleFaq = (index) => {
-        setOpenFaq(openFaq === index ? null : index)
-    }
-
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        if (contactForm.message.trim()) {
-            setSubmitted(true)
-            setContactForm({ subject: '', message: '' })
-            setTimeout(() => setSubmitted(false), 4000)
-        }
-    }
-
-    return (
-        <div className="support-page-shell">
-            <HomeHeader pageTitle="Help & Support" />
-
-            {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
-            <div className="details-top-nav-bar">
-                <button onClick={() => navigate('/home')} className="btn-back-link-sleek">
-                    <FiArrowLeft /> Back to Dashboard
-                </button>
-            </div>
-
-            <main className="support-container">
-                {/* Emergency Helplines Card */}
-                <section className="support-card emergency-card">
-                    <div className="card-header">
-                        <span className="card-icon alert-icon"><FiShield /></span>
-                        <div>
-                            <h2>Emergency & Crisis Helplines</h2>
-                            <p>Immediate 24/7 assistance for women safety, legal aid, and cyber protection.</p>
-                        </div>
-                    </div>
-
-                    <div className="helpline-grid">
-                        {HELPLINES.map((h) => (
-                            <div key={h.name} className="helpline-item">
-                                <div className="helpline-top">
-                                    <span className="helpline-name">{h.name}</span>
-                                    <a href={`tel:${h.number}`} className="helpline-call-btn">
-                                        <FiPhoneCall /> Call {h.number}
-                                    </a>
-                                </div>
-                                <p className="helpline-desc">{h.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Instant Sakhi AI Help Banner */}
-                <section className="support-card ai-help-banner">
-                    <div className="ai-banner-content">
-                        <span className="ai-banner-icon"><FiMessageSquare /></span>
-                        <div>
-                            <h3>Need Instant Answers?</h3>
-                            <p>Ask Sakhi AI for real-time guidance on scheme eligibility, course advice, or technical help.</p>
-                        </div>
-                    </div>
-                    <Link to="/ai?prompt=I%20need%20help%20understanding%20how%20to%20use%20Sakhi" className="btn-ask-ai">
-                        Ask Sakhi AI Now
-                    </Link>
-                </section>
-
-                {/* Frequently Asked Questions */}
-                <section className="support-card">
-                    <div className="card-header">
-                        <span className="card-icon"><FiHelpCircle /></span>
-                        <div>
-                            <h2>Frequently Asked Questions</h2>
-                            <p>Quick answers to common questions about using Sakhi.</p>
-                        </div>
-                    </div>
-
-                    <div className="faq-accordion">
-                        {FAQS.map((faq, index) => (
-                            <div key={faq.q} className={`faq-item ${openFaq === index ? 'active' : ''}`}>
-                                <button className="faq-question" onClick={() => toggleFaq(index)}>
-                                    <span>{faq.q}</span>
-                                    {openFaq === index ? <FiChevronUp /> : <FiChevronDown />}
-                                </button>
-                                {openFaq === index && <p className="faq-answer">{faq.a}</p>}
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Contact Support Form */}
-                <section className="support-card">
-                    <div className="card-header">
-                        <span className="card-icon"><FiMail /></span>
-                        <div>
-                            <h2>Send Us a Message</h2>
-                            <p>Our support team responds within 24 hours.</p>
-                        </div>
-                    </div>
-
-                    {submitted && (
-                        <div className="support-toast">
-                            Thank you! Your message has been sent to our Sakhi support team.
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="contact-form">
-                        <div className="form-group">
-                            <label>Subject</label>
-                            <input 
-                                type="text" 
-                                placeholder="e.g. Question about course certification" 
-                                value={contactForm.subject}
-                                onChange={(e) => setContactForm({...contactForm, subject: e.target.value})}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Message</label>
-                            <textarea 
-                                rows={4}
-                                placeholder="Describe your issue or feedback in detail..."
-                                value={contactForm.message}
-                                onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="btn-send-support">
-                            <FiSend /> Send Message
-                        </button>
-                    </form>
-                </section>
-            </main>
-        </div>
-    )
+function SupportForm() {
+    const { user, requireLogin } = useAccount();
+    const [tickets, setTickets] = useState([]);
+    const [subject, setSubject] = useState('');
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+    const [receipt, setReceipt] = useState('');
+    const [busy, setBusy] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [retry, setRetry] = useState(0);
+    useEffect(() => {
+        if (!user) return;
+        let active = true;
+        api.get('/me/support').then(({ data }) => { if (active) { setTickets(data.tickets); setError(''); } })
+            .catch(() => { if (active) setError('Could not load your support requests.'); })
+            .finally(() => { if (active) setLoading(false); });
+        return () => { active = false; };
+    }, [retry, user]);
+    const submit = async event => {
+        event.preventDefault();
+        if (!requireLogin()) return;
+        setBusy(true); setError(''); setReceipt('');
+        try {
+            const { data: { ticket } } = await api.post('/me/support', { subject, message });
+            setTickets(previous => [ticket, ...previous]); setSubject(''); setMessage(''); setReceipt(`Request saved. Reference: ${ticket._id}`);
+        } catch (err) { setError(err.response?.data?.message || 'Your request could not be saved. Please retry.'); }
+        finally { setBusy(false); }
+    };
+    return <><HomeHeader pageTitle="Help & support" /><main className="activity-page"><Link to="/home">Dashboard</Link><h1>Help & support</h1>
+        <section><h2>Urgent help in India</h2><p>Sakhi support is not an emergency service.</p>
+            <p>Emergency assistance: <a href="tel:112">112</a> · <a href="https://112.gov.in/" target="_blank" rel="noopener noreferrer">Official emergency response portal</a></p>
+            <p>Financial cyber fraud: <a href="tel:1930">1930</a> · <a href="https://cybercrime.gov.in/" target="_blank" rel="noopener noreferrer">National Cyber Crime Reporting Portal</a></p>
+        </section>
+        <section><h2>Using Sakhi</h2><p>Save opportunities to your account and track job applications in <Link to="/jobs/my-activity">My job activity</Link>. Course progress is in <Link to="/academy/my-learning">My learning</Link>.</p>
+            <p>Scheme listings provide source links and criteria. The issuing authority determines eligibility; verify current requirements on its portal.</p>
+        </section>
+        <section><h2>Contact support</h2><p>Requests are stored for review. Response times are not guaranteed. Do not include passwords or sensitive documents.</p>
+            {error && <p role="alert">{error} <button onClick={() => setRetry(r => r + 1)}>Reload requests</button></p>}
+            {receipt && <p role="status">{receipt}</p>}
+            <form onSubmit={submit}><label>Subject<input value={subject} onChange={e => setSubject(e.target.value)} required maxLength={160} /></label>
+                <label>Message<textarea value={message} onChange={e => setMessage(e.target.value)} required maxLength={5000} rows={6} /></label>
+                <button disabled={busy || !subject.trim() || !message.trim()}>{busy ? 'Submitting…' : 'Submit request'}</button>
+            </form>
+        </section>
+        <h2>Your latest requests</h2>{!user ? <p>Sign in to view your requests.</p> : loading ? <p role="status">Loading requests…</p> : !tickets.length && <p>No requests yet.</p>}
+        {user && tickets.map(ticket => <article key={ticket._id}><h3>{ticket.subject}</h3><p>{ticket.message}</p><p>{ticket.status} · {new Date(ticket.createdAt).toLocaleDateString()}</p><small>Reference: {ticket._id}</small></article>)}
+    </main></>;
 }

@@ -1,12 +1,14 @@
+import { useAccount } from '../../account/accountContext';
 import { useState } from 'react';
 import { FiX, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { enrollInCourse } from '../../../services/courseApi';
 import './EnrollCourseModal.css';
 
 export function EnrollCourseModal({ course, onClose, onSuccess }) {
-    const [studentName, setStudentName] = useState('');
-    const [studentEmail, setStudentEmail] = useState('');
-    const [phone, setPhone] = useState('');
+    const { user, data } = useAccount();
+    const [studentName, setStudentName] = useState(data.profile.name || user?.displayName || '');
+    const studentEmail = user?.email || '';
+    const [phone, setPhone] = useState(data.profile.phone || '');
 
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -33,14 +35,7 @@ export function EnrollCourseModal({ course, onClose, onSuccess }) {
             const result = await enrollInCourse(course._id, payload);
 
             if (result && result.success) {
-                // Save enrolled course ID in localStorage
-                const enrolledList = JSON.parse(localStorage.getItem('sakhi_enrolled_courses') || '[]');
-                if (!enrolledList.includes(course._id)) {
-                    enrolledList.push(course._id);
-                    localStorage.setItem('sakhi_enrolled_courses', JSON.stringify(enrolledList));
-                }
-
-                setSuccessMessage(`Welcome aboard! You are enrolled in "${course.title}". Check your inbox for confirmation.`);
+                setSuccessMessage(result.message);
                 if (onSuccess) onSuccess(course._id);
                 setTimeout(() => {
                     onClose();
@@ -104,7 +99,7 @@ export function EnrollCourseModal({ course, onClose, onSuccess }) {
                                         type="email"
                                         placeholder="you@example.com"
                                         value={studentEmail}
-                                        onChange={(e) => setStudentEmail(e.target.value)}
+                                        readOnly
                                         required
                                     />
                                 </div>

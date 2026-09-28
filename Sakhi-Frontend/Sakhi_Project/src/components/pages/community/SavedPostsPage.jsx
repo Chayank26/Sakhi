@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 import { HomeHeader } from '../home/HomeHeader';
 import { PostCard } from '../../community/PostCard';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
-import { fetchSavedPosts, bookmarkPost, unbookmarkPost, likePost, unlikePost } from '../../../services/communityService';
+import { fetchSavedPosts, unbookmarkPost, likePost, unlikePost } from '../../../services/communityService';
 import { FiBookmark, FiArrowLeft, FiLoader } from 'react-icons/fi';
 import './SavedPostsPage.css';
 
 export function SavedPostsPage() {
   const navigate = useNavigate();
+  const pending = useRef(new Set());
+  const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
   const [savedPosts, setSavedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,58 +31,40 @@ export function SavedPostsPage() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const loadSavedPosts = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchSavedPosts();
-      if (data && data.success && Array.isArray(data.posts)) {
-        setSavedPosts(data.posts);
-      }
-    } catch (err) {
-      console.warn('Backend saved posts fetch warning:', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadSavedPosts();
-  }, []);
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchSavedPosts();
+        if (active) { setSavedPosts(data.posts || []); setError(''); }
+      } catch (err) {
+        if (active) setError(err.response?.data?.message || 'Could not load saved discussions.');
+      } finally { if (active) setLoading(false); }
+    };
+    load();
+    return () => { active = false; };
+  }, [retry]);
 
-  const handleLikeToggle = async (targetId) => {
-    const targetPost = savedPosts.find((p) => p.id === targetId);
-    if (!targetPost) return;
-
-    const nextLiked = !targetPost.isLiked;
-
-    setSavedPosts((prev) =>
-      prev.map((post) => {
-        if (post.id === targetId) {
-          const likesCount = nextLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1);
-          return { ...post, isLiked: nextLiked, likesCount };
-        }
-        return post;
-      })
-    );
-
+  const mutate = async (id, kind) => {
+    if (pending.current.has(id)) return;
+    const post = savedPosts.find(item => item.id === id);
+    if (!post) return;
+    pending.current.add(id);
     try {
-      if (nextLiked) await likePost(targetId);
-      else await unlikePost(targetId);
-    } catch (err) {
-      console.warn('Like toggle sync warning:', err.message);
-    }
+      if (kind === 'like') {
+        await (post.isLiked ? unlikePost(id) : likePost(id));
+        setSavedPosts(items => items.map(item => item.id === id ? { ...item, isLiked: !post.isLiked, likesCount: Math.max(0, item.likesCount + (post.isLiked ? -1 : 1)) } : item));
+      } else {
+        await unbookmarkPost(id);
+        setSavedPosts(items => items.filter(item => item.id !== id));
+        showToast('Bookmark removed.');
+      }
+    } catch (err) { showToast(err.response?.data?.message || 'Change was not saved. Please retry.'); }
+    finally { pending.current.delete(id); }
   };
-
-  const handleBookmarkToggle = async (targetId) => {
-    setSavedPosts((prev) => prev.filter((p) => p.id !== targetId));
-    showToast('Post removed from saved bookmarks.');
-
-    try {
-      await unbookmarkPost(targetId);
-    } catch (err) {
-      console.warn('Bookmark toggle sync warning:', err.message);
-    }
-  };
+  const handleLikeToggle = id => mutate(id, 'like');
+  const handleBookmarkToggle = id => mutate(id, 'bookmark');
 
   return (
     <div className="saved-posts-page-shell">
@@ -92,6 +77,7 @@ export function SavedPostsPage() {
       )}
 
       <HomeHeader pageTitle="Saved Discussions" />
+      {error && <p role="alert">{error} <button onClick={() => setRetry(r => r + 1)}>Retry</button></p>}
 
       {/* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */}
       <div className="details-top-nav-bar">

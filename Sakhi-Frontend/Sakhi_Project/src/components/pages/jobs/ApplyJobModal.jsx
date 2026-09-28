@@ -1,12 +1,14 @@
+import { useAccount } from '../../account/accountContext';
 import { useState } from 'react';
 import { FiX, FiUploadCloud, FiCheckCircle, FiAlertCircle, FiFileText } from 'react-icons/fi';
 import { applyForJob } from '../../../services/api';
 import './ApplyJobModal.css';
 
 export function ApplyJobModal({ job, onClose, onSuccess }) {
-    const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
+    const { user, data } = useAccount();
+    const [fullName, setFullName] = useState(data.profile.name || user?.displayName || '');
+    const email = user?.email || '';
+    const [phone, setPhone] = useState(data.profile.phone || '');
     const [coverLetter, setCoverLetter] = useState('');
     const [resumeFile, setResumeFile] = useState(null);
 
@@ -64,14 +66,7 @@ export function ApplyJobModal({ job, onClose, onSuccess }) {
             const result = await applyForJob(job._id, formData);
 
             if (result && result.success) {
-                // Persist applied status in localStorage
-                const appliedList = JSON.parse(localStorage.getItem('sakhi_applied_jobs') || '[]');
-                if (!appliedList.includes(job._id)) {
-                    appliedList.push(job._id);
-                    localStorage.setItem('sakhi_applied_jobs', JSON.stringify(appliedList));
-                }
-
-                setSuccessMessage('Application submitted successfully! The hiring manager has been notified.');
+                setSuccessMessage(result.message);
                 if (onSuccess) onSuccess(job._id);
                 setTimeout(() => {
                     onClose();
@@ -135,7 +130,7 @@ export function ApplyJobModal({ job, onClose, onSuccess }) {
                                         type="email"
                                         placeholder="you@example.com"
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        readOnly
                                         required
                                     />
                                 </div>

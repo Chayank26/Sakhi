@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const jobApplicationSchema = new mongoose.Schema(
     {
+        applicationKey: { type: String, unique: true, sparse: true },
         jobId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Job',

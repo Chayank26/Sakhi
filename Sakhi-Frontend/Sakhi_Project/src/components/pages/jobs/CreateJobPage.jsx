@@ -1,12 +1,14 @@
+import { useAccount } from '../../account/accountContext';
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { FiArrowLeft, FiBriefcase, FiDollarSign, FiMapPin, FiClock, FiPlusCircle, FiCheck, FiAlertCircle } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { FiArrowLeft, FiBriefcase, FiDollarSign, FiClock, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import { createJob } from '../../../services/api';
 import { HomeHeader } from '../home/HomeHeader';
 import './CreateJobPage.css';
 
 export function CreateJobPage() {
     const navigate = useNavigate();
+    const { user } = useAccount();
 
     const [useRegisteredEmail, setUseRegisteredEmail] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -54,7 +56,7 @@ export function CreateJobPage() {
         if (checked) {
             setFormData((prev) => ({
                 ...prev,
-                recruiterEmail: 'user@sakhi.org',
+                recruiterEmail: user?.email || '',
             }));
         } else {
             setFormData((prev) => ({
@@ -223,7 +225,7 @@ export function CreateJobPage() {
                                         checked={useRegisteredEmail}
                                         onChange={handleEmailToggle}
                                     />
-                                    <span>Use my registered email (user@sakhi.org)</span>
+                                    <span>Use my registered email ({user?.email})</span>
                                 </label>
                             </div>
                         </div>

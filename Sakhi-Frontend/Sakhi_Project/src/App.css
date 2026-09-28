@@ -1,0 +1,11 @@
+
+.activity-page { max-width: 1000px; margin: 2rem auto; padding: 1.5rem; }
+.activity-page h1, .activity-page h2 { margin: 1.5rem 0 1rem; }
+.activity-page article, .activity-page section { padding: 1.25rem; margin: 1rem 0; border: 1px solid #8874ad66; border-radius: 12px; }
+.activity-page p { margin: .75rem 0; }
+.activity-page button, .account-notice button { padding: .6rem 1rem; margin: .4rem; cursor: pointer; }
+.activity-page textarea, .activity-page input, .activity-page select { display: block; width: 100%; padding: .7rem; margin: .5rem 0 1rem; color: #191525; background: #fff; }
+.activity-page label { display: block; }
+.activity-page pre { white-space: pre-wrap; font: inherit; }
+.activity-page a { color: #9671ed; text-decoration: underline; }
+.account-notice { padding: .75rem 1.5rem; background: #35274c; color: white; }

@@ -1,16 +1,14 @@
+import { useAccount } from '../../account/accountContext';
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
     FiArrowLeft,
     FiBookOpen,
     FiUser,
-    FiDollarSign,
     FiClock,
-    FiPlusCircle,
     FiCheck,
     FiAlertCircle,
     FiAward,
-    FiGlobe,
     FiPlus,
     FiTrash2
 } from 'react-icons/fi';
@@ -20,6 +18,8 @@ import './CreateCoursePage.css';
 
 export function CreateCoursePage() {
     const navigate = useNavigate();
+    const { user } = useAccount();
+    const [lessonMaterials, setLessonMaterials] = useState([]);
 
     const [useRegisteredEmail, setUseRegisteredEmail] = useState(false);
     const [isFreeCourse, setIsFreeCourse] = useState(true);
@@ -63,7 +63,7 @@ export function CreateCoursePage() {
         const checked = e.target.checked;
         setUseRegisteredEmail(checked);
         if (checked) {
-            setFormData((prev) => ({ ...prev, instructorEmail: 'user@sakhi.org' }));
+            setFormData((prev) => ({ ...prev, instructorEmail: user?.email || '' }));
         } else {
             setFormData((prev) => ({ ...prev, instructorEmail: '' }));
         }
@@ -86,6 +86,10 @@ export function CreateCoursePage() {
 
     const handleRemoveModule = (idx) => {
         setCurriculumModules(curriculumModules.filter((_, i) => i !== idx));
+        setLessonMaterials(items => items.filter(item => Number(item.lessonKey.split(':')[0]) !== idx).map(item => {
+            const [m, l] = item.lessonKey.split(':').map(Number);
+            return { ...item, lessonKey: `${m > idx ? m - 1 : m}:${l}` };
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -116,6 +120,7 @@ export function CreateCoursePage() {
                 learningOutcomes: formData.learningOutcomes,
                 prerequisites: formData.prerequisites,
                 curriculum: curriculumModules,
+                lessonMaterials,
                 resources: formData.resources,
                 duration: formData.duration || '4 Hours',
                 difficulty: formData.difficulty,
@@ -132,7 +137,7 @@ export function CreateCoursePage() {
             if (response && response.success) {
                 setSuccessMessage('Course published successfully!');
                 setTimeout(() => {
-                    navigate('/academy');
+                    navigate(`/academy/course/${response.course._id}`);
                 }, 1500);
             } else {
                 setError(response.message || 'Failed to publish course.');
@@ -226,7 +231,7 @@ export function CreateCoursePage() {
                                     checked={useRegisteredEmail}
                                     onChange={handleEmailToggle}
                                 />
-                                <span>Use my registered email (user@sakhi.org)</span>
+                                <span>Use my registered email ({user?.email})</span>
                             </label>
                         </div>
                     </div>
@@ -387,7 +392,7 @@ export function CreateCoursePage() {
                             <input
                                 type="text"
                                 name="resources"
-                                placeholder="React Cheat Sheet PDF, Starter Code Repository"
+                                placeholder="https://example.com/notes.pdf, https://example.com/repository"
                                 value={formData.resources}
                                 onChange={handleChange}
                             />
@@ -427,11 +432,26 @@ export function CreateCoursePage() {
                                             </button>
                                         )}
                                     </div>
+                                    {mod.lessons.map((lesson, lessonIndex) => <label key={lessonIndex}>Lesson {lessonIndex + 1}
+                                        <input required value={lesson} onChange={e => setCurriculumModules(items => items.map((item, m) => m === idx ? { ...item, lessons: item.lessons.map((title, l) => l === lessonIndex ? e.target.value : title) } : item))} />
+                                    </label>)}
+                                    <button type="button" onClick={() => setCurriculumModules(items => items.map((item, m) => m === idx ? { ...item, lessons: [...item.lessons, 'New lesson'] } : item))}>Add lesson</button>
                                 </div>
                             ))}
                         </div>
                     </div>
 
+                    <section className="form-section"><h3>Lesson materials</h3><p>Add text and an optional resource URL for each lesson.</p>
+                        {curriculumModules.flatMap((module, m) => module.lessons.map((title, l) => {
+                            const lessonKey = `${m}:${l}`;
+                            const material = lessonMaterials.find(item => item.lessonKey === lessonKey) || {};
+                            const update = (key, value) => setLessonMaterials(items => [...items.filter(item => item.lessonKey !== lessonKey), { ...material, lessonKey, [key]: value }]);
+                            return <div className="form-group" key={lessonKey}><label>{module.moduleTitle} — {title}
+                                <textarea maxLength={30000} value={material.content || ''} onChange={e => update('content', e.target.value)} placeholder="Lesson text" />
+                                <input type="url" value={material.resourceUrl || ''} onChange={e => update('resourceUrl', e.target.value)} placeholder="https://example.com/lesson" />
+                            </label></div>;
+                        }))}
+                    </section>
                     {/* Submit Bar */}
                     <div className="create-submit-bar">
                         <button type="button" onClick={() => navigate('/academy')} className="btn-cancel-post">

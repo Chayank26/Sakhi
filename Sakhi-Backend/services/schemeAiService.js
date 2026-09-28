@@ -49,60 +49,8 @@ export const checkSchemeEligibilityService = async (schemeId, userProfile = {}) 
         throw new Error(`Government scheme with ID ${schemeId} not found.`);
     }
 
-    const {
-        age,
-        gender = 'Female',
-        state = 'All India',
-        occupation,
-        isPregnant = false,
-        hasGirlChild = false,
-        annualIncome
-    } = userProfile;
+    return evaluateSchemeGuidance(scheme, userProfile);
 
-    const matchedCriteria = [];
-    const missingCriteria = [];
-    let matchScore = 70; // Base score for Sakhi platform users
-
-    // Category & Target Audience Checks
-    if (scheme.category === 'Maternity' && !isPregnant) {
-        missingCriteria.push('Scheme is designed for pregnant women and lactating mothers.');
-        matchScore -= 30;
-    } else if (scheme.category === 'Maternity' && isPregnant) {
-        matchedCriteria.push('User meets maternity status criteria.');
-        matchScore += 20;
-    }
-
-    if (scheme.category === 'Entrepreneurship' && occupation === 'Entrepreneur') {
-        matchedCriteria.push('User matches entrepreneurship focus.');
-        matchScore += 20;
-    }
-
-    // State check
-    if (scheme.state !== 'All India' && state !== 'All India' && scheme.state !== state) {
-        missingCriteria.push(`Scheme is restricted to residents of ${scheme.state}.`);
-        matchScore -= 40;
-    } else {
-        matchedCriteria.push(`State eligibility confirmed (${scheme.state}).`);
-    }
-
-    // Age check
-    if (age && age >= 18) {
-        matchedCriteria.push('Adult age requirement satisfied.');
-    }
-
-    const isEligible = matchScore >= 60;
-
-    return {
-        scheme: formatSchemeForAiPayload(scheme),
-        userProfile,
-        isEligible,
-        matchScore: Math.min(100, Math.max(10, matchScore)),
-        matchedCriteria,
-        missingCriteria,
-        aiRecommendation: isEligible
-            ? `Based on your profile, you appear highly eligible for ${scheme.name}. We recommend applying via the official portal.`
-            : `You may have missing requirements for ${scheme.name}. Please review the document checklist.`
-    };
 };
 
 /**
@@ -129,3 +77,21 @@ export const recommendSchemesService = async (userProfile = {}, limit = 5) => {
         recommendedSchemes: validEvaluations.slice(0, limit)
     };
 };
+
+// Directory matching is not an eligibility determination.
+export function evaluateSchemeGuidance(scheme, userProfile = {}) {
+    const state = typeof userProfile.state === 'string' ? userProfile.state.trim() : '';
+    const stateMismatch = state && scheme.state && scheme.state !== 'All India' && state.toLowerCase() !== scheme.state.toLowerCase();
+    return {
+        scheme: formatSchemeForAiPayload(scheme), userProfile,
+        isEligible: null, status: 'review_required',
+        matchScore: stateMismatch ? 0 : 1, scoreMeaning: 'Directory relevance only; not an eligibility score.',
+        matchedCriteria: [],
+        missingCriteria: [
+            ...(!state ? ['Your state has not been provided.'] : []),
+            ...(stateMismatch ? [`This listing is for ${scheme.state}; confirm residence requirements with the issuing authority.`] : []),
+            ...(scheme.eligibility || []),
+        ],
+        aiRecommendation: 'Eligibility has not been determined. Review every listed requirement and verify current rules with the issuing authority.',
+    };
+}

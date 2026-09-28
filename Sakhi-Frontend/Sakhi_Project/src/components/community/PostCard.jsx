@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EditPostModal } from './EditPostModal';
 import { ReportModal } from './ReportModal';
@@ -66,10 +66,12 @@ export function PostCard({
 
   const isOwner = currentUserId && (author?.uid === currentUserId || author?.id === currentUserId);
 
-  const handleCopyShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyShare = async () => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/community/post/${id}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { alert('Could not copy the link. Open the discussion and copy its address.'); }
   };
 
   const handleDelete = async () => {

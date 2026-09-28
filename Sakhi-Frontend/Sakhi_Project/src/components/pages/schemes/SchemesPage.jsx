@@ -1,32 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useAccount } from '../../account/accountContext';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchSchemes, searchSchemes } from '../../../services/schemeApi';
 import { HomeHeader } from '../home/HomeHeader';
 import { SchemeSearch } from '../../schemes/SchemeSearch';
 import { SchemeFilters } from '../../schemes/SchemeFilters';
 import { SchemeGrid } from '../../schemes/SchemeGrid';
 import { useDebounce } from '../../../hooks/useDebounce';
-import { getSavedSchemeIds, toggleSavedScheme } from '../../../utils/schemeStorage';
-import { FiCheckCircle, FiZap, FiBookOpen, FiBookmark } from 'react-icons/fi';
+import { FiZap, FiBookmark } from 'react-icons/fi';
 import './SchemesPage.css';
 
 export function SchemesPage() {
-  const navigate = useNavigate();
   const [schemes, setSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => new URLSearchParams(window.location.search).get('q') || '');
   const debouncedSearchQuery = useDebounce(searchQuery, 350);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [governmentLevel, setGovernmentLevel] = useState('All');
-  const [selectedState, setSelectedState] = useState('All');
+  const [selectedState, setSelectedState] = useState(() => new URLSearchParams(window.location.search).get('state') || 'All');
   const [targetAudience, setTargetAudience] = useState('All');
   const [sortBy, setSortBy] = useState('createdAt');
-  const [bookmarkedSchemeIds, setBookmarkedSchemeIds] = useState([]);
+  const { data: activity, toggleSaved } = useAccount();
+  const bookmarkedSchemeIds = activity.saved.schemes.map(s => s._id);
+  const [loadError, setLoadError] = useState('');
   const [notification, setNotification] = useState(null);
-
-  useEffect(() => {
-    setBookmarkedSchemeIds(getSavedSchemeIds());
-  }, []);
 
   const showToast = (msg) => {
     setNotification(msg);
@@ -43,43 +40,46 @@ export function SchemesPage() {
     showToast('Filters reset to default.');
   };
 
-  const loadSchemesData = async () => {
-    setLoading(true);
-    try {
-      let data;
-      const params = {
-        category: selectedCategory !== 'All' ? selectedCategory : undefined,
-        governmentLevel: governmentLevel !== 'All' ? governmentLevel : undefined,
-        state: selectedState !== 'All' ? selectedState : undefined,
-        targetAudience: targetAudience !== 'All' ? targetAudience : undefined,
-        sortBy
-      };
 
-      if (debouncedSearchQuery.trim()) {
-        data = await searchSchemes(debouncedSearchQuery.trim(), params);
-      } else {
-        data = await fetchSchemes(params);
-      }
-
-      if (data && data.success && Array.isArray(data.schemes)) {
-        setSchemes(data.schemes);
-      }
-    } catch (err) {
-      console.warn('Error loading government schemes:', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
-    loadSchemesData();
-  }, [debouncedSearchQuery, selectedCategory, governmentLevel, selectedState, targetAudience, sortBy]);
+    let active = true;
+    const loadSchemesData = async () => {
+      setLoading(true);
+      setLoadError('');
+      try {
+        let data;
+        const params = {
+          category: selectedCategory !== 'All' ? selectedCategory : undefined,
+          governmentLevel: governmentLevel !== 'All' ? governmentLevel : undefined,
+          state: selectedState !== 'All' ? selectedState : undefined,
+          targetAudience: targetAudience !== 'All' ? targetAudience : undefined,
+          sortBy
+        };
 
-  const handleBookmarkToggle = (schemeId) => {
-    const { updatedIds, isSaved } = toggleSavedScheme(schemeId);
-    setBookmarkedSchemeIds(updatedIds);
-    showToast(isSaved ? 'Scheme saved to your bookmarks!' : 'Scheme removed from saved bookmarks.');
-  };
+        if (debouncedSearchQuery.trim()) {
+          data = await searchSchemes(debouncedSearchQuery.trim(), params);
+        } else {
+          data = await fetchSchemes(params);
+        }
+
+        if (!active) return;
+        if (data && data.success && Array.isArray(data.schemes)) {
+          setSchemes(data.schemes);
+        }
+      } catch (err) {
+        if (!active) return;
+        setSchemes([]);
+        setLoadError(err.response?.data?.message || 'Could not load schemes. Please retry.');
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    loadSchemesData();
+    return () => { active = false; };
+  }, [debouncedSearchQuery, selectedCategory, governmentLevel, selectedState, targetAudience, sortBy, retry]);
+
+  const handleBookmarkToggle = id => toggleSaved('schemes', id);
 
   return (
     <div className="schemes-page-shell">
@@ -93,6 +93,7 @@ export function SchemesPage() {
 
       {/* Main Header */}
       <HomeHeader pageTitle="Government Schemes" />
+      {loadError && <p role="alert">{loadError} <button onClick={() => setRetry(r => r + 1)}>Retry</button></p>}
 
       {/* Hero Banner */}
       <div className="schemes-hero-banner">

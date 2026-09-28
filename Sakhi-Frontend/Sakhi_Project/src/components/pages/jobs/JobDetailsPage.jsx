@@ -1,5 +1,6 @@
+import { useAccount } from '../../account/accountContext';
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     FiArrowLeft,
     FiMapPin,
@@ -23,14 +24,20 @@ import './JobDetailsPage.css';
 
 export function JobDetailsPage() {
     const { jobId } = useParams();
+    return <RecordDetails key={jobId} />;
+}
+
+function RecordDetails() {
+    const { jobId } = useParams();
     const navigate = useNavigate();
 
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [isSaved, setIsSaved] = useState(false);
+    const { data: activity, toggleSaved, refresh, requireLogin, user } = useAccount();
+    const isSaved = activity.saved.jobs.some(j => j._id === jobId);
     const [showApplyModal, setShowApplyModal] = useState(false);
-    const [applied, setApplied] = useState(false);
+    const applied = activity.applications.some(a => a.jobId?._id === jobId);
 
     useEffect(() => {
         const loadJob = async () => {
@@ -53,10 +60,7 @@ export function JobDetailsPage() {
 
         if (jobId) {
             loadJob();
-            const appliedList = JSON.parse(localStorage.getItem('sakhi_applied_jobs') || '[]');
-            if (appliedList.includes(jobId)) {
-                setApplied(true);
-            }
+
         }
     }, [jobId]);
 
@@ -144,7 +148,7 @@ export function JobDetailsPage() {
                     <div className="hero-action-buttons">
                         <button
                             className={`btn-action-icon ${isSaved ? 'saved' : ''}`}
-                            onClick={() => setIsSaved(!isSaved)}
+                            onClick={() => toggleSaved('jobs', jobId)}
                             title={isSaved ? 'Saved' : 'Save Job'}
                         >
                             <FiBookmark /> {isSaved ? 'Saved' : 'Save'}
@@ -333,7 +337,7 @@ export function JobDetailsPage() {
 
                     <button
                         className={`btn-primary-apply ${applied ? 'applied' : ''}`}
-                        onClick={() => !applied && setShowApplyModal(true)}
+                        onClick={() => !applied && requireLogin() && setShowApplyModal(true)}
                         disabled={applied}
                     >
                         {applied ? <><FiCheckCircle /> Applied</> : 'Apply Now'}
@@ -342,11 +346,11 @@ export function JobDetailsPage() {
             </div>
 
             {/* Apply Job Modal */}
-            {showApplyModal && (
-                <ApplyJobModal
+            {showApplyModal && user && (
+                <ApplyJobModal key={user.uid}
                     job={job}
                     onClose={() => setShowApplyModal(false)}
-                    onSuccess={() => setApplied(true)}
+                    onSuccess={refresh}
                 />
             )}
         </div>

@@ -1,3 +1,4 @@
+import { useAccount } from '../../account/accountContext';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -23,12 +24,12 @@ export function JobsPage() {
     const navigate = useNavigate();
 
     // Search state
-    const [searchQuery, setSearchQuery] = useState('');
-    const [locationQuery, setLocationQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(() => new URLSearchParams(window.location.search).get('q') || '');
+    const [locationQuery, setLocationQuery] = useState(() => new URLSearchParams(window.location.search).get('location') || '');
 
     // Applied Search State
-    const [appliedQuery, setAppliedQuery] = useState('');
-    const [appliedLocation, setAppliedLocation] = useState('');
+    const [appliedQuery, setAppliedQuery] = useState(() => new URLSearchParams(window.location.search).get('q') || '');
+    const [appliedLocation, setAppliedLocation] = useState(() => new URLSearchParams(window.location.search).get('location') || '');
 
     // Filters state
     const [selectedSalary, setSelectedSalary] = useState([]);
@@ -43,50 +44,54 @@ export function JobsPage() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [savedJobs, setSavedJobs] = useState([]);
-    const [appliedJobs, setAppliedJobs] = useState([]);
+    const { data: activity, toggleSaved } = useAccount();
+    const savedJobs = activity.saved.jobs.map(j => j._id);
+    const appliedJobs = activity.applications.map(a => a.jobId?._id);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalJobs, setTotalJobs] = useState(0);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-    const loadJobs = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const params = {
-                q: appliedQuery,
-                location: appliedLocation,
-                salaryRange: selectedSalary,
-                experience: selectedExp,
-                jobType: selectedTypes,
-                education: selectedEdu,
-                industry: selectedIndustry,
-                posted: selectedPosted,
-                sortBy,
-                page,
-                limit: 6,
-            };
 
-            const data = await fetchJobs(params);
-            if (data && data.success) {
-                setJobs(data.jobs || []);
-                setTotalPages(data.totalPages || 1);
-                setTotalJobs(data.totalJobs || 0);
-            }
-        } catch (err) {
-            console.error('Failed to load jobs:', err);
-            setError('Unable to connect to jobs service. Please ensure the backend is running.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    const [retry, setRetry] = useState(0);
     useEffect(() => {
+        let active = true;
+        const loadJobs = async () => {
+            setLoading(true);
+            setError('');
+            try {
+                const params = {
+                    q: appliedQuery,
+                    location: appliedLocation,
+                    salaryRange: selectedSalary,
+                    experience: selectedExp,
+                    jobType: selectedTypes,
+                    education: selectedEdu,
+                    industry: selectedIndustry,
+                    posted: selectedPosted,
+                    sortBy,
+                    page,
+                    limit: 6,
+                };
+
+                const data = await fetchJobs(params);
+                if (!active) return;
+                if (data && data.success) {
+                    setJobs(data.jobs || []);
+                    setTotalPages(data.totalPages || 1);
+                    setTotalJobs(data.totalJobs || 0);
+                }
+            } catch (err) {
+                if (!active) return;
+                console.error('Failed to load jobs:', err);
+                setError('Unable to connect to jobs service. Please ensure the backend is running.');
+            } finally {
+                if (active) setLoading(false);
+            }
+        };
         loadJobs();
-        const storedApplied = JSON.parse(localStorage.getItem('sakhi_applied_jobs') || '[]');
-        setAppliedJobs(storedApplied);
-    }, [appliedQuery, appliedLocation, selectedSalary, selectedExp, selectedTypes, selectedEdu, selectedIndustry, selectedPosted, sortBy, page]);
+        return () => { active = false; };
+    }, [appliedQuery, appliedLocation, selectedSalary, selectedExp, selectedTypes, selectedEdu, selectedIndustry, selectedPosted, sortBy, page, retry]);
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -104,14 +109,7 @@ export function JobsPage() {
         }
     };
 
-    const toggleSaveJob = (e, jobId) => {
-        e.stopPropagation();
-        if (savedJobs.includes(jobId)) {
-            setSavedJobs(savedJobs.filter((id) => id !== jobId));
-        } else {
-            setSavedJobs([...savedJobs, jobId]);
-        }
-    };
+    const toggleSaveJob = (e, id) => { e.stopPropagation(); void toggleSaved('jobs', id); };
 
     const handleResetFilters = () => {
         setSearchQuery('');
@@ -131,7 +129,7 @@ export function JobsPage() {
     return (
         <div className="jobs-portal-wrapper">
             {/* Unified Home Navbar with Careers Tag */}
-            <HomeHeader pageTitle="Careers" />
+            <HomeHeader pageTitle="Careers" /><Link className="btn-hero-action" to="/jobs/my-activity">My job activity</Link>
 
             {/* Hero Search Section */}
             <section className="jobs-search-hero">
@@ -351,7 +349,7 @@ export function JobsPage() {
                         {error && (
                             <div className="jobs-error-alert">
                                 <p>{error}</p>
-                                <button onClick={loadJobs} className="btn-retry">Retry</button>
+                                <button onClick={() => setRetry(r => r + 1)} className="btn-retry">Retry</button>
                             </div>
                         )}
 

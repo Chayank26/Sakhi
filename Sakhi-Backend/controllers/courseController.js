@@ -1,9 +1,6 @@
-import { Course } from '../models/Course.js';
+import { literalRegex } from '../ai/tools/searchQuery.js';
 import { Enrollment } from '../models/Enrollment.js';
-import { sendCourseEnrollmentEmail } from '../services/courseEmailService.js';
-import mongoose from 'mongoose';
-
-const isDbConnected = () => mongoose.connection.readyState === 1;
+import { Course } from '../models/Course.js';
 
 // GET /api/courses - Search, filter, sort & paginate courses
 export const getCourses = async (req, res) => {
@@ -12,7 +9,6 @@ export const getCourses = async (req, res) => {
             q,
             category,
             difficulty,
-            duration,
             language,
             type, // free vs paid
             sortBy = 'popular',
@@ -20,11 +16,11 @@ export const getCourses = async (req, res) => {
             limit = 8,
         } = req.query;
 
-        const queryConditions = {};
+        const queryConditions = { visibility: 'Public' };
 
         // Keyword Search
-        if (q && q.trim()) {
-            const regex = new RegExp(q.trim(), 'i');
+        if (typeof q === 'string' && q.trim()) {
+            const regex = literalRegex(q);
             queryConditions.$or = [
                 { title: regex },
                 { instructor: regex },
@@ -68,8 +64,8 @@ export const getCourses = async (req, res) => {
             sortOption = { createdAt: -1 };
         }
 
-        const pageNum = Math.max(1, parseInt(page, 10));
-        const limitNum = Math.max(1, parseInt(limit, 10));
+        const pageNum = Math.max(1, parseInt(page, 10) || 1);
+        const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 8));
         const skip = (pageNum - 1) * limitNum;
 
         const totalCourses = await Course.countDocuments(queryConditions);
@@ -84,7 +80,7 @@ export const getCourses = async (req, res) => {
             totalCourses,
             totalPages: Math.ceil(totalCourses / limitNum),
             currentPage: pageNum,
-            courses,
+            courses: await Promise.all(courses.map(async course => ({ ...course.toObject(), studentsEnrolled: await Enrollment.countDocuments({ courseId: course._id }) }))),
         });
     } catch (error) {
         console.error('[CourseController Error]:', error);
@@ -96,10 +92,10 @@ export const getCourses = async (req, res) => {
 export const getCourseById = async (req, res) => {
     try {
         const course = await Course.findById(req.params.id);
-        if (!course) {
+        if (!course || (course.visibility !== 'Public' && course.createdBy !== req.user?.uid)) {
             return res.status(404).json({ success: false, message: 'Course not found' });
         }
-        res.json({ success: true, course });
+        res.json({ success: true, course: { ...course.toObject(), studentsEnrolled: await Enrollment.countDocuments({ courseId: course._id }) } });
     } catch (error) {
         console.error('[CourseController Error]:', error);
         res.status(500).json({ success: false, message: 'Error retrieving course details', error: error.message });
@@ -120,6 +116,7 @@ export const createCourse = async (req, res) => {
             prerequisites,
             curriculum,
             resources,
+            lessonMaterials,
             duration,
             difficulty,
             language,
@@ -128,7 +125,6 @@ export const createCourse = async (req, res) => {
             banner,
             certificateAvailable,
             visibility,
-            createdBy,
         } = req.body;
 
         if (!title || !instructor || !instructorEmail || !category || !description) {
@@ -155,6 +151,7 @@ export const createCourse = async (req, res) => {
             prerequisites: parseArray(prerequisites),
             curriculum: Array.isArray(curriculum) ? curriculum : [],
             resources: parseArray(resources),
+            lessonMaterials: Array.isArray(lessonMaterials) ? lessonMaterials : [],
             duration: duration || '4 Hours',
             difficulty: difficulty || 'Beginner',
             language: language || 'English',
@@ -163,9 +160,9 @@ export const createCourse = async (req, res) => {
             banner: banner || 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1200&auto=format&fit=crop&q=80',
             certificateAvailable: certificateAvailable !== undefined ? Boolean(certificateAvailable) : true,
             visibility: visibility || 'Public',
-            rating: 4.9,
-            studentsEnrolled: 1,
-            createdBy: createdBy || 'guest',
+            rating: 0,
+            studentsEnrolled: 0,
+            createdBy: req.user.uid,
         });
 
         res.status(201).json({
@@ -176,87 +173,5 @@ export const createCourse = async (req, res) => {
     } catch (error) {
         console.error('[CourseController Error]:', error);
         res.status(500).json({ success: false, message: 'Failed to publish course', error: error.message });
-    }
-};
-
-// POST /api/courses/:id/enroll - Enroll student in course
-export const enrollCourse = async (req, res) => {
-    try {
-        const { id: courseId } = req.params;
-        const { studentName, studentEmail, phone, userId } = req.body;
-
-        if (!studentName || !studentEmail || !phone) {
-            return res.status(400).json({
-                success: false,
-                message: 'Student Name, Email, and Phone number are required to enroll!',
-            });
-        }
-
-        const course = await Course.findById(courseId);
-        if (!course) {
-            return res.status(404).json({ success: false, message: 'Target course not found' });
-        }
-
-        // Create enrollment document in MongoDB
-        const enrollment = await Enrollment.create({
-            userId: userId || 'guest',
-            courseId: course._id,
-            studentName,
-            studentEmail,
-            phone,
-            enrolledAt: new Date(),
-            progress: 10, // Initial 10% progress
-            status: 'Enrolled',
-        });
-
-        // Increment enrolled student count on Course
-        course.studentsEnrolled = (course.studentsEnrolled || 0) + 1;
-        await course.save();
-
-        // Dispatch welcome confirmation email
-        sendCourseEnrollmentEmail({
-            studentEmail,
-            studentName,
-            courseTitle: course.title,
-            instructorName: course.instructor,
-            courseId: course._id,
-        }).catch((err) => console.error('[Background Email Error]:', err));
-
-        res.status(201).json({
-            success: true,
-            message: `Successfully enrolled in ${course.title}! Check your email for confirmation.`,
-            enrollment,
-        });
-    } catch (error) {
-        console.error('[CourseController Error]:', error);
-        res.status(500).json({ success: false, message: 'Course enrollment failed', error: error.message });
-    }
-};
-
-// GET /api/courses/user/my-learning - Fetch enrolled courses for student
-export const getMyLearning = async (req, res) => {
-    try {
-        const { email } = req.query;
-        let enrollments = [];
-
-        if (email) {
-            enrollments = await Enrollment.find({ studentEmail: email.toLowerCase() })
-                .populate('courseId')
-                .sort({ createdAt: -1 });
-        } else {
-            enrollments = await Enrollment.find()
-                .populate('courseId')
-                .sort({ createdAt: -1 })
-                .limit(10);
-        }
-
-        res.json({
-            success: true,
-            count: enrollments.length,
-            enrollments,
-        });
-    } catch (error) {
-        console.error('[CourseController Error]:', error);
-        res.status(500).json({ success: false, message: 'Failed to fetch My Learning dashboard', error: error.message });
     }
 };

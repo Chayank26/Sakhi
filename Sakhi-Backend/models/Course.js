@@ -62,6 +62,7 @@ const courseSchema = new mongoose.Schema(
                 lessons: { type: [String], default: [] },
             },
         ],
+        lessonMaterials: [{ lessonKey: String, content: { type: String, maxlength: 30000 }, resourceUrl: String }],
         resources: {
             type: [String],
             default: [],
@@ -105,7 +106,7 @@ const courseSchema = new mongoose.Schema(
         },
         rating: {
             type: Number,
-            default: 4.8,
+            default: 0,
         },
         studentsEnrolled: {
             type: Number,

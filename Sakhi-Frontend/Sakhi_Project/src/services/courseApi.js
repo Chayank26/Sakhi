@@ -1,14 +1,4 @@
-import axios from 'axios';
-
-const RAW_API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'https://sakhi-c0b4.onrender.com/api';
-const API_BASE_URL = RAW_API_URL.endsWith('/api') ? RAW_API_URL : `${RAW_API_URL.replace(/\/+$/, '')}/api`;
-
-const courseApi = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+import courseApi from './api';
 
 export const fetchCourses = async (params = {}) => {
     try {
@@ -50,11 +40,9 @@ export const enrollInCourse = async (courseId, enrollmentData) => {
     }
 };
 
-export const fetchMyLearning = async (email = '') => {
+export const fetchMyLearning = async () => {
     try {
-        const response = await courseApi.get('/courses/my-learning', {
-            params: { email },
-        });
+        const response = await courseApi.get('/courses/my-learning');
         return response.data;
     } catch (error) {
         console.error('Error fetching My Learning data:', error);

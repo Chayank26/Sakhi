@@ -1,5 +1,6 @@
+import { useAccount } from '../../account/accountContext';
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     FiArrowLeft,
     FiClock,
@@ -24,13 +25,19 @@ import './CourseDetailsPage.css';
 
 export function CourseDetailsPage() {
     const { courseId } = useParams();
+    return <RecordDetails key={courseId} />;
+}
+
+function RecordDetails() {
+    const { courseId } = useParams();
     const navigate = useNavigate();
 
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [isBookmarked, setIsBookmarked] = useState(false);
-    const [isEnrolled, setIsEnrolled] = useState(false);
+    const { data: activity, toggleSaved, refresh, requireLogin, user } = useAccount();
+    const isBookmarked = activity.saved.courses.some(c => c._id === courseId);
+    const isEnrolled = activity.enrollments.some(e => e.courseId?._id === courseId);
     const [showEnrollModal, setShowEnrollModal] = useState(false);
     const [openModules, setOpenModules] = useState([0]); // First module expanded by default
 
@@ -56,16 +63,7 @@ export function CourseDetailsPage() {
         if (courseId) {
             loadCourse();
 
-            // Check localStorage for enrolled and bookmarked status
-            const savedBookmarks = JSON.parse(localStorage.getItem('sakhi_bookmarked_courses') || '[]');
-            if (savedBookmarks.includes(courseId)) {
-                setIsBookmarked(true);
-            }
 
-            const savedEnrolled = JSON.parse(localStorage.getItem('sakhi_enrolled_courses') || '[]');
-            if (savedEnrolled.includes(courseId)) {
-                setIsEnrolled(true);
-            }
         }
     }, [courseId]);
 
@@ -77,18 +75,7 @@ export function CourseDetailsPage() {
         }
     };
 
-    const toggleBookmark = () => {
-        const saved = JSON.parse(localStorage.getItem('sakhi_bookmarked_courses') || '[]');
-        let updated;
-        if (saved.includes(courseId)) {
-            updated = saved.filter((id) => id !== courseId);
-            setIsBookmarked(false);
-        } else {
-            updated = [...saved, courseId];
-            setIsBookmarked(true);
-        }
-        localStorage.setItem('sakhi_bookmarked_courses', JSON.stringify(updated));
-    };
+    const toggleBookmark = () => toggleSaved('courses', courseId);
 
     const handleShare = () => {
         if (navigator.share) {
@@ -176,7 +163,7 @@ export function CourseDetailsPage() {
                                 <>
                                     <span className="stat-dot">•</span>
                                     <span className="stat-text cert">
-                                        <FiAward /> Certificate Included
+                                        <FiAward /> Completion Record Available
                                     </span>
                                 </>
                             )}
@@ -303,8 +290,8 @@ export function CourseDetailsPage() {
                             <div className="cert-content">
                                 <FiAward className="cert-big-icon" />
                                 <div>
-                                    <h3>Earn an Official Sakhi Certificate</h3>
-                                    <p>Share your verified course completion certificate on LinkedIn, resume, or portfolio.</p>
+                                    <h3>Track your course completion</h3>
+                                    <p>After marking every lesson complete, download a self-reported completion record. This is not an accredited qualification.</p>
                                 </div>
                             </div>
                         </section>
@@ -317,15 +304,15 @@ export function CourseDetailsPage() {
                                 <span className="price-big">
                                     {course.price === 0 ? 'FREE' : `₹${course.price}`}
                                 </span>
-                                <span className="guarantee">100% Free Access for Sakhi Community</span>
+                                <span className="guarantee">{course.price > 0 ? 'Contact instructor for paid access' : 'Free access'} for Sakhi Community</span>
                             </div>
 
                             <button
                                 className={`btn-sidebar-enroll ${isEnrolled ? 'enrolled' : ''}`}
-                                onClick={() => !isEnrolled && setShowEnrollModal(true)}
-                                disabled={isEnrolled}
+                                onClick={() => isEnrolled ? navigate(`/academy/course/${courseId}/learn`) : requireLogin() && setShowEnrollModal(true)}
+                                disabled={!isEnrolled && course.price > 0}
                             >
-                                {isEnrolled ? <><FiCheckCircle /> Enrolled</> : 'Enroll Now'}
+                                {isEnrolled ? <><FiCheckCircle /> Continue learning</> : course.price > 0 ? 'Paid enrollment unavailable' : 'Enroll Now'}
                             </button>
 
                             <div className="sidebar-inclusions">
@@ -333,7 +320,7 @@ export function CourseDetailsPage() {
                                 <div className="inclusion-item"><FiClock /> {course.duration} on-demand content</div>
                                 <div className="inclusion-item"><FiGlobe /> Full lifetime access</div>
                                 <div className="inclusion-item"><FiBookOpen /> Access on mobile & web</div>
-                                <div className="inclusion-item"><FiAward /> Certificate of Completion</div>
+                                <div className="inclusion-item"><FiAward /> Self-reported completion record</div>
                             </div>
                         </div>
                     </aside>
@@ -350,20 +337,20 @@ export function CourseDetailsPage() {
 
                     <button
                         className={`btn-floating-enroll ${isEnrolled ? 'enrolled' : ''}`}
-                        onClick={() => !isEnrolled && setShowEnrollModal(true)}
-                        disabled={isEnrolled}
+                        onClick={() => isEnrolled ? navigate(`/academy/course/${courseId}/learn`) : requireLogin() && setShowEnrollModal(true)}
+                        disabled={!isEnrolled && course.price > 0}
                     >
-                        {isEnrolled ? <><FiCheckCircle /> Enrolled</> : 'Enroll Now'}
+                        {isEnrolled ? <><FiCheckCircle /> Continue learning</> : course.price > 0 ? 'Paid enrollment unavailable' : 'Enroll Now'}
                     </button>
                 </div>
             </div>
 
             {/* Enrollment Modal (Phase 5 component) */}
-            {showEnrollModal && (
-                <EnrollCourseModal
+            {showEnrollModal && user && (
+                <EnrollCourseModal key={user.uid}
                     course={course}
                     onClose={() => setShowEnrollModal(false)}
-                    onSuccess={(cId) => setIsEnrolled(true)}
+                    onSuccess={refresh}
                 />
             )}
         </div>

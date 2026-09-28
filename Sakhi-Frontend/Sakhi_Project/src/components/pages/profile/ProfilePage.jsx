@@ -1,3 +1,5 @@
+import api from '../../../services/api';
+import { useAccount } from '../../account/accountContext';
 import { getAiProfile, saveAiProfile } from '../../../services/aiApi';
 import { readLocalProfile, saveLocalProfile } from '../../../services/profileStorage';
 import { useState, useEffect, useRef } from 'react'
@@ -9,6 +11,7 @@ import { HomeHeader } from '../home/HomeHeader'
 import './ProfilePage.css'
 
 export function ProfilePage() {
+    const { data: activity, refresh } = useAccount()
     const navigate = useNavigate()
     const [user, setUser] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
@@ -33,9 +36,9 @@ export function ProfilePage() {
                 skills: [], interests: [], jobType: '', level: '' })
             if (!currentUser) return
             try {
-                const { profile: preferences } = await getAiProfile()
+                const [{ profile: preferences }, { data: account }] = await Promise.all([getAiProfile(), api.get('/me')])
                 if (version !== accountVersion.current) return
-                setProfile((previous) => ({ ...previous, preferredDomain: preferences.goal, location: preferences.city,
+                setProfile((previous) => ({ ...previous, ...account.profile, preferredDomain: preferences.goal, location: preferences.city,
                     skills: preferences.skills, interests: preferences.interests, jobType: preferences.jobType, level: preferences.level }))
                 setPreferencesReady(true)
                 setSavedMsg('')
@@ -57,7 +60,10 @@ export function ProfilePage() {
             if (version !== accountVersion.current) return
             const savedProfile = { ...profile, skills: savedPreferences.skills, interests: savedPreferences.interests }
             setProfile(savedProfile)
+            await api.put('/me/profile', { name: profile.name, phone: profile.phone, age: String(profile.age), bio: profile.bio })
+            if (version !== accountVersion.current) return
             saveLocalProfile(user, savedProfile)
+            await refresh()
             setIsEditing(false)
             setSavedMsg('Profile saved. Sakhi AI will use these preferences in your next message.')
         } catch {
@@ -108,21 +114,21 @@ export function ProfilePage() {
                     <div className="stat-card">
                         <span className="stat-icon"><FiBookOpen /></span>
                         <div>
-                            <h3>3</h3>
+                            <h3>{activity.enrollments.length}</h3>
                             <p>Enrolled Courses</p>
                         </div>
                     </div>
                     <div className="stat-card">
                         <span className="stat-icon"><FiBriefcase /></span>
                         <div>
-                            <h3>12</h3>
+                            <h3>{activity.applications.length}</h3>
                             <p>Jobs Saved / Applied</p>
                         </div>
                     </div>
                     <div className="stat-card">
                         <span className="stat-icon"><FiFileText /></span>
                         <div>
-                            <h3>4</h3>
+                            <h3>{activity.saved.schemes.length}</h3>
                             <p>Schemes Bookmarked</p>
                         </div>
                     </div>

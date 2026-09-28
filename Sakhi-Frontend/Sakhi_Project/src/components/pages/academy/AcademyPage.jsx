@@ -1,3 +1,4 @@
+import { useAccount } from '../../account/accountContext';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -7,16 +8,12 @@ import {
     FiClock,
     FiUsers,
     FiFilter,
-    FiPlusCircle,
     FiPlus,
     FiBookmark,
     FiChevronLeft,
     FiChevronRight,
     FiSliders,
     FiArrowRight,
-    FiCheckCircle,
-    FiAward,
-    FiPlayCircle
 } from 'react-icons/fi';
 import { fetchCourses } from '../../../services/courseApi';
 import { HomeHeader } from '../home/HomeHeader';
@@ -27,8 +24,8 @@ export function AcademyPage() {
     const navigate = useNavigate();
 
     // Search & Filter State
-    const [searchQuery, setSearchQuery] = useState('');
-    const [appliedQuery, setAppliedQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(() => new URLSearchParams(window.location.search).get('q') || '');
+    const [appliedQuery, setAppliedQuery] = useState(() => new URLSearchParams(window.location.search).get('q') || '');
     const [selectedCategory, setSelectedCategory] = useState([]);
     const [selectedDifficulty, setSelectedDifficulty] = useState([]);
     const [selectedDuration, setSelectedDuration] = useState([]);
@@ -41,50 +38,52 @@ export function AcademyPage() {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [bookmarkedCourses, setBookmarkedCourses] = useState([]);
-    const [enrolledCourses, setEnrolledCourses] = useState([]);
+    const { data: activity, toggleSaved } = useAccount();
+    const bookmarkedCourses = activity.saved.courses.map(c => c._id);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCourses, setTotalCourses] = useState(0);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
-    const [activeCarouselIdx, setActiveCarouselIdx] = useState(0);
 
-    const featuredCourses = courses.filter((c) => c.rating >= 4.8 || c.featured).slice(0, 3);
 
-    const loadCourses = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const params = {
-                q: appliedQuery,
-                category: selectedCategory,
-                difficulty: selectedDifficulty,
-                duration: selectedDuration,
-                isFree: isFreeOnly ? 'true' : '',
-                sortBy,
-                page,
-                limit: 6,
-            };
 
-            const data = await fetchCourses(params);
-            if (data && data.success) {
-                setCourses(data.courses || []);
-                setTotalPages(data.totalPages || 1);
-                setTotalCourses(data.totalCourses || 0);
-            }
-        } catch (err) {
-            console.error('Failed to load courses:', err);
-            setError('Unable to connect to academy service. Please ensure the backend is running.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    const [retry, setRetry] = useState(0);
     useEffect(() => {
+        let active = true;
+        const loadCourses = async () => {
+            setLoading(true);
+            setError('');
+            try {
+                const params = {
+                    q: appliedQuery,
+                    category: selectedCategory,
+                    difficulty: selectedDifficulty,
+                    duration: selectedDuration,
+                    type: isFreeOnly ? 'free' : selectedType,
+                    language: selectedLanguage,
+                    sortBy,
+                    page,
+                    limit: 6,
+                };
+
+                const data = await fetchCourses(params);
+                if (!active) return;
+                if (data && data.success) {
+                    setCourses(data.courses || []);
+                    setTotalPages(data.totalPages || 1);
+                    setTotalCourses(data.totalCourses || 0);
+                }
+            } catch (err) {
+                if (!active) return;
+                console.error('Failed to load courses:', err);
+                setError('Unable to connect to academy service. Please ensure the backend is running.');
+            } finally {
+                if (active) setLoading(false);
+            }
+        };
         loadCourses();
-        const storedEnrolled = JSON.parse(localStorage.getItem('sakhi_enrolled_courses') || '[]');
-        setEnrolledCourses(storedEnrolled);
-    }, [appliedQuery, selectedCategory, selectedDifficulty, selectedDuration, isFreeOnly, sortBy, page]);
+        return () => { active = false; };
+    }, [appliedQuery, selectedCategory, selectedDifficulty, selectedDuration, selectedLanguage, selectedType, isFreeOnly, sortBy, page, retry]);
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -101,14 +100,7 @@ export function AcademyPage() {
         }
     };
 
-    const toggleBookmark = (e, courseId) => {
-        e.stopPropagation();
-        if (bookmarkedCourses.includes(courseId)) {
-            setBookmarkedCourses(bookmarkedCourses.filter((id) => id !== courseId));
-        } else {
-            setBookmarkedCourses([...bookmarkedCourses, courseId]);
-        }
-    };
+    const toggleBookmark = (e, courseId) => { e.stopPropagation(); void toggleSaved('courses', courseId); };
 
     const handleResetFilters = () => {
         setSearchQuery('');
@@ -333,7 +325,7 @@ export function AcademyPage() {
                         {error && (
                             <div className="academy-error-alert">
                                 <p>{error}</p>
-                                <button onClick={loadCourses} className="btn-retry">Retry</button>
+                                <button onClick={() => setRetry(r => r + 1)} className="btn-retry">Retry</button>
                             </div>
                         )}
 
