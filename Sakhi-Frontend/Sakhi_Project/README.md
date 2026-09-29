@@ -1,3 +1,9 @@
+# Sakhi frontend
+
+Deployment and Phase 7 checks: [DEPLOYMENT.md](../../DEPLOYMENT.md).
+
+Use `npm run dev` for local development, `npm run lint` for full lint, and `npm run test:e2e:release` to verify the built UI with mocked services. Use `npm run build:release` with the intended hosting environment before deployment.
+
 # Sakhi v2 - Project Specification
 
 ## Project Overview

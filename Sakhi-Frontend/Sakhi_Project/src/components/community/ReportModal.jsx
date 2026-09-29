@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { submitReport } from '../../services/communityService';
 import { FiX, FiFlag, FiAlertCircle, FiCheckCircle, FiLoader } from 'react-icons/fi';
 

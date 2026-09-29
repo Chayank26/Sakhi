@@ -28,9 +28,9 @@ jobs:
       - name: Frontend dependencies
         run: npm ci
         working-directory: Sakhi-Frontend/Sakhi_Project
-      - name: Chat lint and frontend unit tests
+      - name: Full frontend lint and unit tests
         run: |
-          npm run lint:chat
+          npm run lint
           npm test
         working-directory: Sakhi-Frontend/Sakhi_Project
       - name: Production build
@@ -40,7 +40,7 @@ jobs:
         run: npx playwright install --with-deps chrome
         working-directory: Sakhi-Frontend/Sakhi_Project
       - name: Desktop and mobile browser regressions
-        run: npm run test:e2e
+        run: npm run test:e2e:release
         working-directory: Sakhi-Frontend/Sakhi_Project
       - name: Browser evidence
         if: always()

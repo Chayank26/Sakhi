@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useEffectEvent } from 'react';
 import { CommentItem } from './CommentItem';
 import {
   fetchComments,
@@ -8,35 +8,33 @@ import {
 } from '../../services/communityService';
 import { FiMessageSquare, FiSend, FiLoader } from 'react-icons/fi';
 
-export function CommentSection({ postId, currentUserId, onCommentCountChange }) {
+export function CommentSection(props) {
+  return <CommentsForPost key={props.postId} {...props} />;
+}
+
+function CommentsForPost({ postId, currentUserId, onCommentCountChange }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const loadComments = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const data = await fetchComments(postId);
-      if (data && data.success && Array.isArray(data.comments)) {
-        setComments(data.comments);
-        if (onCommentCountChange) {
-          onCommentCountChange(data.comments.length);
-        }
-      }
-    } catch (err) {
-      console.warn('Backend comments fetch fallback:', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const notifyLoaded = useEffectEvent(count => onCommentCountChange?.(count));
   useEffect(() => {
-    if (postId) {
-      loadComments();
-    }
+    let active = true;
+    if (!postId) return;
+    fetchComments(postId).then(data => {
+      if (!active) return;
+      if (data?.success && Array.isArray(data.comments)) {
+        setComments(data.comments);
+        notifyLoaded(data.comments.length);
+      }
+    }).catch(() => {
+      if (active) setError('Could not load comments. Please reload to retry.');
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
   }, [postId]);
 
   const handleAddComment = async (e) => {

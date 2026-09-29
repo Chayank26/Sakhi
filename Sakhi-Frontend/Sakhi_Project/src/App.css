@@ -1,13 +1,33 @@
-
-.activity-page { max-width: 1000px; margin: 2rem auto; padding: 1.5rem; }
-.activity-page h1, .activity-page h2 { margin: 1.5rem 0 1rem; }
-.activity-page article, .activity-page section { padding: 1.25rem; margin: 1rem 0; border: 1px solid #8874ad66; border-radius: 12px; }
-.activity-page p { margin: .75rem 0; }
-.activity-page button, .account-notice button { padding: .6rem 1rem; margin: .4rem; cursor: pointer; }
-.activity-page textarea, .activity-page input, .activity-page select { display: block; width: 100%; padding: .7rem; margin: .5rem 0 1rem; color: #191525; background: #fff; }
-.activity-page label { display: block; }
+/* Account, saved-item and support pages share the platform's original theme. */
+.activity-page {
+  width: min(1000px, calc(100% - 40px));
+  margin: 28px auto 60px;
+  padding: clamp(20px, 4vw, 40px);
+  background: var(--bg-outer-card);
+  border: 1px solid var(--border-outer);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow-wrap: anywhere;
+}
+.activity-page h1 { margin: 16px 0 28px; }
+.activity-page h2 { margin: 0 0 16px; font-size: 1.5rem; }
+.activity-page article, .activity-page section { padding: 24px; margin: 20px 0; background: var(--bg-inner-card); border: 1px solid var(--border-outer); border-radius: var(--radius-md); }
+.activity-page p { margin: 12px 0; line-height: 1.75; }
+.activity-page button, .account-notice button, .route-loading button { min-height: 44px; padding: 10px 20px; border: 1px solid var(--brand-orange-border); border-radius: var(--radius-pill); background: var(--brand-orange); color: white; font-weight: 600; cursor: pointer; }
+.activity-page button { margin: 8px 8px 8px 0; }
+.activity-page button:hover:not(:disabled), .route-loading button:hover { background: var(--brand-orange-hover); }
+.activity-page button:disabled { opacity: .6; cursor: not-allowed; }
+.activity-page textarea, .activity-page input:not([type=checkbox]):not([type=radio]), .activity-page select { display: block; width: 100%; padding: 12px 14px; margin: 8px 0 20px; color: var(--text-main); background: white; border: 1px solid #a9bdc7; border-radius: var(--radius-sm); }
+.activity-page textarea { min-height: 120px; resize: vertical; }
+.activity-page label { display: block; line-height: 1.7; }
+.activity-page input[type=checkbox], .activity-page input[type=radio] { accent-color: var(--brand-orange); margin-right: 10px; }
 .activity-page pre { white-space: pre-wrap; font: inherit; }
-.activity-page a { color: #9671ed; text-decoration: underline; }
-.account-notice { padding: .75rem 1.5rem; background: #35274c; color: white; }
-.route-loading { min-height: 70vh; display: flex; flex-direction: column; gap: 20px; align-items: center; justify-content: center; padding: 32px; color: #293e38; text-align: center; }
-.route-loading button { background: #293e38; color: white; padding: 12px 20px; border: 0; border-radius: 8px; cursor: pointer; }
+.activity-page a { color: var(--brand-orange-active); text-decoration: underline; text-underline-offset: 4px; }
+.activity-page ul, .activity-page ol { padding-left: 24px; }
+.account-notice { padding: 12px 24px; background: #eaf4f8; color: #264e65; border-bottom: 1px solid #a9c7d5; }
+.account-notice button { margin-left: 12px; }
+.route-loading { min-height: 70vh; display: flex; flex-direction: column; gap: 20px; align-items: center; justify-content: center; padding: 32px; color: var(--text-main); text-align: center; }
+@media (max-width: 600px) {
+  .activity-page { width: calc(100% - 24px); margin-top: 20px; padding: 20px 16px; }
+  .activity-page article, .activity-page section { padding: 18px 14px; }
+}

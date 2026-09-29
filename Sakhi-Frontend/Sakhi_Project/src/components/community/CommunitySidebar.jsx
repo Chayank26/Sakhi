@@ -1,5 +1,4 @@
-import React from 'react';
-import { FiShield, FiHeart, FiTag, FiCheckCircle } from 'react-icons/fi';
+import { FiShield, FiHeart, FiTag } from 'react-icons/fi';
 import { COMMUNITY_RULES, POPULAR_TOPICS } from './dummyData';
 
 export function CommunitySidebar({ onTopicClick, selectedCategory }) {

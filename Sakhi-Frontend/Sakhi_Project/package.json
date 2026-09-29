@@ -11,7 +11,10 @@
     "test": "node --test tests/*.test.js",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "lint:chat": "eslint src/components/pages/ai src/components/RouteErrorBoundary.jsx src/App.jsx src/components/pages/home/HomeHeader.jsx playwright.config.js e2e tests"
+    "lint:chat": "eslint src/components/pages/ai src/components/RouteErrorBoundary.jsx src/App.jsx src/components/pages/home/HomeHeader.jsx playwright.config.js e2e tests",
+    "check:release": "node scripts/check-release-env.js",
+    "build:release": "npm run check:release && vite build",
+    "test:e2e:release": "playwright test --config playwright.release.config.js"
   },
   "dependencies": {
     "axios": "^1.19.0",

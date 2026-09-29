@@ -1,6 +1,5 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiBookmark, FiArrowRight, FiStar, FiFlag, FiMapPin } from 'react-icons/fi';
+import { FiBookmark, FiArrowRight, FiStar, FiFlag } from 'react-icons/fi';
 
 export function SchemeCard({ scheme, isBookmarked = false, onBookmarkToggle }) {
   const navigate = useNavigate();

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 
 export function SchemeSearch({ value, onChange, onClear }) {

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { COMMUNITY_CATEGORIES } from './dummyData';
 import { ImageUpload } from './ImageUpload';
 import { createPost } from '../../services/communityService';
-import { FiSend, FiX, FiAlertCircle, FiLoader, FiCheckCircle } from 'react-icons/fi';
+import { FiSend, FiAlertCircle, FiLoader, FiCheckCircle } from 'react-icons/fi';
 
 const CATEGORY_OPTIONS = COMMUNITY_CATEGORIES.filter((cat) => cat !== 'All');
 

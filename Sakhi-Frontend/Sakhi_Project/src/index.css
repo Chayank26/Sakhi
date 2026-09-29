@@ -13,7 +13,7 @@
   --bg-outer-card: #FAF0E6;
   --bg-outer-card-hover: #F8ECE0;
   --bg-inner-card: #FFFFFF;
-  --bg-header-pill: rgba(240, 246, 244, 0.94);
+  --bg-header-pill: rgba(240, 247, 250, 0.94);
   --bg-chip: #F4ECE1;
 
   /* Brand Accent - Terracotta Red-Orange */
@@ -39,7 +39,7 @@
   --text-on-orange: #FFFFFF;
 
   /* Borders & Dividers */
-  --border-outer: rgba(230, 215, 200, 0.75);
+  --border-outer: rgba(137, 174, 191, 0.5);
   --border-inner: rgba(0, 0, 0, 0.06);
   --border-light: rgba(0, 0, 0, 0.04);
   --border-focus: #EE5029;
@@ -351,4 +351,22 @@ a:hover {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-sage);
+}
+
+/* Shared polish preserves the blue canvas, warm cards and orange brand. */
+:where(button, input, textarea, select) { font: inherit; }
+:where(button, a, input, textarea, select, summary):focus-visible { outline: 3px solid var(--brand-orange-active); outline-offset: 4px; }
+:where(input, textarea, select) { max-width: 100%; }
+:where(button):disabled { cursor: not-allowed; }
+:where(img, video) { max-width: 100%; }
+:where(main, section, article) { min-width: 0; }
+:where(p, h1, h2, h3, h4, a) { overflow-wrap: anywhere; }
+::selection { color: #23282d; background: #ffcfb9; }
+@media (max-width: 600px) {
+  :where(input, textarea, select) { font-size: 16px; }
+  .profile-card, .settings-card, .support-card { padding: 22px 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }

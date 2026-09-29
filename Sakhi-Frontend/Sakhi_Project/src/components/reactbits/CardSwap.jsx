@@ -1,53 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { FiChevronLeft, FiChevronRight, FiStar, FiClock, FiArrowRight } from 'react-icons/fi';
 import './CardSwap.css';
 
 export function CardSwap({ items = [], onCardClick, autoPlay = false, interval = 5000 }) {
-  const [cards, setCards] = useState(items);
+  const [offset, setOffset] = useState(0);
   const [swapping, setSwapping] = useState(false);
   const [direction, setDirection] = useState('next');
+  const timer = useRef(null);
+  const start = items.length ? offset % items.length : 0;
+  const cards = [...items.slice(start), ...items.slice(0, start)];
 
-  useEffect(() => {
-    setCards(items);
-  }, [items]);
-
-  useEffect(() => {
-    if (!autoPlay || cards.length <= 1) return;
-    const timer = setInterval(() => {
-      handleSwapNext();
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [autoPlay, interval, cards]);
-
-  const handleSwapNext = () => {
-    if (swapping || cards.length <= 1) return;
-    setDirection('next');
+  const swap = useCallback(nextDirection => {
+    if (swapping || items.length <= 1) return;
+    setDirection(nextDirection);
     setSwapping(true);
-
-    setTimeout(() => {
-      setCards((prev) => {
-        const [first, ...rest] = prev;
-        return [...rest, first];
-      });
+    timer.current = setTimeout(() => {
+      setOffset(previous => (previous + (nextDirection === 'next' ? 1 : items.length - 1)) % items.length);
       setSwapping(false);
     }, 400);
-  };
-
-  const handleSwapPrev = () => {
-    if (swapping || cards.length <= 1) return;
-    setDirection('prev');
-    setSwapping(true);
-
-    setTimeout(() => {
-      setCards((prev) => {
-        const last = prev[prev.length - 1];
-        const rest = prev.slice(0, prev.length - 1);
-        return [last, ...rest];
-      });
-      setSwapping(false);
-    }, 400);
-  };
+  }, [swapping, items.length]);
+  const handleSwapNext = () => swap('next');
+  const handleSwapPrev = () => swap('prev');
+  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => {
+    if (!autoPlay || items.length <= 1) return;
+    const intervalId = setInterval(() => swap('next'), interval);
+    return () => clearInterval(intervalId);
+  }, [autoPlay, interval, items.length, swap]);
 
   if (!cards || cards.length === 0) return null;
 

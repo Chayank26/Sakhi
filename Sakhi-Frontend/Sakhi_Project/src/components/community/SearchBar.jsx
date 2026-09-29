@@ -1,4 +1,3 @@
-import React from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 
 export function SearchBar({ value, onChange, onClear, placeholder = 'Search posts, categories, or keywords...' }) {

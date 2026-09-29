@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { COMMUNITY_CATEGORIES } from './dummyData';
 import { ImageUpload } from './ImageUpload';
 import { updatePost } from '../../services/communityService';

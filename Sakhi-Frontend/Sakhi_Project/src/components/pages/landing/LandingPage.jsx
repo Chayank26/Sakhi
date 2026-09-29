@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
-import { FiArrowRight, FiUserCheck, FiUserPlus, FiCompass } from 'react-icons/fi'
+import { FiArrowRight, FiUserCheck, FiUserPlus } from 'react-icons/fi'
 import { DepthCarousel } from '../../reactbits/DepthCarousel'
 import { auth } from '../firebase/firebase'
 import './LandingPage.css'

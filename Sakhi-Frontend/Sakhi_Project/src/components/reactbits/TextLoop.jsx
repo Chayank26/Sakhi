@@ -1,4 +1,3 @@
-import React from 'react';
 import './TextLoop.css';
 
 export function TextLoop({

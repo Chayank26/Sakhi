@@ -1,6 +1,5 @@
-import React from 'react';
 import { SchemeCard } from './SchemeCard';
-import { FiSearch, FiLoader, FiLayers } from 'react-icons/fi';
+import { FiLoader, FiLayers } from 'react-icons/fi';
 
 export function SchemeGrid({
   schemes = [],

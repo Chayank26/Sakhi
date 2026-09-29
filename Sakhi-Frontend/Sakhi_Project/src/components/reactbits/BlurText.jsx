@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import './BlurText.css';
 
 export function BlurText({
@@ -7,13 +6,7 @@ export function BlurText({
   className = '',
   animateBy = 'words', // 'words' or 'letters'
 }) {
-  const [elements, setElements] = useState([]);
-
-  useEffect(() => {
-    if (!text) return;
-    const splitElements = animateBy === 'words' ? text.split(' ') : text.split('');
-    setElements(splitElements);
-  }, [text, animateBy]);
+  const elements = text ? text.split(animateBy === 'words' ? ' ' : '') : [];
 
   return (
     <span className={`blur-text-container ${className}`}>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { PostCard } from './PostCard';
 import { FiMessageSquare, FiPlusCircle } from 'react-icons/fi';
 

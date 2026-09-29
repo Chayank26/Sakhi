@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FiImage, FiX, FiUploadCloud, FiAlertCircle, FiLoader } from 'react-icons/fi';
 import { uploadPostImage } from '../../services/communityService';
 
@@ -39,11 +39,11 @@ export function ImageUpload({ imageUrl, onImageChange, onImageRemove }) {
           // Fallback to local preview URL if server offline
           onImageChange(previewUrl);
         }
-      } catch (err) {
-        console.warn('Backend upload unavailable, using preview URL:', err.message);
+      } catch {
+        console.warn('Backend upload unavailable, using preview URL.');
         onImageChange(previewUrl);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to process selected image.');
     } finally {
       setUploading(false);

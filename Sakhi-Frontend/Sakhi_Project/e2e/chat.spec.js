@@ -35,6 +35,7 @@ test('welcome and recommendations are accessible, responsive and link to records
   await openChat(page);
   await expect(page.getByRole('heading', { name: /What’s your next/ })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Send message', exact: true })).toBeDisabled();
+  await expect(page.locator('.ai-workspace')).toHaveCSS('background-color', 'rgb(199, 224, 229)');
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath('welcome.png'), fullPage: true });
   await page.getByRole('button', { name: /Find your next opportunity/ }).click();
@@ -153,7 +154,7 @@ test('prompt deep links send once and guest history clears on reload', async ({ 
   await expect(page.getByRole('article')).toHaveCount(0);
 });
 
-test('signed-in conversations and feedback survive reload', async ({ page, isMobile }) => {
+test('signed-in conversations, feedback and account page layouts survive reload', async ({ page, isMobile }, testInfo) => {
   const user = { localId: 'browser-test-user', email: 'browser@example.test', displayName: 'Browser Test', emailVerified: true };
   const now = Math.floor(Date.now() / 1000);
   const encode = value => Buffer.from(JSON.stringify(value)).toString('base64url');
@@ -163,6 +164,8 @@ test('signed-in conversations and feedback survive reload', async ({ page, isMob
     return route.fulfill({ json: lookup ? { users: [user] } : { ...user, idToken: token, refreshToken: 'fixture-only', expiresIn: '3600', registered: true } });
   });
   await page.route('**/api/me', route => route.fulfill({ json: { saved: { jobs: [], courses: [], schemes: [] }, applications: [], enrollments: [], profile: {} } }));
+  await page.route('**/api/me/support', route => route.fulfill({ json: { tickets: [] } }));
+  await page.route('**/api/jobs/mine', route => route.fulfill({ json: { jobs: [] } }));
   let saved = { _id: id, title: 'Saved conversation', messages: [] };
   await page.route('**/api/ai/sessions', route => route.fulfill({ json: route.request().method() === 'POST' ? { session: saved } : { sessions: saved.messages.length ? [saved] : [] } }));
   await page.route('**/api/ai/chat', route => {
@@ -191,10 +194,19 @@ test('signed-in conversations and feedback survive reload', async ({ page, isMob
   await page.reload();
   await expect(page.getByText('Your saved recommendation.', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Helpful response', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  for (const [path, heading] of [['/settings', 'Account settings'], ['/support', 'Help & support'], ['/jobs/my-activity', 'My job activity'], ['/academy/my-learning', 'My learning'], ['/saved-schemes', 'Saved schemes']]) {
+    await page.goto(path);
+    await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+    await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(199, 224, 229)');
+    await expect(page.locator('.activity-page')).toHaveCSS('background-color', 'rgb(250, 240, 230)');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    if (path === '/settings') await page.screenshot({ path: testInfo.outputPath('settings.png'), fullPage: true });
+  }
 });
 
-test('a failed route import offers a recoverable page error', async ({ page }) => {
-  await page.route('**/src/components/pages/ai/AiChatPage.jsx', route => route.abort());
+test('a failed route import offers a recoverable page error', async ({ page }, testInfo) => {
+  const chunk = testInfo.config.metadata.release ? '**/assets/AiChatPage-*.js' : '**/src/components/pages/ai/AiChatPage.jsx';
+  await page.route(chunk, route => route.abort());
   await page.goto('/ai');
   await expect(page.getByRole('alert')).toContainText('This page couldn’t load.');
   await expect(page.getByRole('button', { name: 'Reload page' })).toBeVisible();
@@ -234,7 +246,13 @@ test('public directories still render when opened directly after route splitting
   ]) {
     await page.goto(path);
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+    await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(199, 224, 229)');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await expect(page.locator('.home-header-pill')).toHaveCSS('display', 'flex');
   }
+  await page.locator('a[href="/ai"]').first().click();
+  await expect(page.getByRole('textbox', { name: 'Message Sakhi AI' })).toBeEnabled();
+  await expect(page.locator('.ai-workspace')).toHaveCSS('background-color', 'rgb(199, 224, 229)');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });

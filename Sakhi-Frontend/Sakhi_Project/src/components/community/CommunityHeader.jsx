@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiPlus, FiUser, FiBookmark, FiLogOut, FiHeart, FiShield, FiGrid } from 'react-icons/fi';
+import { FiPlus, FiUser, FiBookmark, FiGrid } from 'react-icons/fi';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../pages/firebase/firebase';
 import { SearchBar } from './SearchBar';

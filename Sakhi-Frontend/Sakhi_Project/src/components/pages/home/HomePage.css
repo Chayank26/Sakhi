@@ -471,3 +471,20 @@
     grid-template-columns: 1fr;
   }
 }
+/* Keep every destination reachable without letting the mobile header overflow. */
+.home-header-left, .home-header-center { min-width: 0; }
+.home-header-pill { background: var(--bg-header-pill); }
+.home-header-actions { flex-shrink: 0; }
+.home-header-shell :is(a, button):focus-visible { outline: 3px solid var(--brand-orange-active); outline-offset: 3px; }
+@media (max-width: 1100px) {
+  .home-header-shell { top: 8px; padding: 0 12px; margin-top: 8px; }
+  .home-header-pill { flex-wrap: wrap; gap: 12px; border-radius: 24px; padding: 12px 16px; }
+  .home-header-left { flex: 1; }
+  .home-header-center { order: 3; flex-basis: 100%; overflow-x: auto; overscroll-behavior-x: contain; padding: 3px; scrollbar-width: thin; }
+  .header-nav-pills { width: max-content; gap: 4px; }
+  .nav-pill { flex-shrink: 0; padding: 9px 14px; font-size: .85rem; }
+  .home-brand { font-size: 1.6rem; }
+  .header-page-title { font-size: .8rem; }
+  .home-header-actions { gap: 8px; }
+  .notif-dropdown { max-width: calc(100vw - 32px); }
+}

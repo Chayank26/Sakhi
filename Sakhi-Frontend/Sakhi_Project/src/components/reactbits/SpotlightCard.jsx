@@ -4,17 +4,16 @@ import './SpotlightCard.css';
 export function SpotlightCard({
   children,
   className = '',
-  spotlightColor = 'rgba(124, 58, 237, 0.18)',
+  spotlightColor = 'rgba(238, 80, 41, 0.14)',
   onClick,
   ...props
 }) {
   const divRef = useRef(null);
-  const [isFocused, setIsFocused] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [opacity, setOpacity] = useState(0);
 
   const handleMouseMove = (e) => {
-    if (!divRef.current || isFocused) return;
+    if (!divRef.current) return;
 
     const rect = divRef.current.getBoundingClientRect();
     setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });

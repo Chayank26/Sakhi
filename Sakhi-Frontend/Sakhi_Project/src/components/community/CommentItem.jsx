@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ReportModal } from './ReportModal';
-import { FiEdit, FiTrash2, FiHeart, FiCheck, FiX, FiMoreHorizontal, FiFlag } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiHeart, FiFlag } from 'react-icons/fi';
 
 function formatRelativeTime(dateString) {
   if (!dateString) return 'recently';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FiTrendingUp, FiClock, FiMessageSquare, FiSliders, FiFilter } from 'react-icons/fi';
 import { COMMUNITY_CATEGORIES } from './dummyData';
 

@@ -1,5 +1,7 @@
 # Phase 6 — Chatbot experience, regression testing and performance
 
+Historical Phase 6 snapshot. Phase 7 restores the original blue/orange palette and clears the lint debt noted below; see [DEPLOYMENT.md](DEPLOYMENT.md) for current release status.
+
 Phase 6 implementation and local validation are complete. Phase 7 is staging and deployment; this does not mark v2 as production-validated.
 
 ## Delivered

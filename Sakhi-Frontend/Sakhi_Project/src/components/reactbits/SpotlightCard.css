@@ -9,8 +9,8 @@
 
 .spotlight-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(124, 58, 237, 0.3);
-  box-shadow: 0 16px 36px rgba(124, 58, 237, 0.12);
+  border-color: rgba(238, 80, 41, 0.3);
+  box-shadow: 0 16px 36px rgba(238, 80, 41, 0.12);
 }
 
 .spotlight-overlay {

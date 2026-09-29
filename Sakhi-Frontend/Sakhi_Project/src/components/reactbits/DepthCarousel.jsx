@@ -79,9 +79,9 @@ export function DepthCarousel({ items = null, autoPlay = true, interval = 4500, 
 
           const isCenter = offset === 0;
 
-          let transformStyle = '';
-          let opacity = 0;
-          let zIndex = 0;
+          let transformStyle;
+          let opacity;
+          let zIndex;
 
           if (isCenter) {
             transformStyle = 'translate3d(0, 0, 0) scale(1)';

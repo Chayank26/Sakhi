@@ -1,8 +1,7 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HomeHeader } from '../home/HomeHeader';
 import { CreatePost } from '../../community/CreatePost';
-import { FiCheckCircle, FiHeart, FiShield, FiArrowLeft } from 'react-icons/fi';
+import { FiCheckCircle, FiHeart, FiArrowLeft } from 'react-icons/fi';
 import './CreatePostPage.css';
 
 export function CreatePostPage() {
