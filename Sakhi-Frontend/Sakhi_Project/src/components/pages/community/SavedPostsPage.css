@@ -9,7 +9,7 @@
 }
 
 /* Back Link Row (Top Aligned) */
-.details-top-nav-bar {
+:where(.saved-posts-page-shell) .details-top-nav-bar {
   width: 100%;
   max-width: 1240px;
   margin: 14px auto 0;
@@ -18,7 +18,7 @@
   justify-content: flex-start;
 }
 
-.btn-back-link-sleek {
+:where(.saved-posts-page-shell) .btn-back-link-sleek {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -34,21 +34,21 @@
   transition: all var(--transition-fast);
 }
 
-.btn-back-link-sleek:hover {
+:where(.saved-posts-page-shell) .btn-back-link-sleek:hover {
   background: var(--bg-outer-card);
   border-color: var(--brand-orange-border);
   color: var(--brand-orange);
   transform: translateY(-1px);
 }
 
-.saved-posts-main-container {
+:where(.saved-posts-page-shell) .saved-posts-main-container {
   max-width: 1240px;
   margin: 16px auto 0;
   padding: 0 20px;
 }
 
 /* Header Banner */
-.saved-posts-header-banner {
+:where(.saved-posts-page-shell) .saved-posts-header-banner {
   background: var(--bg-outer-card);
   border: 1.5px solid var(--border-outer);
   border-radius: var(--radius-lg);
@@ -60,7 +60,7 @@
   margin-bottom: 24px;
 }
 
-.saved-header-icon-circle {
+:where(.saved-posts-page-shell) .saved-header-icon-circle {
   width: 54px;
   height: 54px;
   border-radius: 16px;
@@ -74,8 +74,8 @@
   box-shadow: var(--shadow-orange);
 }
 
-.saved-posts-header-banner h1,
-.saved-title {
+:where(.saved-posts-page-shell) .saved-posts-header-banner h1,
+:where(.saved-posts-page-shell) .saved-title {
   font-family: var(--font-serif);
   font-style: italic;
   font-size: 1.65rem;
@@ -85,35 +85,35 @@
   margin: 0 0 4px;
 }
 
-.saved-posts-header-banner p,
-.saved-subtitle {
+:where(.saved-posts-page-shell) .saved-posts-header-banner p,
+:where(.saved-posts-page-shell) .saved-subtitle {
   font-size: 0.92rem;
   color: var(--text-muted) !important;
   margin: 0;
 }
 
 /* 2-Column Grid Layout */
-.saved-posts-layout {
+:where(.saved-posts-page-shell) .saved-posts-layout {
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 24px;
   align-items: start;
 }
 
-.saved-posts-feed-column {
+:where(.saved-posts-page-shell) .saved-posts-feed-column {
   display: flex;
   flex-direction: column;
   gap: 20px;
   min-width: 0;
 }
 
-.saved-posts-sidebar-column {
+:where(.saved-posts-page-shell) .saved-posts-sidebar-column {
   position: sticky;
   top: 90px;
 }
 
 /* Loading & Empty State */
-.saved-loading-state {
+:where(.saved-posts-page-shell) .saved-loading-state {
   background: var(--bg-outer-card);
   border: 1.5px solid var(--border-outer);
   border-radius: var(--radius-lg);
@@ -128,13 +128,13 @@
   font-size: 0.95rem;
 }
 
-.saved-loading-state .spin-icon {
+:where(.saved-posts-page-shell) .saved-loading-state .spin-icon {
   animation: spin 1s linear infinite;
   color: var(--brand-orange);
   font-size: 1.3rem;
 }
 
-.saved-empty-state {
+:where(.saved-posts-page-shell) .saved-empty-state {
   background: var(--bg-outer-card);
   border: 1.5px solid var(--border-outer);
   border-radius: var(--radius-lg);
@@ -147,7 +147,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-.empty-bookmark-circle {
+:where(.saved-posts-page-shell) .empty-bookmark-circle {
   width: 64px;
   height: 64px;
   border-radius: 50%;
@@ -162,7 +162,7 @@
   box-shadow: var(--shadow-xs);
 }
 
-.saved-empty-state h3 {
+:where(.saved-posts-page-shell) .saved-empty-state h3 {
   font-family: var(--font-serif);
   font-style: italic;
   font-size: 1.5rem;
@@ -171,7 +171,7 @@
   margin: 0;
 }
 
-.saved-empty-state p {
+:where(.saved-posts-page-shell) .saved-empty-state p {
   color: var(--text-muted);
   font-size: 0.95rem;
   max-width: 480px;
@@ -179,7 +179,7 @@
   margin: 0;
 }
 
-.btn-explore-feed {
+:where(.saved-posts-page-shell) .btn-explore-feed {
   background: var(--brand-orange);
   color: #ffffff;
   border: none;
@@ -193,7 +193,7 @@
   transition: all var(--transition-fast);
 }
 
-.btn-explore-feed:hover {
+:where(.saved-posts-page-shell) .btn-explore-feed:hover {
   background: var(--brand-orange-hover);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(238, 80, 41, 0.35);
@@ -205,11 +205,11 @@
 }
 
 @media (max-width: 900px) {
-  .saved-posts-layout {
+  :where(.saved-posts-page-shell) .saved-posts-layout {
     grid-template-columns: 1fr;
   }
   
-  .saved-posts-sidebar-column {
+  :where(.saved-posts-page-shell) .saved-posts-sidebar-column {
     position: static;
   }
 }

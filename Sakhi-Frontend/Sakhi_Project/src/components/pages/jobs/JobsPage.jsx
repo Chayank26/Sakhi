@@ -129,7 +129,7 @@ export function JobsPage() {
     return (
         <div className="jobs-portal-wrapper">
             {/* Unified Home Navbar with Careers Tag */}
-            <HomeHeader pageTitle="Careers" /><Link className="btn-hero-action" to="/jobs/my-activity">My job activity</Link>
+            <HomeHeader pageTitle="Careers" />
 
             {/* Hero Search Section */}
             <section className="jobs-search-hero">
@@ -138,6 +138,8 @@ export function JobsPage() {
                     <p className="jobs-hero-subtitle">
                         Discover jobs, internships, and remote roles tailored to empower women professionals.
                     </p>
+
+                    <div className="jobs-hero-actions"><Link className="sakhi-btn sakhi-btn-secondary" to="/jobs/my-activity"><FiBriefcase /> My job activity</Link></div>
 
                     {/* Glassmorphic Multi-Field Search Bar */}
                     <form onSubmit={handleSearchSubmit} className="jobs-search-bar">

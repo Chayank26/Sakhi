@@ -9,7 +9,7 @@
 }
 
 /* Top Navigation Bar (Aligned with Navbar Sakhi Logo) */
-.details-top-nav-bar {
+:where(.post-details-page-shell) .details-top-nav-bar {
   width: 100%;
   max-width: 1240px;
   margin: 14px auto 0;
@@ -18,7 +18,7 @@
   justify-content: flex-start;
 }
 
-.btn-back-link-sleek {
+:where(.post-details-page-shell) .btn-back-link-sleek {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -34,41 +34,41 @@
   transition: all var(--transition-fast);
 }
 
-.btn-back-link-sleek:hover {
+:where(.post-details-page-shell) .btn-back-link-sleek:hover {
   background: var(--bg-outer-card);
   border-color: var(--brand-orange-border);
   color: var(--brand-orange);
   transform: translateY(-1px);
 }
 
-.post-details-main-container {
+:where(.post-details-page-shell) .post-details-main-container {
   max-width: 1240px;
   margin: 16px auto 0;
   padding: 0 20px;
 }
 
 /* 2-Column Grid Layout */
-.post-details-layout {
+:where(.post-details-page-shell) .post-details-layout {
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 24px;
   align-items: start;
 }
 
-.post-details-content-column {
+:where(.post-details-page-shell) .post-details-content-column {
   display: flex;
   flex-direction: column;
   gap: 24px;
   min-width: 0;
 }
 
-.post-details-sidebar-column {
+:where(.post-details-page-shell) .post-details-sidebar-column {
   position: sticky;
   top: 90px;
 }
 
 /* Loading & Error States */
-.details-loading-state {
+:where(.post-details-page-shell) .details-loading-state {
   background: var(--bg-outer-card);
   border: 1.5px solid var(--border-outer);
   border-radius: var(--radius-lg);
@@ -83,13 +83,13 @@
   font-size: 0.95rem;
 }
 
-.details-loading-state .spin-icon {
+:where(.post-details-page-shell) .details-loading-state .spin-icon {
   animation: spin 1s linear infinite;
   color: var(--brand-orange);
   font-size: 1.3rem;
 }
 
-.details-error-state {
+:where(.post-details-page-shell) .details-error-state {
   background: var(--bg-outer-card);
   border: 1.5px solid var(--border-outer);
   border-radius: var(--radius-lg);
@@ -102,7 +102,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-.details-error-state h3 {
+:where(.post-details-page-shell) .details-error-state h3 {
   font-family: var(--font-serif);
   font-style: italic;
   font-size: 1.5rem;
@@ -111,7 +111,7 @@
   margin: 0;
 }
 
-.details-error-state p {
+:where(.post-details-page-shell) .details-error-state p {
   color: var(--text-muted);
   font-size: 0.95rem;
   max-width: 480px;
@@ -119,7 +119,7 @@
   margin: 0;
 }
 
-.btn-return-home {
+:where(.post-details-page-shell) .btn-return-home {
   background: var(--brand-orange);
   color: #ffffff;
   border: none;
@@ -133,7 +133,7 @@
   transition: all var(--transition-fast);
 }
 
-.btn-return-home:hover {
+:where(.post-details-page-shell) .btn-return-home:hover {
   background: var(--brand-orange-hover);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(238, 80, 41, 0.35);
@@ -145,11 +145,11 @@
 }
 
 @media (max-width: 900px) {
-  .post-details-layout {
+  :where(.post-details-page-shell) .post-details-layout {
     grid-template-columns: 1fr;
   }
 
-  .post-details-sidebar-column {
+  :where(.post-details-page-shell) .post-details-sidebar-column {
     position: static;
   }
 }

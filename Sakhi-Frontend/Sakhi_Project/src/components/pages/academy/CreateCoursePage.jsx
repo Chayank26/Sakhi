@@ -432,24 +432,31 @@ export function CreateCoursePage() {
                                             </button>
                                         )}
                                     </div>
-                                    {mod.lessons.map((lesson, lessonIndex) => <label key={lessonIndex}>Lesson {lessonIndex + 1}
+                                    {mod.lessons.map((lesson, lessonIndex) => <label className="builder-lesson-field" key={lessonIndex}>Lesson {lessonIndex + 1}
                                         <input required value={lesson} onChange={e => setCurriculumModules(items => items.map((item, m) => m === idx ? { ...item, lessons: item.lessons.map((title, l) => l === lessonIndex ? e.target.value : title) } : item))} />
                                     </label>)}
-                                    <button type="button" onClick={() => setCurriculumModules(items => items.map((item, m) => m === idx ? { ...item, lessons: [...item.lessons, 'New lesson'] } : item))}>Add lesson</button>
+                                    <button className="sakhi-btn sakhi-btn-secondary" type="button" onClick={() => setCurriculumModules(items => items.map((item, m) => m === idx ? { ...item, lessons: [...item.lessons, 'New lesson'] } : item))}>Add lesson</button>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <section className="form-section"><h3>Lesson materials</h3><p>Add text and an optional resource URL for each lesson.</p>
+                    <section className="form-section lesson-materials"><h3 className="section-heading">Lesson materials</h3><p>Add text and an optional resource URL for each lesson.</p>
                         {curriculumModules.flatMap((module, m) => module.lessons.map((title, l) => {
                             const lessonKey = `${m}:${l}`;
                             const material = lessonMaterials.find(item => item.lessonKey === lessonKey) || {};
                             const update = (key, value) => setLessonMaterials(items => [...items.filter(item => item.lessonKey !== lessonKey), { ...material, lessonKey, [key]: value }]);
-                            return <div className="form-group" key={lessonKey}><label>{module.moduleTitle} — {title}
-                                <textarea maxLength={30000} value={material.content || ''} onChange={e => update('content', e.target.value)} placeholder="Lesson text" />
-                                <input type="url" value={material.resourceUrl || ''} onChange={e => update('resourceUrl', e.target.value)} placeholder="https://example.com/lesson" />
-                            </label></div>;
+                            return <div className="lesson-material-card" key={lessonKey}>
+                                <h4>{module.moduleTitle} — {title}</h4>
+                                <div className="form-group">
+                                    <label htmlFor={`lesson-content-${m}-${l}`}>Lesson text</label>
+                                    <textarea id={`lesson-content-${m}-${l}`} maxLength={30000} value={material.content || ''} onChange={e => update('content', e.target.value)} placeholder="Lesson text" />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor={`lesson-resource-${m}-${l}`}>Resource URL (optional)</label>
+                                    <input id={`lesson-resource-${m}-${l}`} type="url" value={material.resourceUrl || ''} onChange={e => update('resourceUrl', e.target.value)} placeholder="https://example.com/lesson" />
+                                </div>
+                            </div>;
                         }))}
                     </section>
                     {/* Submit Bar */}

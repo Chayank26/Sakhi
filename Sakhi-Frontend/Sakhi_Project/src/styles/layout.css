@@ -1,0 +1,48 @@
+/* Shared rhythm and control alignment; page-specific layouts keep their own styling. */
+:root {
+  --page-gutter: clamp(16px, 3vw, 32px);
+  --control-height: 44px;
+}
+:where(button, input, select, textarea) { line-height: 1.5; }
+button > svg, a > svg, label > svg { flex-shrink: 0; vertical-align: middle; }
+:where(.sakhi-btn, .btn-hero-action, .btn-back-link-sleek, .btn-search-submit,
+.btn-post-job-right, .btn-apply-card, .btn-reset-filters-large, .btn-cancel-post,
+.btn-publish-post, .btn-edit-profile, .btn-save-profile, .btn-submit-comment,
+.btn-explore-feed, .pagination-btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--control-height);
+  line-height: 1.4;
+  text-align: center;
+}
+:where(.job-card-footer, .course-card-footer, .create-submit-bar, .form-actions,
+.community-hero-actions, .academy-hero-actions, .schemes-hero-actions,
+.stats-actions-right, .jobs-stats-bar, .academy-stats-bar) { flex-wrap: wrap; row-gap: 12px; }
+:where(.jobs-layout-grid, .academy-layout-grid, .post-details-layout) > * { min-width: 0; }
+:where(.search-input-group, .job-title-wrapper, .profile-hero-info) { min-width: 0; }
+:where(.jobs-search-bar, .academy-search-bar, .hero-ai-search-bar) input { min-width: 0; }
+:where(.job-card-description, .post-content, .course-description, .profile-bio) { line-height: 1.75; }
+:where(.create-job-wrapper, .create-course-wrapper, .create-post-page-shell) .form-group > label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.5;
+}
+:where(.create-job-wrapper, .create-course-wrapper, .create-post-page-shell) .form-group { min-width: 0; }
+:where(.create-job-wrapper, .create-course-wrapper, .create-post-page-shell) :is(input, select, textarea) { min-width: 0; }
+:where(.activity-page, .profile-card) :is(p, h1, h2, h3) { text-align: left; }
+:where(.activity-page, .profile-card, .form-section) :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--brand-orange-active);
+  outline-offset: 2px;
+}
+@media (max-width: 600px) {
+  :where(.jobs-search-bar, .academy-search-bar) .search-input-group { width: 100%; }
+  :where(.mobile-filter-bar, .stats-actions-right, .desktop-sort-box, .mobile-sort-select) { flex-wrap: wrap; gap: 10px; }
+  :where(.create-submit-bar, .form-actions) { display: flex; flex-wrap: wrap; gap: 12px; }
+  :where(.create-submit-bar, .form-actions) > button { flex: 0 1 auto; width: 100%; margin: 0; }
+  :where(.create-job-wrapper, .create-course-wrapper) .form-section { padding: 22px 18px; }
+  :where(.jobs-portal-wrapper, .academy-wrapper) .job-card-footer { align-items: flex-start; gap: 12px; }
+  .auth-footer-switch { flex-wrap: wrap; text-align: center; }
+}

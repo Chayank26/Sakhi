@@ -1,3 +1,4 @@
+import '../pages/community/CommunityPage.css';
 import { FiShield, FiHeart, FiTag } from 'react-icons/fi';
 import { COMMUNITY_RULES, POPULAR_TOPICS } from './dummyData';
 

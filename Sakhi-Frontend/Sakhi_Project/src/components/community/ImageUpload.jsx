@@ -1,3 +1,4 @@
+import './CommunityControls.css';
 import { useState } from 'react';
 import { FiImage, FiX, FiUploadCloud, FiAlertCircle, FiLoader } from 'react-icons/fi';
 import { uploadPostImage } from '../../services/communityService';

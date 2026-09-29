@@ -1,3 +1,4 @@
+import './CommunityControls.css';
 import { useState } from 'react';
 import { COMMUNITY_CATEGORIES } from './dummyData';
 import { ImageUpload } from './ImageUpload';
