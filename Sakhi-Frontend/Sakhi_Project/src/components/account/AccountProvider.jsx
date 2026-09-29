@@ -4,6 +4,7 @@ import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { auth } from '../pages/firebase/firebase';
 import api from '../../services/api';
 import { AccountContext, useAccount } from './accountContext';
+import { isAccountActivity } from './accountData';
 const empty = { saved: { jobs: [], courses: [], schemes: [] }, applications: [], enrollments: [], profile: {} };
 
 export function AccountProvider({ children }) {
@@ -24,7 +25,13 @@ export function AccountProvider({ children }) {
         setLoading(true);
         try {
             const { data: result } = await api.get('/me');
-            if (current === version.current && sequence === requestSequence.current) { setData(result); setError(''); }
+            if (current === version.current && sequence === requestSequence.current) {
+                if (!isAccountActivity(result)) {
+                    setError('The account service returned incomplete data. Your saved activity could not be updated. Please retry.');
+                    return;
+                }
+                setData(result); setError('');
+            }
         } catch (err) {
             if (current === version.current && sequence === requestSequence.current) setError(err.response?.data?.message || 'Could not load your account activity. Please retry.');
         } finally { if (current === version.current && sequence === requestSequence.current) setLoading(false); }

@@ -14,13 +14,13 @@ async function noOverflow(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 }
 
-async function signIn(page) {
+async function signIn(page, accountResponse) {
   const user = { localId: 'browser-test-user', email: 'browser@example.test', displayName: 'Browser Test', emailVerified: true };
   const now = Math.floor(Date.now() / 1000);
   const encode = value => Buffer.from(JSON.stringify(value)).toString('base64url');
   const token = `${encode({ alg: 'none' })}.${encode({ sub: user.localId, user_id: user.localId, email: user.email, iat: now, exp: now + 3600, auth_time: now })}.test`;
   await page.route('https://identitytoolkit.googleapis.com/**', route => route.fulfill({ json: route.request().url().includes('accounts:lookup') ? { users: [user] } : { ...user, idToken: token, refreshToken: 'fixture-only', expiresIn: '3600', registered: true } }));
-  await page.route('**/api/me', route => route.fulfill({ json: { saved: { jobs: [], courses: [], schemes: [] }, applications: [], enrollments: [], profile: { name: 'Browser Test', bio: 'Learning new skills and exploring opportunities.', phone: '1234567890', age: 28 } } }));
+  await page.route('**/api/me', route => route.fulfill({ json: accountResponse ?? { saved: { jobs: [], courses: [], schemes: [] }, applications: [], enrollments: [], profile: { name: 'Browser Test', bio: 'Learning new skills and exploring opportunities.', phone: '1234567890', age: 28 } } }));
   await page.route('**/api/ai/profile', route => route.fulfill({ json: { profile: { city: 'New Delhi', goal: 'Find a new role', skills: ['Communication', 'Digital literacy'], interests: [], jobType: 'Remote', level: 'Beginner' } } }));
   await page.goto('/profile');
   await page.getByPlaceholder('you@example.com').fill(user.email);
@@ -90,4 +90,22 @@ test('profile and authoring forms align fields and wrap actions on small screens
   await expect(page.locator('.dropzone-box')).toBeVisible();
   await noOverflow(page);
   await page.screenshot({ path: testInfo.outputPath('post-create.png'), fullPage: true });
+});
+
+
+test('incomplete signed-in account responses keep directories usable and support retry', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await signIn(page, { success: true, profile: {} });
+  await expect(page.locator('.account-notice')).toContainText('account service returned incomplete data');
+  for (const path of ['/academy', '/jobs', '/schemes']) {
+    await page.locator(`.home-header-shell a[href="${path}"]`).first().click();
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+    await expect(page.getByText('This page couldn’t load.')).toHaveCount(0);
+    await expect(page.locator('.home-header-shell')).toBeVisible();
+  }
+  await page.route('**/api/me', route => route.fulfill({ json: { saved: { jobs: [], courses: [], schemes: [] }, applications: [], enrollments: [], profile: {} } }));
+  await page.locator('.account-notice').getByRole('button', { name: 'Retry' }).click();
+  await expect(page.locator('.account-notice')).toHaveCount(0);
+  expect(errors).toEqual([]);
 });
