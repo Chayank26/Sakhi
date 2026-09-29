@@ -1,3 +1,4 @@
+import './HomePage.css';
 import { useEffect, useState, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FiBell, FiUser, FiBriefcase, FiBookOpen, FiFileText, FiMessageSquare, FiCheck } from 'react-icons/fi'

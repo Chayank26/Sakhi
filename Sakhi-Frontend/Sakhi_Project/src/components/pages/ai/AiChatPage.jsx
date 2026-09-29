@@ -1,379 +1,144 @@
-import { buildChatTranscript } from './chatExport';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import { FiArrowUp, FiArrowDown, FiPlus, FiMenu, FiBriefcase, FiBookOpen, FiFileText, FiArrowUpRight, FiCopy, FiCheck, FiThumbsUp, FiThumbsDown, FiDownload, FiSquare, FiRefreshCw, FiAlertCircle, FiCompass } from 'react-icons/fi';
+import { useAccount } from '../../account/accountContext';
 import { useAiConversations } from './useAiConversations';
-import { HomeHeader } from '../home/HomeHeader';
+import { buildChatTranscript } from './chatExport';
+import { MAX_CHAT_LENGTH, safeChatRoute, shouldSendOnEnter } from './chatUiUtils';
 import { AiCardsContainer } from './AiChatCards';
 import { ChatSessionSidebar } from './ChatSessionSidebar';
-import {
-  FiSend,
-  FiTrash2,
-  FiCompass,
-  FiBriefcase,
-  FiBookOpen,
-  FiShield,
-  FiExternalLink,
-  FiFileText,
-  FiCopy,
-  FiCheck,
-  FiThumbsUp,
-  FiThumbsDown,
-  FiDownload
-} from 'react-icons/fi';
 import './AiChatPage.css';
 
-const INITIAL_WELCOME_MESSAGE = {
-  id: 'welcome-1',
-  sender: 'ai',
-  text: "Hello! I am Sakhi AI, your digital assistant on the Sakhi platform. How can I help you today?",
-  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-};
-
-const CATEGORIZED_PROMPTS = [
-  {
-    category: 'Jobs & Careers',
-    icon: <FiBriefcase />,
-    items: [
-      { label: 'Software jobs in Chennai', prompt: 'Find me software engineering jobs in Chennai.' },
-      { label: 'Remote roles for women', prompt: 'Show me remote job opportunities available for women.' },
-      { label: 'Entry-level openings', prompt: 'What entry-level fresher jobs are currently hiring?' }
-    ]
-  },
-  {
-    category: 'Sakhi Academy',
-    icon: <FiBookOpen />,
-    items: [
-      { label: 'Data Analytics courses', prompt: 'Recommend data analytics courses for me.' },
-      { label: 'Web development roadmap', prompt: 'What web development and coding courses are available?' },
-      { label: 'Free certifications', prompt: 'Recommend free beginner courses with certificates.' }
-    ]
-  },
-  {
-    category: 'Government Schemes',
-    icon: <FiFileText />,
-    items: [
-      { label: 'Women entrepreneur grants', prompt: 'What government schemes and loans are available for women entrepreneurs?' },
-      { label: 'Maternity benefits', prompt: 'Tell me about government maternity and healthcare financial schemes.' },
-      { label: 'Education scholarships', prompt: 'What government scholarships and grants exist for female students?' }
-    ]
-  },
-  {
-    category: 'Platform & Safety',
-    icon: <FiShield />,
-    items: [
-      { label: 'Emergency helplines', prompt: 'What are the 24/7 emergency safety helpline numbers for women?' },
-      { label: 'Explore Sakhi features', prompt: 'What features, mentorship, and services are available on Sakhi?' }
-    ]
-  }
+const prompts = [
+  { icon: FiBriefcase, title: 'Find your next opportunity', detail: 'Explore jobs that fit your skills and goals.', prompt: 'Find entry-level remote jobs for me.', tag: 'CAREERS' },
+  { icon: FiBookOpen, title: 'Learn something new', detail: 'Build confidence, one skill at a time.', prompt: 'Recommend free beginner Python courses.', tag: 'LEARNING' },
+  { icon: FiFileText, title: 'Discover available support', detail: 'Explore government schemes and benefits.', prompt: 'What schemes support women entrepreneurs?', tag: 'SCHEMES' },
 ];
 
 export function AiChatPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { messages: conversationMessages, sessions, activeSessionId, ready, busy, isTyping,
-    send, newChat, selectSession, cancel, rateMessage, reloadSessions, loadError, notice, accountKey } = useAiConversations();
-  const messages = conversationMessages.length ? conversationMessages : [INITIAL_WELCOME_MESSAGE];
-  const [inputDraft, setInputDraft] = useState({ accountKey: null, text: '' });
-  const inputValue = inputDraft.accountKey === accountKey ? inputDraft.text : '';
-  const setInputValue = useCallback((text) => setInputDraft({ accountKey, text }), [accountKey]);
-  const [copiedMessageId, setCopiedMessageId] = useState(null);
+  const { user } = useAccount();
+  const { messages, sessions, activeSessionId, ready, busy, isTyping, send, newChat, selectSession, cancel, rateMessage, reloadSessions, loadError, notice, accountKey } = useAiConversations();
+  const [draft, setDraft] = useState({ accountKey: null, text: '' });
+  const text = draft.accountKey === accountKey ? draft.text : '';
+  const [copied, setCopied] = useState(null);
   const [utilityNotice, setUtilityNotice] = useState('');
+  const [showLatest, setShowLatest] = useState(false);
+  const textarea = useRef(null);
+  const viewport = useRef(null);
+  const drawer = useRef(null);
+  const historyButton = useRef(null);
+  const stickToBottom = useRef(true);
   const copyTimer = useRef(null);
+  const processedPrompt = useRef(null);
+  const currentSession = sessions.find(session => session.id === activeSessionId);
+  const setText = useCallback(value => setDraft({ accountKey, text: value }), [accountKey]);
+
   useEffect(() => () => clearTimeout(copyTimer.current), []);
-  const messagesEndRef = useRef(null);
-  const textareaRef = useRef(null);
-  const initialPromptProcessed = useRef(false);
+  useEffect(() => {
+    if (textarea.current) { textarea.current.style.height = 'auto'; textarea.current.style.height = `${Math.min(textarea.current.scrollHeight, 160)}px`; }
+  }, [text]);
+  useEffect(() => {
+    if (stickToBottom.current && viewport.current) viewport.current.scrollTop = messages.length ? viewport.current.scrollHeight : 0;
+  }, [messages, isTyping, activeSessionId]);
+
+  const submit = useCallback(async value => {
+    const message = (value ?? text).trim();
+    if (!message || message.length > MAX_CHAT_LENGTH || busy || !ready) return;
+    stickToBottom.current = true;
+    const accepted = send(message);
+    if (value === undefined) setText('');
+    setUtilityNotice('');
+    textarea.current?.focus();
+    await accepted;
+  }, [text, busy, ready, send, setText]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversationMessages, isTyping]);
+    const prompt = new URLSearchParams(location.search).get('prompt') || location.state?.prompt;
+    if (!ready || busy || !prompt?.trim() || processedPrompt.current === location.key) return;
+    const timer = setTimeout(() => { processedPrompt.current = location.key; if (prompt.length > MAX_CHAT_LENGTH) setText(prompt.slice(0, MAX_CHAT_LENGTH)); else void submit(prompt); }, 0);
+    return () => clearTimeout(timer);
+  }, [location.key, location.search, location.state, ready, busy, submit, setText]);
 
-  const handleSend = useCallback((textToSend = null) => {
-    const text = (textToSend || inputValue).trim();
-    if (!text || busy || !ready) return;
-    void send(text);
-    if (!textToSend) setInputValue('');
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-  }, [inputValue, busy, ready, send, setInputValue]);
-
-  useEffect(() => {
-    if (!ready || busy || initialPromptProcessed.current) return;
-    const initialPrompt = new URLSearchParams(location.search).get('prompt') || location.state?.prompt;
-    if (initialPrompt?.trim()) {
-      const timer = setTimeout(() => {
-        initialPromptProcessed.current = true;
-        handleSend(initialPrompt.trim());
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [location.search, location.state, ready, busy, handleSend]);
-
-  // Handle keypress inside textarea (Enter sends, Shift+Enter newline)
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+  const trapHistoryFocus = event => {
+    if (event.key !== 'Tab') return;
+    const controls = [...event.currentTarget.querySelectorAll('a[href], button:not(:disabled), input:not(:disabled)')].filter(node => node.getClientRects().length);
+    const first = controls[0];
+    const last = controls.at(-1);
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
   };
-
-  // Auto-resize textarea as user types
-  const handleInputChange = (e) => {
-    setInputValue(e.target.value);
-    e.target.style.height = 'auto';
-    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+  const closeHistory = () => { drawer.current?.close(); historyButton.current?.focus(); };
+  const choose = id => { stickToBottom.current = true; setShowLatest(false); selectSession(id); closeHistory(); };
+  const startNew = () => { stickToBottom.current = true; setShowLatest(false); newChat(); setText(''); setUtilityNotice(''); closeHistory(); textarea.current?.focus(); };
+  const copy = async message => {
+    try { await navigator.clipboard.writeText(message.text); setCopied(message.id); setUtilityNotice('Response copied.'); clearTimeout(copyTimer.current); copyTimer.current = setTimeout(() => setCopied(null), 2000); }
+    catch { setUtilityNotice('Could not copy. Select the response text to copy it manually.'); }
   };
-
-  const handleCopyMessage = async (msgId, text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedMessageId(msgId);
-      setUtilityNotice('Message copied.');
-      clearTimeout(copyTimer.current);
-      copyTimer.current = setTimeout(() => setCopiedMessageId(null), 2000);
-    } catch {
-      setUtilityNotice('Could not copy. Select the message text to copy it manually.');
-    }
+  const download = () => {
+    const url = URL.createObjectURL(new Blob([buildChatTranscript(messages)], { type: 'text/plain;charset=utf-8' }));
+    const link = document.createElement('a'); link.href = url; link.download = `Sakhi_Chat_${new Date().toISOString().slice(0, 10)}.txt`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setUtilityNotice('Conversation exported.');
   };
+  const sidebarProps = { sessions, activeSessionId, ready, signedIn: Boolean(user), onNewChat: startNew, onSelectSession: choose, onClose: closeHistory };
 
-  // Export conversation as text file
-  const handleDownloadChat = () => {
-    const fullContent = buildChatTranscript(conversationMessages);
-
-    const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Sakhi_AI_Chat_${new Date().toISOString().slice(0, 10)}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
-
-  return (
-    <div className="ai-chat-shell">
-      <HomeHeader pageTitle="AI Assistant" />
-
-      {/* Top Bar with Export & Clear Buttons */}
-      <div className="ai-top-nav-bar">
-        <div className="ai-top-status-indicator">
-          <span className="pulse-dot"></span>
-          <span className="status-label">Sakhi AI Active</span>
+  return <main className="ai-workspace">
+    <div className="ai-desktop-sidebar"><ChatSessionSidebar {...sidebarProps} /></div>
+    <dialog className="ai-history-dialog" ref={drawer} aria-label="Chat history" onKeyDown={trapHistoryFocus} onClick={event => { if (event.target === event.currentTarget) closeHistory(); }}>
+      <ChatSessionSidebar {...sidebarProps} />
+    </dialog>
+    <section className="ai-conversation" aria-label="Sakhi AI conversation">
+      <header className="ai-conversation-header">
+        <button ref={historyButton} type="button" className="ai-icon-button ai-history-toggle" onClick={() => drawer.current?.showModal()} aria-label="Open chat history" aria-haspopup="dialog"><FiMenu /></button>
+        <div className="ai-conversation-heading"><span className="ai-overline">YOUR EVERYDAY GUIDE</span><h1>{currentSession?.title || 'A fresh start with Sakhi'}</h1></div>
+        <div className="ai-header-actions"><Link to="/home" className="ai-dashboard-link">Dashboard <FiArrowUpRight /></Link>
+          <button type="button" className="ai-icon-button" onClick={download} disabled={!messages.some(message => !message.failed && !message.isError)} aria-label="Export conversation" title="Export conversation"><FiDownload /></button>
+          <button type="button" className="ai-icon-button" onClick={startNew} disabled={!ready} aria-label="New conversation" title="New conversation"><FiPlus /></button>
         </div>
-
-        <div className="ai-top-actions-group">
-          <button
-            type="button"
-            onClick={handleDownloadChat}
-            disabled={!conversationMessages.some((message) => !message.failed && !message.isError)}
-            className="btn-top-action"
-            title="Download conversation transcript"
-          >
-            <FiDownload /> Export Chat
-          </button>
-          <button
-            type="button"
-            onClick={newChat}
-            className="btn-top-action danger"
-            title="Start a fresh conversation; saved chats remain in Recent chats"
-          >
-            <FiTrash2 /> Clear Chat
-          </button>
-        </div>
+      </header>
+      <div className="ai-notice-region" aria-live="polite" role="status">
+        {loadError && <p className="ai-notice ai-notice-error"><FiAlertCircle />{loadError}<button disabled={busy} onClick={reloadSessions}>Retry loading</button></p>}
+        {(notice || utilityNotice) && <p className="ai-notice">{notice || utilityNotice}</p>}
+        {busy && !isTyping && <p className="ai-notice">A response is running in another conversation.<button onClick={cancel}>Stop response</button></p>}
       </div>
-
-      <div className="ai-chat-notices" role="status" aria-live="polite">
-        {!ready && <p>Loading your conversations…</p>}
-        {loadError && <p>{loadError} <button type="button" disabled={busy} onClick={reloadSessions}>Retry loading</button></p>}
-        {(notice || utilityNotice) && <p>{notice || utilityNotice}</p>}
-        {busy && !isTyping && <p>A response is still running in another conversation. <button type="button" onClick={cancel}>Stop response</button></p>}
-      </div>
-      {/* Main Chat Body */}
-      <main className="ai-chat-body ai-chat-layout">
-        <ChatSessionSidebar
-          sessions={sessions}
-          onNewChat={newChat}
-          onSelectSession={selectSession}
-          activeSessionId={activeSessionId}
-        />
-
-        <div className="chat-messages-container">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`message-row ${msg.sender === 'user' ? 'user-row' : 'ai-row'}`}
-            >
-              <div className={`message-bubble ${msg.sender === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
-                {/* Bubble Content */}
-                <div className="bubble-content">
-                  {msg.sender === 'ai' ? (
-                    <ReactMarkdown>{msg.text}</ReactMarkdown>
-                  ) : (
-                    msg.text
-                  )}
-                </div>
-
-                {/* Structured In-Chat Cards (Jobs, Courses, Schemes) */}
-                {msg.sender === 'ai' && msg.cards && (
-                  <AiCardsContainer cards={msg.cards} />
-                )}
-
-                {/* Navigation Action Buttons */}
-                {Array.isArray(msg.actions) && msg.actions.length > 0 && (
-                  <div className="bubble-actions">
-                    {msg.actions.map((act, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        className="btn-action-nav"
-                        onClick={() => navigate(act.route)}
-                      >
-                        <span>{act.label}</span>
-                        <FiExternalLink />
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {msg.retry && msg.id === messages.at(-1)?.id && (
-                  <button type="button" className="btn-top-action" disabled={busy || !ready}
-                    onClick={() => send(msg.retry.text, { retry: msg.retry })}>Retry message</button>
-                )}
-                {/* Bottom Footer Meta & Controls */}
-                <div className="bubble-footer-row">
-                  <span className="bubble-timestamp">{msg.timestamp}</span>
-
-                  {msg.sender === 'ai' && (
-                    <div className="bubble-utility-buttons">
-                      <button
-                        type="button"
-                        className="btn-bubble-tool"
-                        onClick={() => handleCopyMessage(msg.id, msg.text)}
-                        title="Copy text"
-                      >
-                        {copiedMessageId === msg.id ? (
-                          <>
-                            <FiCheck className="tool-icon success" />
-                            <span className="tool-label">Copied</span>
-                          </>
-                        ) : (
-                          <>
-                            <FiCopy className="tool-icon" />
-                            <span className="tool-label">Copy</span>
-                          </>
-                        )}
-                      </button>
-
-                      <button
-                        type="button"
-                        className={`btn-bubble-tool ${msg.feedback === 'up' ? 'active-like' : ''}`}
-                        onClick={() => rateMessage(msg, 'up')}
-                        disabled={!msg.serverId || msg.feedbackPending}
-                        aria-pressed={msg.feedback === 'up'}
-                        title={msg.serverId ? 'Good response' : 'Feedback is available for saved responses'}
-                      >
-                        <FiThumbsUp className="tool-icon" />
-                      </button>
-
-                      <button
-                        type="button"
-                        className={`btn-bubble-tool ${msg.feedback === 'down' ? 'active-dislike' : ''}`}
-                        onClick={() => rateMessage(msg, 'down')}
-                        disabled={!msg.serverId || msg.feedbackPending}
-                        aria-pressed={msg.feedback === 'down'}
-                        title={msg.serverId ? 'Poor response' : 'Feedback is available for saved responses'}
-                      >
-                        <FiThumbsDown className="tool-icon" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {/* Typing Indicator */}
-          {isTyping && (
-            <div className="message-row ai-row">
-              <div className="message-bubble ai-bubble typing-bubble">
-                <div className="typing-dots">
-                  <span className="dot"></span>
-                  <span className="dot"></span>
-                  <span className="dot"></span>
-                </div>
-                <span className="typing-label">Sakhi AI is analyzing & generating response...</span>
-              </div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
+      <div ref={viewport} className="ai-message-viewport" role="region" aria-label="Messages" tabIndex={0} onScroll={event => { const node = event.currentTarget; const nearBottom = node.scrollHeight - node.scrollTop - node.clientHeight < 100; stickToBottom.current = nearBottom; setShowLatest(messages.length > 0 && !nearBottom); }}>
+        {!messages.length && <div className="ai-welcome">
+          <div className="ai-welcome-emblem" aria-hidden="true"><FiCompass /></div><span className="ai-overline">SMALL STEPS. NEW POSSIBILITIES.</span>
+          <h2>What’s your next<br /><em>chapter?</em></h2><p>A new role, a new skill, or a little direction.<br className="ai-desktop-break" /> Let’s find your way forward, together.</p>
+          <div className="ai-prompt-grid">{prompts.map(({ icon: Icon, title, detail, prompt, tag }) => <button className="ai-prompt-card" type="button" key={tag} onClick={() => submit(prompt)} disabled={!ready || busy}>
+            <span className="ai-prompt-top"><Icon /><span>{tag}</span><FiArrowUpRight /></span><strong>{title}</strong><span>{detail}</span>
+          </button>)}</div>
+          <p className="ai-welcome-hint">Try adding your location or a skill for more relevant suggestions.</p>
+        </div>}
+        <div className="ai-message-list" role="log" aria-label="Conversation messages" aria-live="polite" aria-relevant="additions">
+          {messages.map(message => <article key={message.id} className={`ai-message ${message.sender === 'user' ? 'ai-message-user' : 'ai-message-assistant'} ${message.isError ? 'ai-message-error' : ''}`} aria-label={message.sender === 'user' ? 'Your message' : message.isError ? 'Response issue' : 'Sakhi response'}>
+            <div className="ai-message-author"><span className="ai-avatar" aria-hidden="true">{message.sender === 'user' ? 'Y' : <FiCompass />}</span><h2>{message.sender === 'user' ? 'You' : 'Sakhi'}</h2><time>{message.timestamp}</time>{message.failed && <span className="ai-failed-label">Not completed</span>}</div>
+            <div className="ai-message-content">{message.sender === 'ai' ? <ReactMarkdown components={{ a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{message.text}</ReactMarkdown> : <p>{message.text}</p>}</div>
+            {message.sender === 'ai' && !message.isError && <AiCardsContainer cards={message.cards} />}
+            {!!message.actions?.length && <div className="ai-message-actions">{message.actions.filter(action => safeChatRoute(action.route)).map((action, index) => <button type="button" key={index} onClick={() => navigate(action.route)}>{action.label}<FiArrowUpRight /></button>)}</div>}
+            {message.retry && message.id === messages.at(-1)?.id && <button type="button" className="ai-retry-button" disabled={busy || !ready} onClick={() => send(message.retry.text, { retry: message.retry })}><FiRefreshCw /> Retry message</button>}
+            {message.sender === 'ai' && !message.isError && <div className="ai-message-tools">
+              <button type="button" onClick={() => copy(message)} aria-label={copied === message.id ? 'Response copied' : 'Copy response'}>{copied === message.id ? <FiCheck /> : <FiCopy />}<span>{copied === message.id ? 'Copied' : 'Copy'}</span></button>
+              <button type="button" onClick={() => rateMessage(message, 'up')} disabled={!message.serverId || message.feedbackPending} aria-label="Helpful response" aria-pressed={message.feedback === 'up'} title={message.serverId ? 'Helpful response' : 'Sign in to save feedback'}><FiThumbsUp /></button>
+              <button type="button" onClick={() => rateMessage(message, 'down')} disabled={!message.serverId || message.feedbackPending} aria-label="Unhelpful response" aria-pressed={message.feedback === 'down'} title={message.serverId ? 'Unhelpful response' : 'Sign in to save feedback'}><FiThumbsDown /></button>
+            </div>}
+          </article>)}
         </div>
-
-        {/* Categorized Suggested Prompts (visible when chat has <= 2 messages) */}
-        {messages.length <= 2 && !isTyping && (
-          <div className="suggested-prompts-wrapper">
-            <p className="suggested-heading">
-              <FiCompass className="heading-icon" /> Quick Exploration Prompts
-            </p>
-
-            <div className="prompts-category-grid">
-              {CATEGORIZED_PROMPTS.map((cat, idx) => (
-                <div key={idx} className="prompt-category-card">
-                  <div className="prompt-category-header">
-                    <span className="cat-icon">{cat.icon}</span>
-                    <span className="cat-title">{cat.category}</span>
-                  </div>
-                  <div className="category-chips-list">
-                    {cat.items.map((item, itemIdx) => (
-                      <button
-                        key={itemIdx}
-                        type="button"
-                        className="prompt-chip-btn"
-                        disabled={busy || !ready}
-                        onClick={() => handleSend(item.prompt)}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+        {isTyping && <div className="ai-thinking" role="status"><span className="ai-thinking-dots" aria-hidden="true"><i /><i /><i /></span>Finding a helpful way forward…</div>}
+      </div>
+      <div className="ai-composer-area">
+        {showLatest && <button type="button" className="ai-jump-latest" onClick={() => { if (viewport.current) viewport.current.scrollTop = viewport.current.scrollHeight; stickToBottom.current = true; setShowLatest(false); }}><FiArrowDown /> Latest message</button>}
+        <form className="ai-composer" onSubmit={event => { event.preventDefault(); void submit(); }}>
+          <label className="ai-sr-only" htmlFor="sakhi-message">Message Sakhi AI</label>
+          <textarea id="sakhi-message" ref={textarea} rows={1} value={text} maxLength={MAX_CHAT_LENGTH} onChange={event => setText(event.target.value)} onKeyDown={event => { if (shouldSendOnEnter(event)) { event.preventDefault(); void submit(); } }} placeholder={ready ? 'Tell me what you’re looking for…' : 'Getting your conversations ready…'} disabled={!ready} aria-describedby="ai-composer-help" />
+          <div className="ai-composer-bottom"><span id="ai-composer-help">{text.length > MAX_CHAT_LENGTH - 500 ? `${text.length.toLocaleString()} / ${MAX_CHAT_LENGTH.toLocaleString()}` : 'Enter to send · Shift + Enter for a new line'}</span>
+            {busy ? <button type="button" className="ai-send-button ai-stop-button" onClick={cancel} aria-label="Stop response"><FiSquare /></button> : <button type="submit" className="ai-send-button" disabled={!text.trim() || !ready} aria-label="Send message"><FiArrowUp /></button>}
           </div>
-        )}
-      </main>
-
-      {/* Input Dock Footer */}
-      <footer className="ai-chat-footer">
-        <div className="input-dock-container">
-          <textarea
-            ref={textareaRef}
-            rows={1}
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask Sakhi anything about jobs, courses, government schemes, or safety..."
-            className="ai-chat-textarea"
-            disabled={!ready}
-            aria-label="Message Sakhi AI"
-          />
-          {busy && <button type="button" className="btn-top-action" onClick={cancel}>Stop</button>}
-          <button
-            type="button"
-            className="btn-send-message"
-            onClick={() => handleSend()}
-            disabled={!inputValue.trim() || busy || !ready}
-            aria-label="Send message"
-          >
-            <FiSend />
-          </button>
-        </div>
-        <div className="footer-disclaimer">
-          <span>Press <strong>Enter ↵</strong> to send • <strong>Shift + Enter</strong> for multi-line</span>
-        </div>
-      </footer>
-    </div>
-  );
+        </form>
+        <p className="ai-composer-note">A starting point, not a final answer. Verify details with the original source. <Link to="/support">Need help?</Link></p>
+      </div>
+    </section>
+  </main>;
 }
-

@@ -4,6 +4,8 @@ import { auth } from '../firebase/firebase';
 import { createAiSession, getAiSessions, sendChatMessage, saveAiFeedback } from '../../../services/aiApi';
 import { chatSessionReducer, createChatState, mapSessionToSidebar } from './chatSessionUtils';
 
+import { retryDelayMs } from './chatUiUtils';
+
 const localId = () => `local-${crypto.randomUUID()}`;
 const displayMessage = (sender, text, extra = {}) => ({
   id: localId(), sender, text,
@@ -38,8 +40,8 @@ export function useAiConversations() {
           const response = await getAiSessions();
           sessions = (response.sessions || []).map(mapSessionToSidebar);
         }
-      } catch (error) {
-        console.error('Failed to load Sakhi AI conversations:', error);
+      } catch {
+        console.error('Failed to load Sakhi AI conversations.');
         errorMessage = 'Saved conversations could not be loaded.';
       }
       if (generation === lifecycle.current) {
@@ -109,7 +111,7 @@ export function useAiConversations() {
         const text = request.controller.signal.aborted ? 'Response stopped. You can retry this message.'
           : error.response?.data?.message || (error.code === 'ECONNABORTED' ? 'The request timed out. You can retry this message.' : 'Unable to connect to Sakhi AI. Please try again.');
         dispatch({ type: 'append', id: sessionId, message: displayMessage('ai', text, { isError: true, turnId,
-          retry: { text: userMessage.text, turnId, retryAt: Date.now() + (error.response?.data?.retryAfter || 0) * 1000 } }) });
+          retry: { text: userMessage.text, turnId, retryAt: Date.now() + retryDelayMs(error) } }) });
       }
     } finally {
       if (isCurrent() && inFlight.current === request) {

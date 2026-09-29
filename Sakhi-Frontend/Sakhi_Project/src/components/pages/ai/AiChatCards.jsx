@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { recommendationRoute, formatCoursePrice } from './chatUiUtils';
 import {
   FiBriefcase,
   FiMapPin,
@@ -16,11 +17,9 @@ import './AiChatCards.css';
  * Job Mini-Card for in-chat display
  */
 export function JobMiniCard({ job }) {
-  const navigate = useNavigate();
   if (!job) return null;
 
   const {
-    jobId,
     title,
     company,
     location,
@@ -29,13 +28,6 @@ export function JobMiniCard({ job }) {
     experience
   } = job;
 
-  const handleNavigate = () => {
-    if (jobId) {
-      navigate(`/jobs?q=${encodeURIComponent(title || '')}`);
-    } else {
-      navigate('/jobs');
-    }
-  };
 
   return (
     <div className="ai-mini-card ai-job-card">
@@ -71,10 +63,10 @@ export function JobMiniCard({ job }) {
       </div>
 
       {(job.recommendationReason) && <p className="ai-card-description"><strong>Why this fits:</strong> {job.recommendationReason}</p>}
-      <button type="button" className="ai-card-action-btn" onClick={handleNavigate}>
+      <Link className="ai-card-action-btn" to={recommendationRoute('job', job)}>
         <span>View Details</span>
         <FiArrowRight />
-      </button>
+      </Link>
     </div>
   );
 }
@@ -83,11 +75,9 @@ export function JobMiniCard({ job }) {
  * Course Mini-Card for in-chat display
  */
 export function CourseMiniCard({ course }) {
-  const navigate = useNavigate();
   if (!course) return null;
 
   const {
-    courseId,
     title,
     instructor,
     difficulty,
@@ -96,13 +86,6 @@ export function CourseMiniCard({ course }) {
     rating
   } = course;
 
-  const handleNavigate = () => {
-    if (courseId) {
-      navigate(`/academy?search=${encodeURIComponent(title || '')}`);
-    } else {
-      navigate('/academy');
-    }
-  };
 
   return (
     <div className="ai-mini-card ai-course-card">
@@ -123,25 +106,25 @@ export function CourseMiniCard({ course }) {
             <span>{duration}</span>
           </div>
         )}
-        {rating && (
+        {Number(rating) > 0 && (
           <div className="ai-card-meta-item">
             <FiStar className="meta-icon star" />
             <span>{rating} / 5</span>
           </div>
         )}
-        {price && (
+        {price != null && (
           <div className="ai-card-meta-item">
             <FiAward className="meta-icon" />
-            <span>{price}</span>
+            <span>{formatCoursePrice(price)}</span>
           </div>
         )}
       </div>
 
       {course.recommendationReason && <p className="ai-card-description"><strong>Why this fits:</strong> {course.recommendationReason}</p>}
-      <button type="button" className="ai-card-action-btn" onClick={handleNavigate}>
+      <Link className="ai-card-action-btn" to={recommendationRoute('course', course)}>
         <span>Explore Course</span>
         <FiArrowRight />
-      </button>
+      </Link>
     </div>
   );
 }
@@ -150,11 +133,9 @@ export function CourseMiniCard({ course }) {
  * Government Scheme Mini-Card for in-chat display
  */
 export function SchemeMiniCard({ scheme }) {
-  const navigate = useNavigate();
   if (!scheme) return null;
 
   const {
-    schemeId,
     name,
     category,
     governmentLevel,
@@ -162,13 +143,6 @@ export function SchemeMiniCard({ scheme }) {
     shortDescription
   } = scheme;
 
-  const handleNavigate = () => {
-    if (schemeId) {
-      navigate(`/schemes?q=${encodeURIComponent(name || '')}`);
-    } else {
-      navigate('/schemes');
-    }
-  };
 
   return (
     <div className="ai-mini-card ai-scheme-card">
@@ -189,10 +163,10 @@ export function SchemeMiniCard({ scheme }) {
       )}
 
       {scheme.recommendationReason && <p className="ai-card-description"><strong>Why this fits:</strong> {scheme.recommendationReason}</p>}
-      <button type="button" className="ai-card-action-btn" onClick={handleNavigate}>
+      <Link className="ai-card-action-btn" to={recommendationRoute('scheme', scheme)}>
         <span>View Scheme</span>
         <FiArrowRight />
-      </button>
+      </Link>
     </div>
   );
 }
@@ -214,10 +188,10 @@ export function AiCardsContainer({ cards }) {
     <div className="ai-cards-container">
       {hasJobs && (
         <div className="ai-cards-section">
-          <div className="ai-cards-section-header">
+          <h3 className="ai-cards-section-header">
             <FiBriefcase className="section-icon" />
             <span>Matching Job Openings</span>
-          </div>
+          </h3>
           <div className="ai-cards-horizontal-scroll">
             {jobs.map((job, idx) => (
               <JobMiniCard key={job.jobId || idx} job={job} />
@@ -228,10 +202,10 @@ export function AiCardsContainer({ cards }) {
 
       {hasCourses && (
         <div className="ai-cards-section">
-          <div className="ai-cards-section-header">
+          <h3 className="ai-cards-section-header">
             <FiBookOpen className="section-icon" />
             <span>Recommended Academy Courses</span>
-          </div>
+          </h3>
           <div className="ai-cards-horizontal-scroll">
             {courses.map((course, idx) => (
               <CourseMiniCard key={course.courseId || idx} course={course} />
@@ -242,10 +216,10 @@ export function AiCardsContainer({ cards }) {
 
       {hasSchemes && (
         <div className="ai-cards-section">
-          <div className="ai-cards-section-header">
+          <h3 className="ai-cards-section-header">
             <FiFileText className="section-icon" />
             <span>Government Welfare Schemes</span>
-          </div>
+          </h3>
           <div className="ai-cards-horizontal-scroll">
             {schemes.map((scheme, idx) => (
               <SchemeMiniCard key={scheme.schemeId || idx} scheme={scheme} />
