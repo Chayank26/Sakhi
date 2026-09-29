@@ -1,3 +1,5 @@
+import { requireDatabase } from '../config/db.js';
+import { validId } from '../utils/http.js';
 import express from 'express';
 import {
     getSchemes,
@@ -12,6 +14,8 @@ import {
 } from '../controllers/schemeAiController.js';
 
 const router = express.Router();
+router.use(requireDatabase);
+router.param('id', (req, res, next, id) => validId(id) ? next() : res.status(400).json({ success: false, message: 'Invalid record ID.' }));
 
 // Public Read Endpoints
 router.get('/', getSchemes);

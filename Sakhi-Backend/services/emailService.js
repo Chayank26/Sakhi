@@ -1,3 +1,4 @@
+import { escapeHtml } from '../utils/presentation.js';
 import nodemailer from 'nodemailer';
 
 export const sendApplicationNotificationEmail = async ({
@@ -18,14 +19,18 @@ export const sendApplicationNotificationEmail = async ({
 
         // Skip sending actual email if SMTP credentials are missing or default
         if (!smtpHost || !smtpUser || smtpUser === 'your_email@gmail.com') {
-            console.log(`[Email Service Simulation] Notification for job "${jobTitle}" application by ${applicantName} (${applicantEmail}) logged.`);
-            return { success: true, simulated: true };
+            console.log('[Email] Notification processing completed.');
+            return { success: false, skipped: true };
         }
 
         const transporter = nodemailer.createTransport({
             host: smtpHost,
             port: Number(process.env.SMTP_PORT) || 587,
             secure: Number(process.env.SMTP_PORT) === 465,
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 15000,
+            disableUrlAccess: true,
             auth: {
                 user: smtpUser,
                 pass: smtpPass,
@@ -39,27 +44,27 @@ export const sendApplicationNotificationEmail = async ({
                     <p style="margin: 5px 0 0 0; font-size: 14px;">Sakhi Career Opportunities</p>
                 </div>
                 <div style="padding: 24px; color: #333333;">
-                    <p>Dear <strong>${recruiterName || 'Hiring Team'}</strong>,</p>
-                    <p>You have received a new application for the position of <strong>${jobTitle}</strong>.</p>
+                    <p>Dear <strong>${escapeHtml(recruiterName || 'Hiring Team')}</strong>,</p>
+                    <p>You have received a new application for the position of <strong>${escapeHtml(jobTitle)}</strong>.</p>
                     
                     <div style="background-color: #f5f3ff; border-left: 4px solid #7c3aed; padding: 16px; margin: 20px 0; border-radius: 4px;">
                         <h4 style="margin: 0 0 10px 0; color: #6d28d9;">Applicant Information</h4>
-                        <p style="margin: 4px 0;"><strong>Name:</strong> ${applicantName}</p>
-                        <p style="margin: 4px 0;"><strong>Email:</strong> <a href="mailto:${applicantEmail}">${applicantEmail}</a></p>
-                        <p style="margin: 4px 0;"><strong>Phone:</strong> ${applicantPhone}</p>
+                        <p style="margin: 4px 0;"><strong>Name:</strong> ${escapeHtml(applicantName)}</p>
+                        <p style="margin: 4px 0;"><strong>Email:</strong> <a href="mailto:${escapeHtml(applicantEmail)}">${escapeHtml(applicantEmail)}</a></p>
+                        <p style="margin: 4px 0;"><strong>Phone:</strong> ${escapeHtml(applicantPhone)}</p>
                         <p style="margin: 4px 0;"><strong>Application Date:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
                     </div>
 
                     ${coverLetter ? `
                         <div style="margin-bottom: 20px;">
                             <h4 style="margin: 0 0 6px 0; color: #4b5563;">Cover Letter:</h4>
-                            <div style="background-color: #f9fafb; padding: 12px; border-radius: 6px; font-style: italic; white-space: pre-wrap;">${coverLetter}</div>
+                            <div style="background-color: #f9fafb; padding: 12px; border-radius: 6px; font-style: italic; white-space: pre-wrap;">${escapeHtml(coverLetter)}</div>
                         </div>
                     ` : ''}
 
                     ${resumeUrl ? `
                         <p style="margin-top: 20px;">
-                            <a href="${resumeUrl}" style="background-color: #7c3aed; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">Download Resume</a>
+                            <a href="${escapeHtml(resumeUrl)}" style="background-color: #7c3aed; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">Download Resume</a>
                         </p>
                     ` : ''}
 
@@ -80,10 +85,10 @@ export const sendApplicationNotificationEmail = async ({
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log(`[Email Service] Application notification sent to ${recruiterEmail}. Message ID: ${info.messageId}`);
+        console.log('[Email] Notification processing completed.');
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('[Email Service Error]:', error.message);
+        console.error('[Email] Notification delivery failed.');
         return { success: false, error: error.message };
     }
 };

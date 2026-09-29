@@ -63,11 +63,10 @@ export const getSchemes = async (req, res) => {
             schemes: result.schemes
         });
     } catch (error) {
-        console.error('[Scheme Controller] Error fetching schemes:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Server error while fetching government schemes.',
-            error: error.message
+            message: 'Server error while fetching government schemes.'
         });
     }
 };
@@ -102,11 +101,10 @@ export const getSchemeById = async (req, res) => {
             scheme
         });
     } catch (error) {
-        console.error('[Scheme Controller] Error fetching scheme details:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Server error while fetching scheme details.',
-            error: error.message
+            message: 'Server error while fetching scheme details.'
         });
     }
 };
@@ -153,11 +151,10 @@ export const searchSchemes = async (req, res) => {
             schemes: result.schemes
         });
     } catch (error) {
-        console.error('[Scheme Controller] Error searching schemes:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Server error while searching government schemes.',
-            error: error.message
+            message: 'Server error while searching government schemes.'
         });
     }
 };
@@ -190,11 +187,10 @@ export const getSchemesByCategory = async (req, res) => {
             schemes: result.schemes
         });
     } catch (error) {
-        console.error('[Scheme Controller] Error fetching category schemes:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Server error while fetching schemes by category.',
-            error: error.message
+            message: 'Server error while fetching schemes by category.'
         });
     }
 };

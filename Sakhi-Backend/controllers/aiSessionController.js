@@ -18,7 +18,7 @@ export const createAiSession = async (req, res) => {
 
         return res.status(201).json({ success: true, session: publicAiSession(session) });
     } catch (error) {
-        console.error('[AI Session Controller]: createAiSession failed', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         return res.status(500).json({ success: false, message: 'Failed to create AI session.' });
     }
 };
@@ -33,7 +33,7 @@ export const getAiSessions = async (req, res) => {
         const sessions = await AiChatSession.find({ userId }).sort({ lastActiveAt: -1 }).limit(20);
         return res.json({ success: true, sessions: sessions.map(publicAiSession) });
     } catch (error) {
-        console.error('[AI Session Controller]: getAiSessions failed', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         return res.status(500).json({ success: false, message: 'Failed to fetch AI sessions.' });
     }
 };
@@ -42,7 +42,7 @@ export const appendAiMessage = async (req, res) => {
     try {
         const { sessionId, role, content } = req.body;
 
-        if (!sessionId || !role || !content || !['user', 'assistant'].includes(role)) {
+        if (!sessionId || !role || !content || role !== 'user') {
             return res.status(400).json({ success: false, message: 'Invalid session payload.' });
         }
 
@@ -79,7 +79,7 @@ export const appendAiMessage = async (req, res) => {
             context: buildSessionContext(session.messages, 12)
         });
     } catch (error) {
-        console.error('[AI Session Controller]: appendAiMessage failed', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         return res.status(500).json({ success: false, message: 'Failed to save AI message.' });
     }
 };

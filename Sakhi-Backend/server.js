@@ -1,103 +1,32 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
-import { connectDB, healthCheck } from './config/db.js';
-import accountRoutes from './routes/accountRoutes.js';
-import jobRoutes from './routes/jobRoutes.js';
-import courseRoutes from './routes/courseRoutes.js';
-import communityRoutes from './routes/communityRoutes.js';
-import schemeRoutes from './routes/schemeRoutes.js';
-import aiRoutes from './routes/aiRoutes.js';
-import aiSessionRoutes from './routes/aiSessionRoutes.js';
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import app from './app.js';
+import { isAuthConfigured } from './middleware/auth.js';
+import { connectDB } from './config/db.js';
+import { validateRuntime } from './config/runtime.js';
 
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Ensure upload directory exists
-const uploadsDir = path.join(__dirname, 'uploads', 'resumes');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+    validateRuntime();
+    if (process.env.NODE_ENV === 'production' && !isAuthConfigured()) throw new Error('Firebase Admin configuration is invalid.');
+    if (!await connectDB()) throw new Error('Database connection is required to start Sakhi.');
+    const port = Number(process.env.PORT || 5000);
+    const server = app.listen(port, () => console.log(`[Sakhi Backend] Listening on port ${port}`));
+    server.requestTimeout = 60_000;
+    server.headersTimeout = 65_000;
+    let stopping = false;
+    const shutdown = () => {
+        if (stopping) return;
+        stopping = true;
+        const deadline = setTimeout(() => process.exit(1), 10_000);
+        deadline.unref();
+        server.close(async () => { await mongoose.disconnect(); clearTimeout(deadline); process.exit(0); });
+    };
+    process.once('SIGTERM', shutdown);
+    process.once('SIGINT', shutdown);
+    server.on('error', () => { console.error('[Sakhi Backend] HTTP server failed.'); shutdown(); });
+} catch (error) {
+    console.error(`[Sakhi Backend] Startup failed: ${error.message}`);
+    await mongoose.disconnect();
+    process.exitCode = 1;
 }
-
-const allowedOrigins = [
-    process.env.FRONTEND_URL,
-    process.env.CLIENT_URL,
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://localhost:5174'
-].filter(Boolean);
-
-app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || allowedOrigins.length === 0) {
-            callback(null, true);
-        } else {
-            callback(null, true);
-        }
-    },
-    credentials: true,
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Resumes are downloaded through the authenticated recruiter endpoint.
-app.use('/uploads/resumes', (req, res) => res.status(403).json({ success: false, message: 'Sign in to review this application.' }));
-// Serve public community uploads
-app.use('/uploads/community', express.static(path.join(__dirname, 'uploads', 'community')));
-app.use('/uploads', (req, res) => res.status(404).json({ success: false, message: 'Upload not found.' }));
-
-// Root welcome endpoint
-app.get(['/', '/index.html'], (req, res) => {
-    res.json({
-        status: 'ok',
-        service: 'Sakhi Platform Backend API',
-        message: 'Welcome to Sakhi Platform Backend API',
-        healthCheck: '/api/health',
-        documentation: 'API active and servicing Sakhi platform requests.'
-    });
-});
-
-// Health check endpoint
-app.get('/api/health', healthCheck);
-
-// API Routes
-app.use('/api/me', accountRoutes);
-app.use('/api/jobs', jobRoutes);
-app.use('/api/courses', courseRoutes);
-app.use('/api/community', communityRoutes);
-app.use('/api/schemes', schemeRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/ai', aiSessionRoutes);
-
-// Root & Fallback Endpoint
-app.all('*', (req, res) => {
-    res.json({
-        status: 'ok',
-        service: 'Sakhi Platform Backend API',
-        healthCheck: '/api/health',
-        endpoints: {
-            jobs: '/api/jobs',
-            courses: '/api/courses',
-            community: '/api/community',
-            schemes: '/api/schemes',
-            ai: '/api/ai'
-        }
-    });
-});
-
-// Database connection
-connectDB();
-
-app.listen(PORT, () => {
-    console.log(`[Sakhi Backend] Server running on port ${PORT}`);
-});
-
 export default app;

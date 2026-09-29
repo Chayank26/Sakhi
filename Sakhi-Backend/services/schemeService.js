@@ -1,3 +1,4 @@
+import { literalRegex } from '../ai/tools/searchQuery.js';
 import GovernmentScheme from '../models/GovernmentScheme.js';
 
 /**
@@ -58,7 +59,7 @@ export const searchSchemesService = async (searchQuery = '', filters = {}, optio
     }
 
     const trimmedQuery = searchQuery.trim();
-    const regexPattern = new RegExp(trimmedQuery, 'i');
+    const regexPattern = literalRegex(trimmedQuery);
 
     const searchConditions = {
         $or: [

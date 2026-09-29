@@ -21,11 +21,10 @@ export const getAiContextData = async (req, res) => {
             schemes: contextPayload
         });
     } catch (error) {
-        console.error('[Scheme AI Controller] Error generating AI context payload:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to generate AI context payload.',
-            error: error.message
+            message: 'Failed to generate AI context payload.'
         });
     }
 };
@@ -59,11 +58,10 @@ export const checkEligibility = async (req, res) => {
             evaluation
         });
     } catch (error) {
-        console.error('[Scheme AI Controller] Error evaluating scheme eligibility:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Server error while checking scheme eligibility.',
-            error: error.message
+            message: 'Server error while checking scheme eligibility.'
         });
     }
 };
@@ -84,11 +82,10 @@ export const recommendSchemes = async (req, res) => {
             recommendations: result
         });
     } catch (error) {
-        console.error('[Scheme AI Controller] Error generating scheme recommendations:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Server error while generating scheme recommendations.',
-            error: error.message
+            message: 'Server error while generating scheme recommendations.'
         });
     }
 };

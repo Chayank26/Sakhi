@@ -156,12 +156,12 @@ export const createChatHandler = ({ Session = AiChatSession, generateResponse = 
         });
     } catch (error) {
         if (cancellation.signal.aborted) return;
-        console.error(`[AI Controller Error]: Failed to process chat request. requestId=${requestId}:`, error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         const statusCode = error.statusCode || 500;
         if (error.retryAfter) res.set('Retry-After', String(error.retryAfter));
         res.status(statusCode).json({
             success: false,
-            message: error.message || 'An error occurred while processing your AI request.',
+            message: statusCode >= 500 ? 'Sakhi AI is temporarily unavailable. Please retry.' : error.message || 'Unable to process this request.',
             retryAfter: error.retryAfter,
             requestId
         });

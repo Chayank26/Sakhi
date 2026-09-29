@@ -8,16 +8,10 @@ const API_BASE_URL = `${ROOT_API}/ai`;
 const aiHttpClient = axios.create({ timeout: 90000 });
 
 const getAuthHeaders = async () => {
-    try {
-        const currentUser = auth?.currentUser;
-        if (!currentUser) return {};
-
-        const token = await currentUser.getIdToken();
-        return { Authorization: `Bearer ${token}` };
-    } catch (error) {
-        console.warn('Failed to retrieve Firebase auth token for Sakhi AI:', error);
-        return {};
-    }
+    await auth.authStateReady();
+    const user = auth.currentUser;
+    if (!user) return {};
+    return { Authorization: `Bearer ${await user.getIdToken()}` };
 };
 
 /**
@@ -35,7 +29,7 @@ export const sendChatMessage = async (input, sessionId = null, { signal, clientT
         const response = await aiHttpClient.post(`${API_BASE_URL}/chat`, payload, { headers, signal });
         return response.data;
     } catch (error) {
-        console.error('Error sending chat message to Sakhi AI backend:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -48,7 +42,7 @@ export const getAiSessions = async () => {
         });
         return response.data;
     } catch (error) {
-        console.error('Error fetching Sakhi AI sessions:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -59,7 +53,7 @@ export const createAiSession = async ({ signal } = {}) => {
         const response = await aiHttpClient.post(`${API_BASE_URL}/sessions`, {}, { headers, signal });
         return response.data;
     } catch (error) {
-        console.error('Error creating Sakhi AI session:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -74,7 +68,7 @@ export const appendAiMessage = async (sessionId, role, content) => {
         }, { headers });
         return response.data;
     } catch (error) {
-        console.error('Error saving Sakhi AI message:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };

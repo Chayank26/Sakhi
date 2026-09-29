@@ -5,7 +5,7 @@ export const fetchCourses = async (params = {}) => {
         const response = await courseApi.get('/courses', { params });
         return response.data;
     } catch (error) {
-        console.error('Error fetching courses:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -15,7 +15,7 @@ export const fetchCourseById = async (id) => {
         const response = await courseApi.get(`/courses/${id}`);
         return response.data;
     } catch (error) {
-        console.error(`Error fetching course ${id}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -25,7 +25,7 @@ export const createCourse = async (courseData) => {
         const response = await courseApi.post('/courses', courseData);
         return response.data;
     } catch (error) {
-        console.error('Error creating course:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -35,7 +35,7 @@ export const enrollInCourse = async (courseId, enrollmentData) => {
         const response = await courseApi.post(`/courses/${courseId}/enroll`, enrollmentData);
         return response.data;
     } catch (error) {
-        console.error(`Error enrolling in course ${courseId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -45,7 +45,7 @@ export const fetchMyLearning = async () => {
         const response = await courseApi.get('/courses/my-learning');
         return response.data;
     } catch (error) {
-        console.error('Error fetching My Learning data:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };

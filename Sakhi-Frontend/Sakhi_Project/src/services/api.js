@@ -23,7 +23,7 @@ export const fetchJobs = async (params = {}) => {
         const response = await api.get('/jobs', { params });
         return response.data;
     } catch (error) {
-        console.error('Error fetching jobs:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -33,7 +33,7 @@ export const fetchJobById = async (id) => {
         const response = await api.get(`/jobs/${id}`);
         return response.data;
     } catch (error) {
-        console.error(`Error fetching job ${id}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -43,7 +43,7 @@ export const createJob = async (jobData) => {
         const response = await api.post('/jobs', jobData);
         return response.data;
     } catch (error) {
-        console.error('Error creating job:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -57,7 +57,7 @@ export const applyForJob = async (jobId, formData) => {
         });
         return response.data;
     } catch (error) {
-        console.error(`Error applying to job ${jobId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };

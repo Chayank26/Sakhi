@@ -83,8 +83,8 @@ export const getCourses = async (req, res) => {
             courses: await Promise.all(courses.map(async course => ({ ...course.toObject(), studentsEnrolled: await Enrollment.countDocuments({ courseId: course._id }) }))),
         });
     } catch (error) {
-        console.error('[CourseController Error]:', error);
-        res.status(500).json({ success: false, message: 'Server error fetching courses', error: error.message });
+        console.error('[API] Request failed.', { requestId: req.requestId });
+        res.status(500).json({ success: false, message: 'Server error fetching courses' });
     }
 };
 
@@ -97,8 +97,8 @@ export const getCourseById = async (req, res) => {
         }
         res.json({ success: true, course: { ...course.toObject(), studentsEnrolled: await Enrollment.countDocuments({ courseId: course._id }) } });
     } catch (error) {
-        console.error('[CourseController Error]:', error);
-        res.status(500).json({ success: false, message: 'Error retrieving course details', error: error.message });
+        console.error('[API] Request failed.', { requestId: req.requestId });
+        res.status(500).json({ success: false, message: 'Error retrieving course details' });
     }
 };
 
@@ -171,7 +171,7 @@ export const createCourse = async (req, res) => {
             course: newCourse,
         });
     } catch (error) {
-        console.error('[CourseController Error]:', error);
-        res.status(500).json({ success: false, message: 'Failed to publish course', error: error.message });
+        console.error('[API] Request failed.', { requestId: req.requestId });
+        res.status(500).json({ success: false, message: 'Failed to publish course' });
     }
 };

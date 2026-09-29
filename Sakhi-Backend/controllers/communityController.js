@@ -1,3 +1,5 @@
+import { publicAuthor } from '../utils/presentation.js';
+import { literalRegex } from '../ai/tools/searchQuery.js';
 import Post from '../models/Post.js';
 import Comment from '../models/Comment.js';
 import Report from '../models/Report.js';
@@ -20,7 +22,7 @@ export const getPosts = async (req, res) => {
 
         // Search query filter (Regex search on title and content)
         if (q && q.trim() !== '') {
-            const searchRegex = new RegExp(q.trim(), 'i');
+            const searchRegex = literalRegex(q);
             queryConditions.$or = [
                 { title: searchRegex },
                 { content: searchRegex },
@@ -39,8 +41,8 @@ export const getPosts = async (req, res) => {
             sortOption = { createdAt: 1 };
         }
 
-        const pageNum = parseInt(page, 10) || 1;
-        const limitNum = parseInt(limit, 10) || 10;
+        const pageNum = Math.min(10000, Math.max(1, parseInt(page, 10) || 1));
+        const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
         const skip = (pageNum - 1) * limitNum;
 
         // Fetch posts from MongoDB
@@ -60,7 +62,7 @@ export const getPosts = async (req, res) => {
 
             return {
                 id: post._id.toString(),
-                author: post.author,
+                author: publicAuthor(post.author),
                 title: post.title,
                 content: post.content,
                 category: post.category,
@@ -82,11 +84,10 @@ export const getPosts = async (req, res) => {
             totalPages: Math.ceil(totalPosts / limitNum) || 1
         });
     } catch (error) {
-        console.error('[Community Controller] Error fetching posts:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Server error while fetching community posts.',
-            error: error.message
+            message: 'Server error while fetching community posts.'
         });
     }
 };
@@ -108,7 +109,7 @@ export const searchPosts = async (req, res) => {
 
         // Regex search matching title, content, or category
         if (q && q.trim() !== '') {
-            const searchRegex = new RegExp(q.trim(), 'i');
+            const searchRegex = literalRegex(q);
             queryConditions.$or = [
                 { title: searchRegex },
                 { content: searchRegex },
@@ -126,8 +127,8 @@ export const searchPosts = async (req, res) => {
             sortOption = { createdAt: 1 };
         }
 
-        const pageNum = parseInt(page, 10) || 1;
-        const limitNum = parseInt(limit, 10) || 10;
+        const pageNum = Math.min(10000, Math.max(1, parseInt(page, 10) || 1));
+        const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
         const skip = (pageNum - 1) * limitNum;
 
         const rawPosts = await Post.find(queryConditions)
@@ -144,7 +145,7 @@ export const searchPosts = async (req, res) => {
             const bookmarksArr = post.bookmarks || [];
             return {
                 id: post._id.toString(),
-                author: post.author,
+                author: publicAuthor(post.author),
                 title: post.title,
                 content: post.content,
                 category: post.category,
@@ -169,11 +170,10 @@ export const searchPosts = async (req, res) => {
             totalPages: Math.ceil(totalPosts / limitNum) || 1
         });
     } catch (error) {
-        console.error('[Community Controller] Error searching posts:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Server error while searching community posts.',
-            error: error.message
+            message: 'Server error while searching community posts.'
         });
     }
 };
@@ -200,7 +200,7 @@ export const getPostById = async (req, res) => {
 
         const formattedPost = {
             id: post._id.toString(),
-            author: post.author,
+            author: publicAuthor(post.author),
             title: post.title,
             content: post.content,
             category: post.category,
@@ -218,11 +218,10 @@ export const getPostById = async (req, res) => {
             post: formattedPost
         });
     } catch (error) {
-        console.error('[Community Controller] Error fetching post by ID:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Server error while fetching post.',
-            error: error.message
+            message: 'Server error while fetching post.'
         });
     }
 };
@@ -275,7 +274,7 @@ export const createPost = async (req, res) => {
             message: 'Community post created successfully!',
             post: {
                 id: savedPost._id.toString(),
-                author: savedPost.author,
+                author: publicAuthor(savedPost.author),
                 title: savedPost.title,
                 content: savedPost.content,
                 category: savedPost.category,
@@ -289,11 +288,10 @@ export const createPost = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('[Community Controller] Error creating post:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to create post.',
-            error: error.message
+            message: 'Failed to create post.'
         });
     }
 };
@@ -319,10 +317,10 @@ export const uploadPostImage = async (req, res) => {
             imageUrl
         });
     } catch (error) {
-        console.error('[Community Controller] Error uploading image:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: error.message || 'Failed to process image upload.'
+            message: 'Failed to process image upload.'
         });
     }
 };
@@ -340,7 +338,7 @@ export const getPostComments = async (req, res) => {
         const comments = rawComments.map((c) => ({
             id: c._id.toString(),
             postId: c.post.toString(),
-            author: c.author,
+            author: publicAuthor(c.author),
             content: c.content,
             likesCount: c.likes ? c.likes.length : 0,
             isLiked: currentUserId && c.likes ? c.likes.includes(currentUserId) : false,
@@ -354,11 +352,10 @@ export const getPostComments = async (req, res) => {
             totalComments: comments.length
         });
     } catch (error) {
-        console.error('[Community Controller] Error fetching comments:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch post comments.',
-            error: error.message
+            message: 'Failed to fetch post comments.'
         });
     }
 };
@@ -414,7 +411,7 @@ export const addComment = async (req, res) => {
             comment: {
                 id: savedComment._id.toString(),
                 postId,
-                author: savedComment.author,
+                author: publicAuthor(savedComment.author),
                 content: savedComment.content,
                 likesCount: 0,
                 isLiked: false,
@@ -423,11 +420,10 @@ export const addComment = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('[Community Controller] Error adding comment:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to post comment.',
-            error: error.message
+            message: 'Failed to post comment.'
         });
     }
 };
@@ -473,7 +469,7 @@ export const updateComment = async (req, res) => {
             comment: {
                 id: updated._id.toString(),
                 postId: updated.post.toString(),
-                author: updated.author,
+                author: publicAuthor(updated.author),
                 content: updated.content,
                 likesCount: updated.likes ? updated.likes.length : 0,
                 isLiked: updated.likes ? updated.likes.includes(req.user.uid) : false,
@@ -482,11 +478,10 @@ export const updateComment = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('[Community Controller] Error updating comment:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to update comment.',
-            error: error.message
+            message: 'Failed to update comment.'
         });
     }
 };
@@ -530,11 +525,10 @@ export const deleteComment = async (req, res) => {
             message: 'Comment deleted successfully!'
         });
     } catch (error) {
-        console.error('[Community Controller] Error deleting comment:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to delete comment.',
-            error: error.message
+            message: 'Failed to delete comment.'
         });
     }
 };
@@ -568,11 +562,10 @@ export const likePost = async (req, res) => {
             likesCount: updatedPost.likes ? updatedPost.likes.length : 0
         });
     } catch (error) {
-        console.error('[Community Controller] Error upvoting post:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to upvote post.',
-            error: error.message
+            message: 'Failed to upvote post.'
         });
     }
 };
@@ -606,11 +599,10 @@ export const unlikePost = async (req, res) => {
             likesCount: updatedPost.likes ? updatedPost.likes.length : 0
         });
     } catch (error) {
-        console.error('[Community Controller] Error removing upvote from post:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to remove upvote.',
-            error: error.message
+            message: 'Failed to remove upvote.'
         });
     }
 };
@@ -643,11 +635,10 @@ export const bookmarkPost = async (req, res) => {
             isBookmarked: true
         });
     } catch (error) {
-        console.error('[Community Controller] Error bookmarking post:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to bookmark post.',
-            error: error.message
+            message: 'Failed to bookmark post.'
         });
     }
 };
@@ -680,11 +671,10 @@ export const unbookmarkPost = async (req, res) => {
             isBookmarked: false
         });
     } catch (error) {
-        console.error('[Community Controller] Error unbookmarking post:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to remove bookmark.',
-            error: error.message
+            message: 'Failed to remove bookmark.'
         });
     }
 };
@@ -703,7 +693,7 @@ export const getSavedPosts = async (req, res) => {
             const bookmarksArr = post.bookmarks || [];
             return {
                 id: post._id.toString(),
-                author: post.author,
+                author: publicAuthor(post.author),
                 title: post.title,
                 content: post.content,
                 category: post.category,
@@ -723,11 +713,10 @@ export const getSavedPosts = async (req, res) => {
             totalPosts: posts.length
         });
     } catch (error) {
-        console.error('[Community Controller] Error fetching saved posts:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch saved posts.',
-            error: error.message
+            message: 'Failed to fetch saved posts.'
         });
     }
 };
@@ -772,7 +761,7 @@ export const updatePost = async (req, res) => {
             message: 'Post updated successfully!',
             post: {
                 id: updatedPost._id.toString(),
-                author: updatedPost.author,
+                author: publicAuthor(updatedPost.author),
                 title: updatedPost.title,
                 content: updatedPost.content,
                 category: updatedPost.category,
@@ -786,11 +775,10 @@ export const updatePost = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('[Community Controller] Error updating post:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to update post.',
-            error: error.message
+            message: 'Failed to update post.'
         });
     }
 };
@@ -828,11 +816,10 @@ export const deletePost = async (req, res) => {
             message: 'Post and associated comments deleted successfully!'
         });
     } catch (error) {
-        console.error('[Community Controller] Error deleting post:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to delete post.',
-            error: error.message
+            message: 'Failed to delete post.'
         });
     }
 };
@@ -903,11 +890,10 @@ export const createReport = async (req, res) => {
             reportId: savedReport._id.toString()
         });
     } catch (error) {
-        console.error('[Community Controller] Error submitting report:', error);
+        console.error('[API] Request failed.', { requestId: req.requestId });
         res.status(500).json({
             success: false,
-            message: 'Failed to submit report.',
-            error: error.message
+            message: 'Failed to submit report.'
         });
     }
 };

@@ -6,18 +6,10 @@ const ROOT_API = RAW_API_URL.endsWith('/api') ? RAW_API_URL : `${RAW_API_URL.rep
 const API_BASE_URL = `${ROOT_API}/community`;
 
 const getAuthHeaders = async () => {
-    try {
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-            const token = await currentUser.getIdToken();
-            return {
-                Authorization: `Bearer ${token}`
-            };
-        }
-    } catch (err) {
-        console.warn('Failed to retrieve Firebase auth token:', err);
-    }
-    return {};
+    await auth.authStateReady();
+    const user = auth.currentUser;
+    if (!user) return {};
+    return { Authorization: `Bearer ${await user.getIdToken()}` };
 };
 
 /**
@@ -32,7 +24,7 @@ export const fetchPosts = async (params = {}) => {
         });
         return response.data;
     } catch (error) {
-        console.error('Error fetching community posts:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -49,7 +41,7 @@ export const searchPosts = async (query = '', category = 'All', sortBy = 'latest
         });
         return response.data;
     } catch (error) {
-        console.error(`Error searching posts for "${query}":`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -65,7 +57,7 @@ export const fetchPostById = async (id) => {
         });
         return response.data;
     } catch (error) {
-        console.error(`Error fetching post ${id}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -84,7 +76,7 @@ export const createPost = async (postData) => {
         });
         return response.data;
     } catch (error) {
-        console.error('Error creating community post:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -106,7 +98,7 @@ export const uploadPostImage = async (file) => {
         });
         return response.data;
     } catch (error) {
-        console.error('Error uploading post image:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -122,7 +114,7 @@ export const fetchComments = async (postId) => {
         });
         return response.data;
     } catch (error) {
-        console.error(`Error fetching comments for post ${postId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -145,7 +137,7 @@ export const createComment = async (postId, content) => {
         );
         return response.data;
     } catch (error) {
-        console.error(`Error creating comment for post ${postId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -168,7 +160,7 @@ export const updateComment = async (commentId, content) => {
         );
         return response.data;
     } catch (error) {
-        console.error(`Error updating comment ${commentId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -184,7 +176,7 @@ export const deleteComment = async (commentId) => {
         });
         return response.data;
     } catch (error) {
-        console.error(`Error deleting comment ${commentId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -202,7 +194,7 @@ export const likePost = async (postId) => {
         );
         return response.data;
     } catch (error) {
-        console.error(`Error upvoting post ${postId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -218,7 +210,7 @@ export const unlikePost = async (postId) => {
         });
         return response.data;
     } catch (error) {
-        console.error(`Error removing upvote from post ${postId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -236,7 +228,7 @@ export const bookmarkPost = async (postId) => {
         );
         return response.data;
     } catch (error) {
-        console.error(`Error bookmarking post ${postId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -252,7 +244,7 @@ export const unbookmarkPost = async (postId) => {
         });
         return response.data;
     } catch (error) {
-        console.error(`Error unbookmarking post ${postId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -268,7 +260,7 @@ export const fetchSavedPosts = async () => {
         });
         return response.data;
     } catch (error) {
-        console.error('Error fetching saved posts:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -287,7 +279,7 @@ export const updatePost = async (postId, postData) => {
         });
         return response.data;
     } catch (error) {
-        console.error(`Error updating post ${postId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -303,7 +295,7 @@ export const deletePost = async (postId) => {
         });
         return response.data;
     } catch (error) {
-        console.error(`Error deleting post ${postId}:`, error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };
@@ -322,7 +314,7 @@ export const submitReport = async (reportData) => {
         });
         return response.data;
     } catch (error) {
-        console.error('Error submitting moderation report:', error);
+        console.error('Sakhi API request failed.');
         throw error;
     }
 };

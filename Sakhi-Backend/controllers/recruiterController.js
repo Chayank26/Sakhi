@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { uploadRoot } from '../config/runtime.js';
 import { Job } from '../models/Job.js';
 import { JobApplication } from '../models/JobApplication.js';
 import { endpoint, fail, validId } from '../utils/http.js';
@@ -17,7 +17,7 @@ export function createRecruiterController({ Jobs = Job, Applications = JobApplic
             if (!application) fail(404, 'Application not found.');
             const filename = path.basename(new URL(application.resumeUrl, 'https://sakhi.invalid').pathname);
             if (!/^resume-[a-zA-Z0-9-]+\.(pdf|doc|docx)$/i.test(filename)) fail(404, 'Resume unavailable.');
-            const directory = fileURLToPath(new URL('../uploads/resumes/', import.meta.url));
+            const directory = path.join(uploadRoot, 'resumes');
             res.download(path.join(directory, filename), filename, error => {
                 if (error && !res.headersSent) res.status(404).json({ success: false, message: 'Resume file is unavailable.' });
             });

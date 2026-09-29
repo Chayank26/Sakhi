@@ -1,3 +1,4 @@
+import { escapeHtml } from '../utils/presentation.js';
 import nodemailer from 'nodemailer';
 
 export const sendCourseEnrollmentEmail = async ({
@@ -14,14 +15,18 @@ export const sendCourseEnrollmentEmail = async ({
 
         // Fallback simulation if SMTP is not configured
         if (!smtpHost || !smtpUser || smtpUser === 'your_email@gmail.com') {
-            console.log(`[Course Email Simulation] Welcome email for course "${courseTitle}" sent to ${studentName} (${studentEmail}).`);
-            return { success: true, simulated: true };
+            console.log('[Email] Notification processing completed.');
+            return { success: false, skipped: true };
         }
 
         const transporter = nodemailer.createTransport({
             host: smtpHost,
             port: Number(process.env.SMTP_PORT) || 587,
             secure: Number(process.env.SMTP_PORT) === 465,
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 15000,
+            disableUrlAccess: true,
             auth: {
                 user: smtpUser,
                 pass: smtpPass,
@@ -39,19 +44,19 @@ export const sendCourseEnrollmentEmail = async ({
                 </div>
 
                 <div style="padding: 28px 24px; color: #1e293b; line-height: 1.6;">
-                    <p style="font-size: 16px;">Dear <strong>${studentName}</strong>,</p>
-                    <p>Congratulations on enrolling in <strong>"${courseTitle}"</strong>! You have taken an exciting step toward advancing your skills and building your future.</p>
+                    <p style="font-size: 16px;">Dear <strong>${escapeHtml(studentName)}</strong>,</p>
+                    <p>Congratulations on enrolling in <strong>"${escapeHtml(courseTitle)}"</strong>! You have taken an exciting step toward advancing your skills and building your future.</p>
 
                     <div style="background-color: #f5f3ff; border-left: 4px solid #7c3aed; padding: 18px; margin: 24px 0; border-radius: 6px;">
                         <h4 style="margin: 0 0 10px 0; color: #6d28d9; font-size: 16px;">Course Overview</h4>
-                        <p style="margin: 4px 0;"><strong>Course:</strong> ${courseTitle}</p>
-                        <p style="margin: 4px 0;"><strong>Instructor:</strong> ${instructorName}</p>
+                        <p style="margin: 4px 0;"><strong>Course:</strong> ${escapeHtml(courseTitle)}</p>
+                        <p style="margin: 4px 0;"><strong>Instructor:</strong> ${escapeHtml(instructorName)}</p>
                         <p style="margin: 4px 0;"><strong>Enrollment Date:</strong> ${new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                         <p style="margin: 4px 0;"><strong>Status:</strong> Active / Enrolled</p>
                     </div>
 
                     <p style="text-align: center; margin: 30px 0;">
-                        <a href="${courseLink}" style="background-color: #7c3aed; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block;">
+                        <a href="${escapeHtml(courseLink)}" style="background-color: #7c3aed; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block;">
                             Start Learning Now →
                         </a>
                     </p>
@@ -73,10 +78,10 @@ export const sendCourseEnrollmentEmail = async ({
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log(`[Course Email Service] Welcome email dispatched to ${studentEmail}. ID: ${info.messageId}`);
+        console.log('[Email] Notification processing completed.');
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('[Course Email Service Error]:', error.message);
+        console.error('[Email] Notification delivery failed.');
         return { success: false, error: error.message };
     }
 };

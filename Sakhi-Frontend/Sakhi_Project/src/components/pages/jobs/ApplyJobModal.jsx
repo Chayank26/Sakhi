@@ -20,11 +20,11 @@ export function ApplyJobModal({ job, onClose, onSuccess }) {
         const file = e.target.files[0];
         if (!file) return;
 
-        const allowedExtensions = ['pdf', 'doc', 'docx'];
+        const allowedExtensions = ['pdf', 'docx'];
         const ext = file.name.split('.').pop().toLowerCase();
 
         if (!allowedExtensions.includes(ext)) {
-            setError('Please upload a valid PDF, DOC, or DOCX document.');
+            setError('Please upload a valid PDF or DOCX document.');
             setResumeFile(null);
             return;
         }
@@ -49,7 +49,7 @@ export function ApplyJobModal({ job, onClose, onSuccess }) {
         }
 
         if (!resumeFile) {
-            setError('Resume upload (PDF/DOC/DOCX) is required to apply!');
+            setError('Resume upload (PDF/DOCX) is required to apply!');
             return;
         }
 
@@ -153,7 +153,7 @@ export function ApplyJobModal({ job, onClose, onSuccess }) {
                                 <div className={`apply-job-file-dropzone ${resumeFile ? 'has-file' : ''}`}>
                                     <input
                                         type="file"
-                                        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                        accept=".pdf,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                         onChange={handleFileChange}
                                         id="resume-file-input"
                                     />

@@ -1,3 +1,6 @@
+import { uploadLimiter } from '../middleware/security.js';
+import { requireDatabase } from '../config/db.js';
+import { validId } from '../utils/http.js';
 import express from 'express';
 import {
     getPosts,
@@ -22,6 +25,8 @@ import { verifyToken, optionalToken } from '../middleware/auth.js';
 import { imageUpload } from '../middleware/imageUpload.js';
 
 const router = express.Router();
+router.use(requireDatabase);
+router.param('id', (req, res, next, id) => validId(id) ? next() : res.status(400).json({ success: false, message: 'Invalid record ID.' }));
 
 // Public / Optionally Authenticated routes
 router.get('/posts', optionalToken, getPosts);
@@ -34,7 +39,7 @@ router.get('/posts/:id/comments', optionalToken, getPostComments);
 router.post('/posts', verifyToken, createPost);
 router.put('/posts/:id', verifyToken, updatePost);
 router.delete('/posts/:id', verifyToken, deletePost);
-router.post('/upload-image', verifyToken, imageUpload.single('image'), uploadPostImage);
+router.post('/upload-image', verifyToken, uploadLimiter, imageUpload, uploadPostImage);
 router.post('/posts/:id/comments', verifyToken, addComment);
 router.put('/comments/:id', verifyToken, updateComment);
 router.delete('/comments/:id', verifyToken, deleteComment);

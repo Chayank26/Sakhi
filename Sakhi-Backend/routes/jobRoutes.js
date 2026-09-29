@@ -1,3 +1,4 @@
+import { uploadLimiter } from '../middleware/security.js';
 import express from 'express';
 import { validId } from '../utils/http.js';
 import {
@@ -30,11 +31,6 @@ router.get('/:id', getJobById);
 router.post('/', verifyToken, createJob);
 
 // POST /api/jobs/:id/apply
-router.post('/:id/apply', verifyToken, (req, res, next) => {
-    uploadResume.single('resume')(req, res, error => {
-        if (error) return res.status(error.code === 'LIMIT_FILE_SIZE' ? 413 : 400).json({ success: false, message: error.code === 'LIMIT_FILE_SIZE' ? 'Resume must be under 5 MB.' : 'Upload one PDF, DOC, or DOCX resume.' });
-        next();
-    });
-}, applyJob);
+router.post('/:id/apply', verifyToken, uploadLimiter, uploadResume, applyJob);
 
 export default router;

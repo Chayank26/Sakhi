@@ -123,8 +123,8 @@ export const getJobs = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('[JobController Error]:', error);
-        res.status(500).json({ success: false, message: 'Server error retrieving jobs', error: error.message });
+        console.error('[API] Request failed.', { requestId: req.requestId });
+        res.status(500).json({ success: false, message: 'Server error retrieving jobs' });
     }
 };
 
@@ -137,8 +137,8 @@ export const getJobById = async (req, res) => {
         if (!job) return res.status(404).json({ success: false, message: 'Job posting not found' });
         res.json({ success: true, job });
     } catch (error) {
-        console.error('[JobController Error]:', error);
-        res.status(500).json({ success: false, message: 'Error retrieving job details', error: error.message });
+        console.error('[API] Request failed.', { requestId: req.requestId });
+        res.status(500).json({ success: false, message: 'Error retrieving job details' });
     }
 };
 
@@ -216,7 +216,7 @@ export const createJob = async (req, res) => {
         const job = await Job.create(jobData);
         res.status(201).json({ success: true, job, message: 'Job published.' });
     } catch (error) {
-        console.error('[JobController Error]:', error);
-        res.status(500).json({ success: false, message: 'Failed to create job posting', error: error.message });
+        console.error('[API] Request failed.', { requestId: req.requestId });
+        res.status(500).json({ success: false, message: 'Failed to create job posting' });
     }
 };
