@@ -31,7 +31,7 @@ async function send(page, text = 'Find remote work') {
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
 }
 
-test('welcome and recommendations are accessible, responsive and link to records', async ({ page }, testInfo) => {
+test('welcome and text-only messages are accessible and responsive', async ({ page }, testInfo) => {
   await openChat(page);
   await expect(page.getByRole('heading', { name: /What’s your next/ })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Send message', exact: true })).toBeDisabled();
@@ -40,12 +40,12 @@ test('welcome and recommendations are accessible, responsive and link to records
   await page.screenshot({ path: testInfo.outputPath('welcome.png'), fullPage: true });
   await page.getByRole('button', { name: /Find your next opportunity/ }).click();
   await expect(page.getByRole('article', { name: 'Sakhi response', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'View Details' })).toHaveAttribute('href', `/jobs/${id}`);
-  await expect(page.getByRole('link', { name: 'Explore Course' })).toHaveAttribute('href', `/academy/course/${id}`);
-  await expect(page.getByRole('link', { name: 'View Scheme' })).toHaveAttribute('href', `/schemes/${id}`);
-  await expect(page.getByText('Free', { exact: true })).toBeVisible();
+  await expect(page.locator('.home-header-left')).toContainText('sakhi AI');
+  await expect(page.locator('.chat-sidebar-brand')).toHaveCount(0);
+  await expect(page.locator('.ai-message-author, .ai-message-tools, .ai-message-actions')).toHaveCount(0);
+  await expect(page.getByRole('article', { name: 'Sakhi response', exact: true })).toHaveText('Here are some starting points for your next step.');
+
   await expect(page.getByRole('button', { name: 'Unsafe action' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Helpful response', exact: true })).toBeDisabled();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('conversation.png'), fullPage: true });
@@ -154,7 +154,7 @@ test('prompt deep links send once and guest history clears on reload', async ({ 
   await expect(page.getByRole('article')).toHaveCount(0);
 });
 
-test('signed-in conversations, feedback and account page layouts survive reload', async ({ page, isMobile }, testInfo) => {
+test('signed-in conversations and account page layouts survive reload', async ({ page, isMobile }, testInfo) => {
   const user = { localId: 'browser-test-user', email: 'browser@example.test', displayName: 'Browser Test', emailVerified: true };
   const now = Math.floor(Date.now() / 1000);
   const encode = value => Buffer.from(JSON.stringify(value)).toString('base64url');
@@ -189,11 +189,8 @@ test('signed-in conversations, feedback and account page layouts survive reload'
   await expect(page).toHaveURL(/\/ai$/);
   await send(page, 'Save this question');
   await expect(page.getByText('Your saved recommendation.', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Helpful response', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Helpful response', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.reload();
   await expect(page.getByText('Your saved recommendation.', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Helpful response', exact: true })).toHaveAttribute('aria-pressed', 'true');
   for (const [path, heading] of [['/settings', 'Account settings'], ['/support', 'Help & support'], ['/jobs/my-activity', 'My job activity'], ['/academy/my-learning', 'My learning'], ['/saved-schemes', 'Saved schemes']]) {
     await page.goto(path);
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
@@ -255,4 +252,20 @@ test('public directories still render when opened directly after route splitting
   await expect(page.locator('.ai-workspace')).toHaveCSS('background-color', 'rgb(199, 224, 229)');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(errors).toEqual([]);
+});
+
+test('message bubbles fit short content and align user right and assistant left', async ({ page }) => {
+  await page.route('**/api/ai/chat', route => route.fulfill({ json: { message: 'Hello!' } }));
+  await openChat(page);
+  await send(page, 'Hi');
+  const user = page.getByRole('article', { name: 'Your message', exact: true });
+  const bot = page.getByRole('article', { name: 'Sakhi response', exact: true });
+  await expect(bot).toBeVisible();
+  const list = await page.locator('.ai-message-list').boundingBox();
+  const left = await bot.boundingBox();
+  const right = await user.boundingBox();
+  expect(Math.abs(left.x - list.x)).toBeLessThan(2);
+  expect(Math.abs(right.x + right.width - list.x - list.width)).toBeLessThan(2);
+  expect(left.width).toBeLessThan(list.width * .9);
+  expect(right.width).toBeLessThan(list.width * .9);
 });

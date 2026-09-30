@@ -9,11 +9,11 @@ const empty = { saved: { jobs: [], courses: [], schemes: [] }, applications: [],
 
 export function AccountProvider({ children }) {
     const [user, setUser] = useState(null); //checks if the firebase has an authenticated user
-    const [ready, setReady] = useState(false); //checks 
-    const [data, setData] = useState(empty);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const version = useRef(0);
+    const [ready, setReady] = useState(false); //checks if there is already a logged-in session
+    const [data, setData] = useState(empty); //stores the data of the logged in user
+    const [loading, setLoading] = useState(false); //checks whether account activity is currently being fetched.
+    const [error, setError] = useState(''); //stores account related error messages
+    const version = useRef(0); //
     const requestSequence = useRef(0);
     const pending = useRef(new Set());
     const navigate = useNavigate();

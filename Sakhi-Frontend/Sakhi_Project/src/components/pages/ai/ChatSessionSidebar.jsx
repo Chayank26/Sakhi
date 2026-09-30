@@ -6,7 +6,7 @@ export function ChatSessionSidebar({ sessions = [], onNewChat, activeSessionId, 
   const [query, setQuery] = useState('');
   const filtered = sessions.filter(session => `${session.title} ${session.preview}`.toLowerCase().includes(query.toLowerCase()));
   return <aside className="chat-session-sidebar" aria-label="Chat history">
-    <div className="ai-sidebar-brand-row"><Link className="chat-sidebar-brand" to="/home" aria-label="Back to Sakhi dashboard">sakhi<span>AI</span></Link>
+    <div className="ai-sidebar-brand-row">
       <button type="button" className="ai-icon-button ai-history-close" onClick={onClose} aria-label="Close chat history"><FiX /></button></div>
     <button type="button" className="ai-new-chat" onClick={onNewChat} disabled={!ready}><FiPlus /> New conversation</button>
     <label className="ai-history-search"><FiSearch aria-hidden="true" /><span className="ai-sr-only">Search conversations</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search conversations" /></label>
