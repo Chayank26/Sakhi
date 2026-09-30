@@ -10,7 +10,7 @@ export const requestContext = (req, res, next) => {
 
 export function corsOptions(env = process.env) {
     const configured = [env.FRONTEND_URL, env.CLIENT_URL].filter(Boolean).map(value => new URL(value).origin);
-    const origins = new Set([...configured, ...(env.NODE_ENV === 'production' ? [] : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'])]);
+    const origins = new Set([...configured, ...(env.NODE_ENV === 'production' ? [] : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://127.0.0.1:5175', 'http://localhost:3000'])]);
     return {
         origin(origin, callback) {
             if (!origin || origins.has(origin)) return callback(null, true);

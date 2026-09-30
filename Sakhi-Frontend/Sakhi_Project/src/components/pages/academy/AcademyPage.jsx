@@ -1,3 +1,4 @@
+import { PageNotice } from '../../PageNotice';
 import { useAccount } from '../../account/accountContext';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -76,7 +77,7 @@ export function AcademyPage() {
             } catch (err) {
                 if (!active) return;
                 console.error('Failed to load courses:', err);
-                setError('Unable to connect to academy service. Please ensure the backend is running.');
+                setError('Courses could not be loaded. Please try again.');
             } finally {
                 if (active) setLoading(false);
             }
@@ -323,10 +324,7 @@ export function AcademyPage() {
 
                         {/* Error Alert */}
                         {error && (
-                            <div className="academy-error-alert">
-                                <p>{error}</p>
-                                <button onClick={() => setRetry(r => r + 1)} className="btn-retry">Retry</button>
-                            </div>
+                            <PageNotice onRetry={() => setRetry(r => r + 1)}>{error}</PageNotice>
                         )}
 
                         {/* Loading Skeleton */}

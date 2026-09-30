@@ -8,7 +8,7 @@ import { isAccountActivity } from './accountData';
 const empty = { saved: { jobs: [], courses: [], schemes: [] }, applications: [], enrollments: [], profile: {} };
 
 export function AccountProvider({ children }) {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null); //checks if the firebase has an authenticated user
     const [ready, setReady] = useState(false);
     const [data, setData] = useState(empty);
     const [loading, setLoading] = useState(false);

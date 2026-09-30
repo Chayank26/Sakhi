@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function noOverflow(page) {
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 }
 
 async function signIn(page, accountResponse) {
@@ -108,4 +108,50 @@ test('incomplete signed-in account responses keep directories usable and support
   await page.locator('.account-notice').getByRole('button', { name: 'Retry' }).click();
   await expect(page.locator('.account-notice')).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test('community search stays below the hero and filters discussions', async ({ page }, testInfo) => {
+  await page.route('**/api/community/posts?*', route => route.fulfill({ json: { success: true, posts: [post] } }));
+  await page.goto('/community');
+  const search = page.getByRole('searchbox', { name: 'Search discussions' });
+  await expect(search).toBeVisible();
+  await expect(page.getByText(post.title, { exact: true })).toBeVisible();
+  const hero = await page.locator('.community-hero-banner').boundingBox();
+  const form = await page.getByRole('search', { name: 'Community discussions' }).boundingBox();
+  const container = await page.locator('.community-main-container').boundingBox();
+  expect(form.y).toBeGreaterThanOrEqual(hero.y + hero.height);
+  expect(form.x).toBeGreaterThanOrEqual(container.x);
+  expect(form.x + form.width).toBeLessThanOrEqual(container.x + container.width);
+  await noOverflow(page);
+  await page.screenshot({ path: testInfo.outputPath('community-search.png'), fullPage: true });
+  await search.fill('no matching discussion');
+  await expect(page.getByText(post.title, { exact: true })).toHaveCount(0);
+  await search.fill('');
+  await expect(page.getByText(post.title, { exact: true })).toBeVisible();
+});
+
+test('directory filters and service errors have usable responsive controls', async ({ page, isMobile }, testInfo) => {
+  for (const [path, panel] of [['/jobs', '.jobs-sidebar-filters'], ['/academy', '.academy-sidebar-filters'], ['/schemes', '.scheme-sidebar-filters-box']]) {
+    await page.goto(path);
+    if (isMobile && path !== '/schemes') await page.locator('.btn-mobile-filter-toggle').click();
+    await expect(page.locator(panel)).toBeVisible();
+    await noOverflow(page);
+    if (path !== '/schemes') {
+      const checkbox = page.locator(panel).getByRole('checkbox').first();
+      await checkbox.check();
+      await expect(checkbox).toBeChecked();
+      await page.locator(panel).getByRole('button', { name: 'Reset All' }).click();
+      await expect(checkbox).not.toBeChecked();
+    }
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await page.screenshot({ path: testInfo.outputPath(`${path.slice(1)}-filters.png`), fullPage: true });
+  }
+  await page.route('**/api/courses?*', route => route.fulfill({ status: 503, json: { message: 'Temporarily unavailable' } }));
+  await page.goto('/academy');
+  await expect(page.locator('.page-feedback')).toBeVisible();
+  await expect(page.locator('.page-feedback button')).toBeVisible();
+  await noOverflow(page);
+  await page.route('**/api/courses?*', route => route.fulfill({ json: { success: true, courses: [] } }));
+  await page.locator('.page-feedback').getByRole('button', { name: 'Retry' }).click();
+  await expect(page.locator('.page-feedback')).toHaveCount(0);
 });

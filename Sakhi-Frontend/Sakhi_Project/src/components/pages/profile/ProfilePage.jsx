@@ -86,7 +86,7 @@ export function ProfilePage() {
 
             <main className="profile-container">
                 {savedMsg && <div className="profile-toast" role="status">{savedMsg}</div>}
-                {user && !preferencesReady && <button type="button" onClick={() => setReload((value) => value + 1)}>Reload preferences</button>}
+                {user && !preferencesReady && <button className="sakhi-btn sakhi-btn-secondary" type="button" onClick={() => setReload((value) => value + 1)}>Reload preferences</button>}
 
                 {/* Profile Card Header */}
                 <section className="profile-card hero-card">

@@ -1,3 +1,4 @@
+import { PageNotice } from '../../PageNotice';
 import { useAccount } from '../../account/accountContext';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -349,10 +350,7 @@ export function JobsPage() {
 
                         {/* Error Alert */}
                         {error && (
-                            <div className="jobs-error-alert">
-                                <p>{error}</p>
-                                <button onClick={() => setRetry(r => r + 1)} className="btn-retry">Retry</button>
-                            </div>
+                            <PageNotice onRetry={() => setRetry(r => r + 1)}>{error}</PageNotice>
                         )}
 
                         {/* Skeleton Loading State */}

@@ -1,3 +1,4 @@
+import { PageNotice } from '../../PageNotice';
 import { useAccount } from '../../account/accountContext';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -8,7 +9,7 @@ import { SortControls } from '../../community/SortControls';
 import { PostFeed } from '../../community/PostFeed';
 import { CommunitySidebar } from '../../community/CommunitySidebar';
 import { fetchPosts, likePost, unlikePost, bookmarkPost, unbookmarkPost } from '../../../services/communityService';
-import { FiPlus, FiZap, FiBookmark } from 'react-icons/fi';
+import { FiPlus, FiZap, FiBookmark, FiSearch } from 'react-icons/fi';
 import './CommunityPage.css';
 
 export function CommunityPage() {
@@ -157,9 +158,6 @@ export function CommunityPage() {
 
       {/* Header */}
       <HomeHeader pageTitle="Community" />
-      <label className="activity-page">Search discussions<input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} /></label>
-      {loading && <p role="status">Loading discussions…</p>}
-      {loadError && <p role="alert">{loadError} <button onClick={() => setRetry(r => r + 1)}>Retry</button></p>}
 
       {/* Hero Banner */}
       <div className="community-hero-banner">
@@ -181,6 +179,15 @@ export function CommunityPage() {
 
       {/* Main Container */}
       <div className="community-main-container">
+        <div className="community-search" role="search" aria-label="Community discussions">
+          <label htmlFor="community-search-input">Search discussions</label>
+          <div className="community-search-field">
+            <FiSearch aria-hidden="true" />
+            <input id="community-search-input" type="search" placeholder="Search topics, questions, or stories…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+          </div>
+        </div>
+        {loading && <p className="community-feed-notice" role="status">Loading discussions…</p>}
+        {loadError && <PageNotice onRetry={() => setRetry(r => r + 1)}>{loadError}</PageNotice>}
         {/* Sort & Filter Controls */}
         <SortControls
           sortBy={sortBy}

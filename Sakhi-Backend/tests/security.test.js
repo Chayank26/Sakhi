@@ -42,7 +42,7 @@ test('HTTP origin allowlist, preflight, security headers and real 404s', async t
 });
 test('production CORS does not trust local development origins', async t => {
     const base = await serve(t, createApp({ env: { ...environment, NODE_ENV: 'production' } }));
-    assert.equal((await fetch(base + '/', { headers: { Origin: 'http://localhost:5173' } })).status, 403);
+    for (const origin of ['http://localhost:5173', 'http://localhost:5175', 'http://127.0.0.1:5175']) assert.equal((await fetch(base + '/', { headers: { Origin: origin } })).status, 403);
 });
 test('HTTP parser rejects malformed, excessive and unsupported bodies without leaking internals', async t => {
     const base = await serve(t, createApp({ env: environment }));
@@ -150,4 +150,17 @@ test('patched Nodemailer compiles notification HTML safely without sending email
     assert.equal(result.success, true);
     assert.match(compiled.html, /&lt;script&gt;bad&lt;\/script&gt;/);
     assert.doesNotMatch(compiled.html, /<script>|<img src=x>/);
+});
+
+
+test('development accepts the configured Vite port including authenticated preflights', async t => {
+    const base = await serve(t, createApp({ env: environment }));
+    for (const origin of ['http://localhost:5175', 'http://127.0.0.1:5175']) {
+        const response = await fetch(base + '/', { headers: { Origin: origin } });
+        assert.equal(response.status, 200);
+        assert.equal(response.headers.get('access-control-allow-origin'), origin);
+        const preflight = await fetch(base + '/api/me', { method: 'OPTIONS', headers: { Origin: origin, 'Access-Control-Request-Method': 'GET', 'Access-Control-Request-Headers': 'authorization,content-type' } });
+        assert.equal(preflight.status, 204);
+        assert.equal(preflight.headers.get('access-control-allow-origin'), origin);
+    }
 });

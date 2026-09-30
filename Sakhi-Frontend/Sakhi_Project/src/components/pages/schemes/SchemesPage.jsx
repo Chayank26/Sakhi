@@ -1,3 +1,4 @@
+import { PageNotice } from '../../PageNotice';
 import { useAccount } from '../../account/accountContext';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -93,7 +94,7 @@ export function SchemesPage() {
 
       {/* Main Header */}
       <HomeHeader pageTitle="Government Schemes" />
-      {loadError && <p role="alert">{loadError} <button onClick={() => setRetry(r => r + 1)}>Retry</button></p>}
+      {loadError && <PageNotice onRetry={() => setRetry(r => r + 1)}>{loadError}</PageNotice>}
 
       {/* Hero Banner */}
       <div className="schemes-hero-banner">
