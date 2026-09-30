@@ -9,7 +9,7 @@ const empty = { saved: { jobs: [], courses: [], schemes: [] }, applications: [],
 
 export function AccountProvider({ children }) {
     const [user, setUser] = useState(null); //checks if the firebase has an authenticated user
-    const [ready, setReady] = useState(false);
+    const [ready, setReady] = useState(false); //checks 
     const [data, setData] = useState(empty);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');

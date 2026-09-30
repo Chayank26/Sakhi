@@ -953,3 +953,43 @@
 .ai-workspace { --text-muted: #4f6270; }
 .ai-workspace .ai-new-chat { background: var(--brand-orange-active); }
 .ai-workspace .ai-new-chat:hover:not(:disabled) { background: var(--brand-orange-active); }
+
+/* The shared site header remains outside the independently scrolling chat. */
+.ai-page-shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100dvh;
+  min-height: 520px;
+  padding-bottom: 20px;
+  gap: 20px;
+}
+.ai-page-shell > .home-header-shell { position: relative; top: 0; }
+.ai-page-shell .ai-workspace {
+  width: min(1200px, calc(100% - 40px));
+  height: auto;
+  min-height: 0;
+  margin: 0 auto;
+  border: 1px solid var(--border-outer);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+.ai-page-shell .ai-conversation-header { min-height: 80px; gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--border-outer); }
+.ai-page-shell .ai-header-actions { gap: 8px; }
+.ai-page-shell .ai-conversation-heading h1 { line-height: 1.4; }
+.ai-page-shell .ai-prompt-card { border-radius: var(--radius-md); }
+.ai-page-shell .ai-composer { border-radius: 20px; }
+.ai-page-shell .ai-welcome { padding-top: 24px; }
+.ai-page-shell .ai-composer-area { padding-bottom: 16px; }
+@media (max-width: 760px) {
+  .ai-page-shell { gap: 12px; padding-bottom: 12px; min-height: 460px; }
+  .ai-page-shell .ai-workspace { width: calc(100% - 24px); border-radius: 20px; }
+  .ai-page-shell .ai-conversation-header { padding: 12px; min-height: 72px; gap: 10px; }
+  .ai-page-shell .ai-conversation-heading { flex: 1; min-width: 0; }
+  .ai-page-shell .ai-conversation-heading h1 { font-size: .85rem; }
+  .ai-page-shell .ai-overline { letter-spacing: .1em; }
+  .ai-page-shell .ai-composer-area { padding: 10px; }
+}
+.ai-page-shell .home-header-shell .nav-pill.active { background: var(--brand-orange-active); }
+.ai-page-shell { grid-template-columns: minmax(0, 1fr); }
+.ai-page-shell .ai-workspace { min-width: 0; }
+.ai-page-shell .ai-conversation-header, .ai-page-shell .ai-composer-area { flex-shrink: 0; }

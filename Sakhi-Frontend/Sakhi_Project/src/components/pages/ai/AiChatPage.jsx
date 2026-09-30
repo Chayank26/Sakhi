@@ -8,6 +8,7 @@ import { buildChatTranscript } from './chatExport';
 import { MAX_CHAT_LENGTH, safeChatRoute, shouldSendOnEnter } from './chatUiUtils';
 import { AiCardsContainer } from './AiChatCards';
 import { ChatSessionSidebar } from './ChatSessionSidebar';
+import { HomeHeader } from '../home/HomeHeader';
 import './AiChatPage.css';
 
 const prompts = [
@@ -84,7 +85,9 @@ export function AiChatPage() {
   };
   const sidebarProps = { sessions, activeSessionId, ready, signedIn: Boolean(user), onNewChat: startNew, onSelectSession: choose, onClose: closeHistory };
 
-  return <main className="ai-workspace">
+  return <div className="ai-page-shell">
+    <HomeHeader pageTitle="Sakhi AI" />
+    <main className="ai-workspace">
     <div className="ai-desktop-sidebar"><ChatSessionSidebar {...sidebarProps} /></div>
     <dialog className="ai-history-dialog" ref={drawer} aria-label="Chat history" onKeyDown={trapHistoryFocus} onClick={event => { if (event.target === event.currentTarget) closeHistory(); }}>
       <ChatSessionSidebar {...sidebarProps} />
@@ -93,7 +96,7 @@ export function AiChatPage() {
       <header className="ai-conversation-header">
         <button ref={historyButton} type="button" className="ai-icon-button ai-history-toggle" onClick={() => drawer.current?.showModal()} aria-label="Open chat history" aria-haspopup="dialog"><FiMenu /></button>
         <div className="ai-conversation-heading"><span className="ai-overline">YOUR EVERYDAY GUIDE</span><h1>{currentSession?.title || 'A fresh start with Sakhi'}</h1></div>
-        <div className="ai-header-actions"><Link to="/home" className="ai-dashboard-link">Dashboard <FiArrowUpRight /></Link>
+        <div className="ai-header-actions">
           <button type="button" className="ai-icon-button" onClick={download} disabled={!messages.some(message => !message.failed && !message.isError)} aria-label="Export conversation" title="Export conversation"><FiDownload /></button>
           <button type="button" className="ai-icon-button" onClick={startNew} disabled={!ready} aria-label="New conversation" title="New conversation"><FiPlus /></button>
         </div>
@@ -140,5 +143,6 @@ export function AiChatPage() {
         <p className="ai-composer-note">A starting point, not a final answer. Verify details with the original source. <Link to="/support">Need help?</Link></p>
       </div>
     </section>
-  </main>;
+  </main>
+  </div>;
 }
