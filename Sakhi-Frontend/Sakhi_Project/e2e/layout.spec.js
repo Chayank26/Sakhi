@@ -93,19 +93,17 @@ test('profile and authoring forms align fields and wrap actions on small screens
 });
 
 
-test('incomplete signed-in account responses keep directories usable and support retry', async ({ page }) => {
+test('incomplete signed-in account responses keep directories usable without a global banner', async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await signIn(page, { success: true, profile: {} });
-  await expect(page.locator('.account-notice')).toContainText('account service returned incomplete data');
+  await expect(page.locator('.account-notice')).toHaveCount(0);
   for (const path of ['/academy', '/jobs', '/schemes']) {
     await page.locator(`.home-header-shell a[href="${path}"]`).first().click();
     await expect(page).toHaveURL(new RegExp(`${path}$`));
     await expect(page.getByText('This page couldn’t load.')).toHaveCount(0);
     await expect(page.locator('.home-header-shell')).toBeVisible();
   }
-  await page.route('**/api/me', route => route.fulfill({ json: { saved: { jobs: [], courses: [], schemes: [] }, applications: [], enrollments: [], profile: {} } }));
-  await page.locator('.account-notice').getByRole('button', { name: 'Retry' }).click();
   await expect(page.locator('.account-notice')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

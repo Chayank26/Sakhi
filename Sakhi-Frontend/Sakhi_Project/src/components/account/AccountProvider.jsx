@@ -70,8 +70,3 @@ export function RequireAccount() {
     if (!ready) return <p role="status">Checking your account…</p>;
     return user ? <Outlet key={user.uid} /> : <Navigate to="/login" replace state={{ returnTo: location.pathname + location.search }} />;
 }
-
-export function AccountNotice() {
-    const { error, loading, refresh } = useAccount();
-    return error ? <div className="account-notice" role="alert">{error} <button onClick={refresh}>Retry</button></div> : loading ? <p className="account-notice" role="status">Updating account activity…</p> : null;
-}

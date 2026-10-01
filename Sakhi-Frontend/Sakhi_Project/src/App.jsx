@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { RouteErrorBoundary } from './components/RouteErrorBoundary'
 import './App.css'
-import { AccountProvider, RequireAccount, AccountNotice } from './components/account/AccountProvider'
+import { AccountProvider, RequireAccount } from './components/account/AccountProvider'
 const JobApplicationsPage = lazy(() => import('./components/pages/jobs/JobApplicationsPage').then(module => ({ default: module.JobApplicationsPage })))
 const JobActivityPage = lazy(() => import('./components/pages/jobs/JobActivityPage').then(module => ({ default: module.JobActivityPage })))
 const LearnCoursePage = lazy(() => import('./components/pages/academy/LearnCoursePage').then(module => ({ default: module.LearnCoursePage })))
@@ -32,7 +32,6 @@ function App() {
   return (
     <BrowserRouter>
       <AccountProvider>
-        <AccountNotice />
         <RouteErrorBoundary>
           <Suspense fallback={<main className="route-loading" role="status">Getting things ready…</main>}>
           <Routes>
