@@ -9,12 +9,12 @@
   --bg-canvas: #C7E0E5;
   --bg-grid-line: rgba(255, 255, 255, 0.55);
 
-  /* Containers & Surfaces (Two-Tone Card Architecture) */
-  --bg-outer-card: #FAF0E6;
-  --bg-outer-card-hover: #F8ECE0;
+  /* Light surfaces that blend with the blue canvas. */
+  --bg-outer-card: rgba(229, 244, 250, 0.74);
+  --bg-outer-card-hover: rgba(237, 248, 252, 0.88);
   --bg-inner-card: #FFFFFF;
   --bg-header-pill: rgba(240, 247, 250, 0.94);
-  --bg-chip: #F4ECE1;
+  --bg-chip: #E8F2F5;
 
   /* Brand Accent - Terracotta Red-Orange */
   --brand-orange: #EE5029;
@@ -45,12 +45,12 @@
   --border-focus: #EE5029;
 
   /* Radii */
-  --radius-xs: 6px;
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
-  --radius-pill: 9999px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --radius-xl: 6px;
+  --radius-pill: 6px;
 
   /* Shadows (Soft, Natural Ambient Shadows) */
   --shadow-xs: 0 2px 6px rgba(35, 40, 45, 0.03);

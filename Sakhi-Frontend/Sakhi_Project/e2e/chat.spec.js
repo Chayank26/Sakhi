@@ -50,7 +50,9 @@ test('welcome and text-only messages are accessible and responsive', async ({ pa
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('conversation.png'), fullPage: true });
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Export conversation' }).click();
+  await page.getByRole('button', { name: 'Open chat history' }).click();
+  await page.getByRole('button', { name: /^Options for/ }).first().click();
+  await page.getByRole('button', { name: 'Download', exact: true }).click();
   expect((await download).suggestedFilename()).toMatch(/^Sakhi_Chat_.*\.txt$/);
 });
 
@@ -95,7 +97,7 @@ test('HTTP retry delay is respected and retry keeps one user turn', async ({ pag
   expect(requests[0].clientTurnId).toBe(requests[1].clientTurnId);
 });
 
-test('stopping and switching conversations do not mix replies', async ({ page, isMobile }) => {
+test('stopping and switching conversations do not mix replies', async ({ page }) => {
   let release;
   let started;
   const requestStarted = new Promise(resolve => { started = resolve; });
@@ -105,23 +107,25 @@ test('stopping and switching conversations do not mix replies', async ({ page, i
   await send(page, 'My first conversation');
   await requestStarted;
   await expect(page.getByRole('button', { name: 'Stop response', exact: true })).toBeVisible();
-  await page.locator('.ai-header-actions').getByRole('button', { name: 'New conversation' }).click();
+  await page.getByRole('button', { name: 'Open chat history' }).click();
+  await page.getByRole('button', { name: 'New conversation', exact: true }).click();
   await expect(page.getByText('A response is running in another conversation.')).toBeVisible();
   await page.locator('.ai-composer').getByRole('button', { name: 'Stop response' }).click();
   release();
   await expect(page.getByRole('button', { name: 'Send message', exact: true })).toBeVisible();
-  if (isMobile) await page.getByRole('button', { name: 'Open chat history' }).click();
-  await page.getByRole('navigation', { name: 'Conversations' }).getByRole('button', { name: /My first conversation/ }).click();
+  await page.getByRole('button', { name: 'Open chat history' }).click();
+  await page.getByRole('navigation', { name: 'Conversations' }).locator('.chat-session-item').filter({ hasText: /My first conversation/ }).click();
   await expect(page.getByRole('article', { name: 'Response issue' })).toContainText('Response stopped');
   await expect(page.getByText('Late response', { exact: true })).toHaveCount(0);
 });
 
-test('history is searchable and the mobile drawer restores keyboard focus', async ({ page, isMobile }) => {
+test('history is searchable and the mobile drawer restores keyboard focus', async ({ page }) => {
   await openChat(page);
   await send(page, 'A memorable question');
   await expect(page.getByRole('article', { name: 'Sakhi response', exact: true })).toBeVisible();
-  await page.locator('.ai-header-actions').getByRole('button', { name: 'New conversation' }).click();
-  if (isMobile) {
+  await page.getByRole('button', { name: 'Open chat history' }).click();
+  await page.getByRole('button', { name: 'New conversation', exact: true }).click();
+  {
     await page.getByRole('button', { name: 'Open chat history' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -137,7 +141,7 @@ test('history is searchable and the mobile drawer restores keyboard focus', asyn
   await page.getByRole('textbox', { name: 'Search conversations' }).fill('missing');
   await expect(page.getByText('No matching conversations.')).toBeVisible();
   await page.getByRole('textbox', { name: 'Search conversations' }).fill('memorable');
-  await page.getByRole('navigation', { name: 'Conversations' }).getByRole('button', { name: /A memorable question/ }).click();
+  await page.getByRole('navigation', { name: 'Conversations' }).locator('.chat-session-item').filter({ hasText: /A memorable question/ }).click();
   await expect(page.getByRole('article', { name: 'Your message' })).toContainText('A memorable question');
 });
 
@@ -146,7 +150,8 @@ test('prompt deep links send once and guest history clears on reload', async ({ 
   await page.route('**/api/ai/chat', route => { requests++; return route.fulfill({ json: { message: 'Welcome from your link.' } }); });
   await page.goto('/ai?prompt=Help%20me%20learn');
   await expect(page.getByText('Welcome from your link.', { exact: true })).toBeVisible();
-  await page.locator('.ai-header-actions').getByRole('button', { name: 'New conversation' }).click();
+  await page.getByRole('button', { name: 'Open chat history' }).click();
+  await page.getByRole('button', { name: 'New conversation', exact: true }).click();
   await expect(page.getByRole('heading', { name: /What’s your next/ })).toBeVisible();
   expect(requests).toBe(1);
   await page.goto('/ai');
@@ -154,7 +159,7 @@ test('prompt deep links send once and guest history clears on reload', async ({ 
   await expect(page.getByRole('article')).toHaveCount(0);
 });
 
-test('signed-in conversations and account page layouts survive reload', async ({ page, isMobile }, testInfo) => {
+test('signed-in conversations and account page layouts survive reload', async ({ page }, testInfo) => {
   const user = { localId: 'browser-test-user', email: 'browser@example.test', displayName: 'Browser Test', emailVerified: true };
   const now = Math.floor(Date.now() / 1000);
   const encode = value => Buffer.from(JSON.stringify(value)).toString('base64url');
@@ -181,7 +186,7 @@ test('signed-in conversations and account page layouts survive reload', async ({
     return route.fulfill({ json: { rating } });
   });
   await openChat(page);
-  if (isMobile) await page.getByRole('button', { name: 'Open chat history' }).click();
+  await page.getByRole('button', { name: 'Open chat history' }).click();
   await page.getByRole('link', { name: 'Sign in to save chats' }).click();
   await page.getByPlaceholder('you@example.com').fill(user.email);
   await page.getByPlaceholder('Enter your password').fill('fixture-password');
@@ -195,7 +200,7 @@ test('signed-in conversations and account page layouts survive reload', async ({
     await page.goto(path);
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
     await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(199, 224, 229)');
-    await expect(page.locator('.activity-page')).toHaveCSS('background-color', 'rgb(250, 240, 230)');
+    await expect(page.locator('.activity-page')).toHaveCSS('background-color', 'rgba(229, 244, 250, 0.74)');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     if (path === '/settings') await page.screenshot({ path: testInfo.outputPath('settings.png'), fullPage: true });
   }
@@ -268,4 +273,32 @@ test('message bubbles fit short content and align user right and assistant left'
   expect(Math.abs(right.x + right.width - list.x - list.width)).toBeLessThan(2);
   expect(left.width).toBeLessThan(list.width * .9);
   expect(right.width).toBeLessThan(list.width * .9);
+});
+
+test('history is hidden initially and conversation menus rename and pin chats', async ({ page }) => {
+  await openChat(page);
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  await expect(page.locator('.ai-conversation-header')).toHaveCount(0);
+  await send(page, 'My conversation');
+  await expect(page.getByRole('article', { name: 'Sakhi response', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Open chat history' }).click();
+  await page.getByRole('button', { name: /^Options for/ }).click();
+  await page.getByRole('button', { name: 'Rename', exact: true }).click();
+  await page.getByLabel('Conversation name').fill('Career plans');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.locator('.chat-session-item strong')).toHaveText('Career plans');
+  await page.getByRole('button', { name: 'Options for Career plans' }).click();
+  await page.getByRole('button', { name: 'Pin', exact: true }).click();
+  await page.getByRole('button', { name: 'Close chat history' }).click();
+  await page.getByRole('button', { name: 'Open chat history' }).click();
+  await page.getByRole('button', { name: 'Options for Career plans' }).click();
+  await expect(page.getByRole('button', { name: 'Unpin', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Download', exact: true }).focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(page.getByRole('button', { name: 'Unpin', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Options for Career plans' })).toBeFocused();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.locator('.ai-session-menu')).toBeHidden();
+
 });

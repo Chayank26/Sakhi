@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { FiArrowUp, FiArrowDown, FiPlus, FiMenu, FiBriefcase, FiBookOpen, FiFileText, FiArrowUpRight, FiDownload, FiSquare, FiRefreshCw, FiAlertCircle, FiCompass } from 'react-icons/fi';
+import { FiArrowUp, FiArrowDown, FiMenu, FiBriefcase, FiBookOpen, FiFileText, FiArrowUpRight, FiSquare, FiRefreshCw, FiAlertCircle } from 'react-icons/fi';
 import { useAccount } from '../../account/accountContext';
 import { useAiConversations } from './useAiConversations';
 import { buildChatTranscript } from './chatExport';
@@ -30,7 +30,6 @@ export function AiChatPage() {
   const historyButton = useRef(null);
   const stickToBottom = useRef(true);
   const processedPrompt = useRef(null);
-  const currentSession = sessions.find(session => session.id === activeSessionId);
   const setText = useCallback(value => setDraft({ accountKey, text: value }), [accountKey]);
 
   useEffect(() => {
@@ -69,29 +68,22 @@ export function AiChatPage() {
   const closeHistory = () => { drawer.current?.close(); historyButton.current?.focus(); };
   const choose = id => { stickToBottom.current = true; setShowLatest(false); selectSession(id); closeHistory(); };
   const startNew = () => { stickToBottom.current = true; setShowLatest(false); newChat(); setText(''); setUtilityNotice(''); closeHistory(); textarea.current?.focus(); };
-  const download = () => {
-    const url = URL.createObjectURL(new Blob([buildChatTranscript(messages)], { type: 'text/plain;charset=utf-8' }));
+  const download = session => {
+    const url = URL.createObjectURL(new Blob([buildChatTranscript(session.messages)], { type: 'text/plain;charset=utf-8' }));
     const link = document.createElement('a'); link.href = url; link.download = `Sakhi_Chat_${new Date().toISOString().slice(0, 10)}.txt`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
     setUtilityNotice('Conversation exported.');
   };
-  const sidebarProps = { sessions, activeSessionId, ready, signedIn: Boolean(user), onNewChat: startNew, onSelectSession: choose, onClose: closeHistory };
+  const sidebarProps = { sessions, activeSessionId, ready, signedIn: Boolean(user), onNewChat: startNew, onSelectSession: choose, onClose: closeHistory, onDownload: download, accountKey };
 
   return <div className="ai-page-shell">
     <HomeHeader pageTitle="AI" />
     <main className="ai-workspace">
-    <div className="ai-desktop-sidebar"><ChatSessionSidebar {...sidebarProps} /></div>
+    <h1 className="ai-sr-only">Sakhi AI chat</h1>
     <dialog className="ai-history-dialog" ref={drawer} aria-label="Chat history" onKeyDown={trapHistoryFocus} onClick={event => { if (event.target === event.currentTarget) closeHistory(); }}>
-      <ChatSessionSidebar {...sidebarProps} />
+      <ChatSessionSidebar key={accountKey} {...sidebarProps} />
     </dialog>
     <section className="ai-conversation" aria-label="Sakhi AI conversation">
-      <header className="ai-conversation-header">
-        <button ref={historyButton} type="button" className="ai-icon-button ai-history-toggle" onClick={() => drawer.current?.showModal()} aria-label="Open chat history" aria-haspopup="dialog"><FiMenu /></button>
-        <div className="ai-conversation-heading"><span className="ai-overline">YOUR EVERYDAY GUIDE</span><h1>{currentSession?.title || 'A fresh start with Sakhi'}</h1></div>
-        <div className="ai-header-actions">
-          <button type="button" className="ai-icon-button" onClick={download} disabled={!messages.some(message => !message.failed && !message.isError)} aria-label="Export conversation" title="Export conversation"><FiDownload /></button>
-          <button type="button" className="ai-icon-button" onClick={startNew} disabled={!ready} aria-label="New conversation" title="New conversation"><FiPlus /></button>
-        </div>
-      </header>
+      <div className="ai-history-launcher"><button ref={historyButton} type="button" className="ai-icon-button" onClick={() => drawer.current?.showModal()} aria-label="Open chat history" aria-haspopup="dialog"><FiMenu /></button></div>
       <div className="ai-notice-region" aria-live="polite" role="status">
         {loadError && <p className="ai-notice ai-notice-error"><FiAlertCircle />{loadError}<button disabled={busy} onClick={reloadSessions}>Retry loading</button></p>}
         {(notice || utilityNotice) && <p className="ai-notice">{notice || utilityNotice}</p>}
@@ -99,7 +91,7 @@ export function AiChatPage() {
       </div>
       <div ref={viewport} className="ai-message-viewport" role="region" aria-label="Messages" tabIndex={0} onScroll={event => { const node = event.currentTarget; const nearBottom = node.scrollHeight - node.scrollTop - node.clientHeight < 100; stickToBottom.current = nearBottom; setShowLatest(messages.length > 0 && !nearBottom); }}>
         {!messages.length && <div className="ai-welcome">
-          <div className="ai-welcome-emblem" aria-hidden="true"><FiCompass /></div><span className="ai-overline">SMALL STEPS. NEW POSSIBILITIES.</span>
+          <span className="ai-overline">SMALL STEPS. NEW POSSIBILITIES.</span>
           <h2>What’s your next<br /><em>chapter?</em></h2><p>A new role, a new skill, or a little direction.<br className="ai-desktop-break" /> Let’s find your way forward, together.</p>
           <div className="ai-prompt-grid">{prompts.map(({ icon: Icon, title, detail, prompt, tag }) => <button className="ai-prompt-card" type="button" key={tag} onClick={() => submit(prompt)} disabled={!ready || busy}>
             <span className="ai-prompt-top"><Icon /><span>{tag}</span><FiArrowUpRight /></span><strong>{title}</strong><span>{detail}</span>

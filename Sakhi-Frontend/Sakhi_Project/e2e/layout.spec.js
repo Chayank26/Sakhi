@@ -36,7 +36,7 @@ test('direct discussion links load cards, aligned comments and a contained repor
   const form = await page.locator('.add-comment-form').boundingBox();
   const input = await page.locator('.add-comment-textarea').boundingBox();
   expect(Math.abs(form.width - input.width)).toBeLessThan(2);
-  await expect(page.locator('.community-post-card')).toHaveCSS('background-color', 'rgb(250, 240, 230)');
+  await expect(page.locator('.community-post-card')).toHaveCSS('background-color', 'rgba(229, 244, 250, 0.74)');
   await noOverflow(page);
   await page.screenshot({ path: testInfo.outputPath('discussion.png'), fullPage: true });
   await page.getByTitle('Report Comment').click();

@@ -452,7 +452,7 @@
 
 /* Certificate Highlight Box */
 :where(.course-details-wrapper, .course-details-loading, .course-details-error) .cert-highlight-box {
-  background: linear-gradient(135deg, #FAF0E6 0%, #F5EBE1 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, .8), rgba(232, 242, 245, .65));
   border: 1.5px solid var(--brand-orange-border);
 }
 
